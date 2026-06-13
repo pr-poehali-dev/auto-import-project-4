@@ -259,8 +259,8 @@ export default function Index() {
               <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 py-20">
                 <div className="max-w-xl">
                   <div className="section-tag mb-6 anim-up"><span className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--gold))] inline-block" />B2B поставки · Япония · Корея · Гонконг</div>
-                  <h1 className="font-['Montserrat'] font-black leading-[0.95] mb-5 anim-up d1 navy" style={{ fontSize: "clamp(2.6rem, 6vw, 4.8rem)" }}>
-                    ПОСТАВКА<br /><span className="text-[hsl(var(--red))]">МАШИНО</span><br />КОМПЛЕКТОВ
+                  <h1 className="font-['Montserrat'] font-black leading-[0.95] mb-5 anim-up d1 navy whitespace-nowrap" style={{ fontSize: "clamp(1.7rem, 4vw, 3.4rem)" }}>
+                    ПОСТАВКА<br /><span className="text-[hsl(var(--red))]">МАШИНОКОМПЛЕКТОВ</span>
                   </h1>
                   <p className="text-[hsl(var(--navy)/0.55)] text-base leading-relaxed mb-9 anim-up d2">Partcore Logistics поставляет автомобили с азиатских аукционов для разборщиков и автомагазинов. Опт от 3 авто, полное таможенное сопровождение.</p>
                   <div className="flex flex-col sm:flex-row gap-3 anim-up d3">
