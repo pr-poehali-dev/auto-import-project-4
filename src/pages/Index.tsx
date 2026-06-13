@@ -140,7 +140,7 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 type Page = "home" | "directions" | "services" | "how" | "contacts" | "login" | "register" | "cabinet" | "origin";
-type CabinetTab = "orders" | "new_order" | "auctions" | "documents" | "profile";
+type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile";
 
 // ════════════════════════════════════════════════════════════
 export default function Index() {
@@ -794,6 +794,7 @@ export default function Index() {
               <div className="flex gap-1 flex-wrap mb-8 border-b border-[hsl(220_15%_88%)]">
                 {([
                   { id: "orders", label: "Мои заявки", icon: "ClipboardList" },
+                  { id: "active_orders", label: "Заказы", icon: "Package" },
                   { id: "new_order", label: "Новая заявка", icon: "Plus" },
                   { id: "auctions", label: "Аукционы", icon: "Globe" },
                   { id: "documents", label: "Документы", icon: "FileText" },
@@ -806,23 +807,25 @@ export default function Index() {
                 ))}
               </div>
 
-              {/* ── Мои заявки ── */}
-              {cabinetTab === "orders" && (
+              {/* ── Мои заявки (новые, на рассмотрении) ── */}
+              {cabinetTab === "orders" && (() => {
+                const list = orders.filter((o) => o.status === "new");
+                return (
                 <div>
                   {ordersLoading ? (
                     <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.4)]">
                       <Icon name="Loader" size={20} className="animate-spin" />Загружаем заявки...
                     </div>
-                  ) : orders.length === 0 ? (
+                  ) : list.length === 0 ? (
                     <div className="text-center py-16">
                       <Icon name="ClipboardList" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.2)]" />
-                      <p className="font-['Montserrat'] font-bold navy mb-2">Заявок пока нет</p>
-                      <p className="text-[hsl(var(--navy)/0.45)] text-sm mb-6">Создайте первую заявку на подбор автомобилей</p>
+                      <p className="font-['Montserrat'] font-bold navy mb-2">Новых заявок нет</p>
+                      <p className="text-[hsl(var(--navy)/0.45)] text-sm mb-6">Создайте заявку на подбор — она появится здесь до начала работы</p>
                       <button onClick={() => setCabinetTab("new_order")} className="px-6 py-3 btn-navy rounded-sm">Создать заявку</button>
                     </div>
                   ) : (
                     <div className="flex flex-col gap-3">
-                      {orders.map((o) => (
+                      {list.map((o) => (
                         <div key={o.id} className="card-light rounded-sm p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                           <div className="flex items-start gap-4">
                             <div className="w-10 h-10 bg-[hsl(var(--navy)/0.06)] rounded-sm flex items-center justify-center flex-shrink-0">
@@ -846,7 +849,83 @@ export default function Index() {
                     </div>
                   )}
                 </div>
-              )}
+                );
+              })()}
+
+              {/* ── Заказы (в работе и завершённые) ── */}
+              {cabinetTab === "active_orders" && (() => {
+                const list = orders.filter((o) => o.status !== "new");
+                return (
+                <div>
+                  {ordersLoading ? (
+                    <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.4)]">
+                      <Icon name="Loader" size={20} className="animate-spin" />Загружаем заказы...
+                    </div>
+                  ) : list.length === 0 ? (
+                    <div className="text-center py-16">
+                      <Icon name="Package" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.2)]" />
+                      <p className="font-['Montserrat'] font-bold navy mb-2">Активных заказов нет</p>
+                      <p className="text-[hsl(var(--navy)/0.45)] text-sm">Здесь появятся заказы, как только менеджер возьмёт заявку в работу</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      {list.map((o) => {
+                        const steps = [
+                          { key: "processing", label: "В обработке" },
+                          { key: "auction", label: "Торги" },
+                          { key: "shipped", label: "Отгрузка" },
+                          { key: "customs", label: "Таможня" },
+                          { key: "delivered", label: "Доставка" },
+                          { key: "done", label: "Готово" },
+                        ];
+                        const order = ["processing", "auction", "shipped", "customs", "delivered", "done"];
+                        const curIdx = order.indexOf(o.status);
+                        return (
+                        <div key={o.id} className="card-light rounded-sm p-5">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+                            <div className="flex items-start gap-4">
+                              <div className="w-10 h-10 bg-[hsl(var(--navy)/0.06)] rounded-sm flex items-center justify-center flex-shrink-0">
+                                <Icon name="Car" size={18} className="text-[hsl(var(--navy))]" />
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-['Montserrat'] font-bold text-sm navy">{o.order_number}</span>
+                                  <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${STATUS_COLOR[o.status] || "bg-gray-100 text-gray-600"}`}>{o.status_label}</span>
+                                </div>
+                                <div className="text-[hsl(var(--navy)/0.6)] text-sm mt-0.5">
+                                  {[o.car_brand, o.car_model, o.car_year].filter(Boolean).join(" ")} · {o.origin}
+                                </div>
+                                <div className="text-[hsl(var(--navy)/0.35)] text-xs mt-1">
+                                  {o.quantity} шт.{o.budget ? ` · до ${o.budget.toLocaleString()} ₽` : ""} · {new Date(o.created_at).toLocaleDateString("ru")}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 sm:gap-2 pt-4 border-t border-[hsl(220_15%_90%)] overflow-x-auto">
+                            {steps.map((s, i) => {
+                              const reached = curIdx >= i;
+                              const isCurrent = curIdx === i;
+                              return (
+                                <div key={s.key} className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                                  <div className="flex flex-col items-center gap-1.5">
+                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${reached ? "bg-[hsl(var(--gold))] text-white" : "bg-[hsl(220_25%_94%)] text-[hsl(var(--navy)/0.3)]"}`}>
+                                      {reached ? <Icon name="Check" size={13} /> : <span className="text-[10px] font-bold">{i + 1}</span>}
+                                    </div>
+                                    <span className={`text-[10px] font-['Montserrat'] font-semibold whitespace-nowrap ${isCurrent ? "text-[hsl(var(--gold))]" : reached ? "text-[hsl(var(--navy))]" : "text-[hsl(var(--navy)/0.35)]"}`}>{s.label}</span>
+                                  </div>
+                                  {i < steps.length - 1 && <div className={`w-4 sm:w-8 h-0.5 ${curIdx > i ? "bg-[hsl(var(--gold))]" : "bg-[hsl(220_25%_90%)]"}`} />}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+                );
+              })()}
 
               {/* ── Новая заявка ── */}
               {cabinetTab === "new_order" && (
