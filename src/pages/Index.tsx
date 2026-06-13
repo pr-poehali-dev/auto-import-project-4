@@ -63,11 +63,6 @@ const STEPS = [
   { n: "03", title: "Проверка и отгрузка", desc: "Инспектируем авто, грузим в контейнер, оформляем документы." },
   { n: "04", title: "Таможня и доставка", desc: "Растаможиваем и доставляем до вашего склада по России." },
 ];
-const REVIEWS = [
-  { name: "Алексей В.", company: "АвтоРазбор Сибирь", text: "Работаем с Partcore уже 4 года. Стабильные поставки из Японии, ни разу не подвели по срокам.", stars: 5 },
-  { name: "Максим Т.", company: "ООО «Запчасти Юг»", text: "Начали с тестовой партии в 5 авто из Кореи. Сейчас берём от 15 штук в месяц. Реальные цены.", stars: 5 },
-  { name: "Дмитрий Н.", company: "ИП Николаев, Екатеринбург", text: "Подобрали 10 Hyundai по нашему ТЗ за 2 недели. Документы оформили без нашего участия.", stars: 5 },
-];
 const BRANDS = ["Toyota","Lexus","Honda","Nissan","Mazda","Mitsubishi","Subaru","Hyundai","Kia","Ssangyong","BMW","Mercedes-Benz","Audi","Volkswagen"];
 
 const STATUS_COLOR: Record<string, string> = {
@@ -76,7 +71,7 @@ const STATUS_COLOR: Record<string, string> = {
   customs: "bg-orange-100 text-orange-700", delivered: "bg-teal-100 text-teal-700", done: "bg-green-100 text-green-700",
 };
 
-type Page = "home" | "services" | "how" | "reviews" | "contacts" | "login" | "register" | "cabinet";
+type Page = "home" | "services" | "how" | "contacts" | "login" | "register" | "cabinet";
 type CabinetTab = "orders" | "new_order" | "auctions" | "documents" | "profile";
 
 // ════════════════════════════════════════════════════════════
@@ -179,7 +174,6 @@ export default function Index() {
     { id: "home" as Page, label: "Главная" },
     { id: "services" as Page, label: "Услуги" },
     { id: "how" as Page, label: "Как работаем" },
-    { id: "reviews" as Page, label: "Отзывы" },
     { id: "contacts" as Page, label: "Контакты" },
   ];
 
@@ -388,29 +382,6 @@ export default function Index() {
               </div>
             </div>
             <div className="mt-14"><button onClick={() => nav("contacts")} className="px-10 py-4 btn-navy rounded-sm">Начать сотрудничество</button></div>
-          </section>
-        )}
-
-        {/* ════ REVIEWS ════ */}
-        {page === "reviews" && (
-          <section className="min-h-screen py-14 px-5 sm:px-8 max-w-7xl mx-auto">
-            <div className="mb-12"><div className="section-tag mb-3">Клиенты</div><h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl">ОТЗЫВЫ ПАРТНЁРОВ</h1><div className="divider-navy mt-4" /></div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-14">
-              {REVIEWS.map((r, i) => (
-                <div key={i} className="card-light rounded-sm p-6 flex flex-col gap-4 relative overflow-hidden">
-                  <div className="absolute top-0 inset-x-0 h-1 bg-[hsl(var(--gold))]" />
-                  <div className="flex gap-0.5 pt-1">{Array.from({ length: r.stars }).map((_, j) => <span key={j} className="text-[hsl(var(--gold))] text-sm">★</span>)}</div>
-                  <p className="text-[hsl(var(--navy)/0.6)] text-sm leading-relaxed flex-1">«{r.text}»</p>
-                  <div><div className="font-['Montserrat'] font-bold text-sm navy">{r.name}</div><div className="text-[hsl(var(--navy)/0.38)] text-xs mt-0.5">{r.company}</div></div>
-                </div>
-              ))}
-            </div>
-            <div className="bg-[hsl(220_25%_97%)] rounded-sm p-8 border border-[hsl(220_15%_88%)] grid grid-cols-2 sm:grid-cols-4 gap-8 text-center mb-12">
-              {STATS.map(({ num, label }) => (
-                <div key={label}><div className="font-['Montserrat'] font-black text-3xl text-[hsl(var(--navy))]">{num}</div><div className="text-[hsl(var(--navy)/0.4)] text-xs mt-1.5">{label}</div></div>
-              ))}
-            </div>
-            <button onClick={() => nav("contacts")} className="px-10 py-4 btn-navy rounded-sm">Стать партнёром</button>
           </section>
         )}
 
