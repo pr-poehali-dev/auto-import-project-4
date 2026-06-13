@@ -61,6 +61,9 @@
     font-family: "Montserrat", sans-serif;
     color: hsl(var(--navy));
   }
+  [class*="font-['Montserrat']"] {
+    font-family: "Montserrat", "IBM Plex Sans", sans-serif !important;
+  }
 }
 
 @layer utilities {
