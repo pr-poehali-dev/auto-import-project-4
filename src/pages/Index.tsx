@@ -84,6 +84,14 @@ const ORIGINS = [
       { ru: "Машины в отличном состоянии", en: "Vehicles in excellent condition" },
       { ru: "Редкие комплектации и дорогие агрегаты", en: "Rare trims and high-value components" },
     ],
+    hotDeals: [
+      { brand: "BMW", model: { ru: "X5 xDrive40i", en: "X5 xDrive40i" }, year: 2021, mileage: { ru: "32 000 км", en: "32,000 km" }, engine: { ru: "3.0 бензин", en: "3.0 petrol" }, price: { ru: "от 4 250 000 ₽", en: "from ₽4,250,000" }, badge: { ru: "Хит", en: "Hot" } },
+      { brand: "Mercedes-Benz", model: { ru: "GLE 350d 4MATIC", en: "GLE 350d 4MATIC" }, year: 2020, mileage: { ru: "48 000 км", en: "48,000 km" }, engine: { ru: "3.0 дизель", en: "3.0 diesel" }, price: { ru: "от 3 980 000 ₽", en: "from ₽3,980,000" }, badge: { ru: "−12%", en: "−12%" } },
+      { brand: "Audi", model: { ru: "Q7 55 TFSI quattro", en: "Q7 55 TFSI quattro" }, year: 2021, mileage: { ru: "27 500 км", en: "27,500 km" }, engine: { ru: "3.0 бензин", en: "3.0 petrol" }, price: { ru: "от 4 100 000 ₽", en: "from ₽4,100,000" }, badge: { ru: "Хит", en: "Hot" } },
+      { brand: "Porsche", model: { ru: "Cayenne S", en: "Cayenne S" }, year: 2019, mileage: { ru: "61 000 км", en: "61,000 km" }, engine: { ru: "2.9 бензин", en: "2.9 petrol" }, price: { ru: "от 5 350 000 ₽", en: "from ₽5,350,000" }, badge: { ru: "Премиум", en: "Premium" } },
+      { brand: "Land Rover", model: { ru: "Range Rover Velar", en: "Range Rover Velar" }, year: 2020, mileage: { ru: "39 000 км", en: "39,000 km" }, engine: { ru: "2.0 дизель", en: "2.0 diesel" }, price: { ru: "от 3 650 000 ₽", en: "from ₽3,650,000" }, badge: { ru: "−8%", en: "−8%" } },
+      { brand: "Volkswagen", model: { ru: "Touareg R-Line", en: "Touareg R-Line" }, year: 2021, mileage: { ru: "24 000 км", en: "24,000 km" }, engine: { ru: "3.0 дизель", en: "3.0 diesel" }, price: { ru: "от 3 290 000 ₽", en: "from ₽3,290,000" }, badge: { ru: "Новинка", en: "New" } },
+    ],
   },
   {
     id: "japan", flag: "🇯🇵",
@@ -231,6 +239,8 @@ const I18N: Record<Lang, Record<string, string>> = {
     iframe_warning: "Если окно пустое — аукцион запрещает встраивание. Откройте площадку напрямую.",
     open_auction: "Открыть аукцион",
     advantages: "Преимущества", popular_brands: "Популярные марки", auctions_platforms: "Аукционы и площадки",
+    hot_deals_title: "Горячие предложения", hot_deals_sub: "Машинокомплекты в наличии и под заказ — успейте забронировать по выгодной цене",
+    hd_year: "Год", hd_mileage: "Пробег", hd_engine: "Двигатель", hd_reserve: "Забронировать",
     origin_cta_title_pre: "Нужны машинокомплекты из ", origin_cta_title_post: "?",
     origin_cta_sub: "Оставьте заявку — подберём авто под ваш запрос",
     // contacts
@@ -364,6 +374,8 @@ const I18N: Record<Lang, Record<string, string>> = {
     iframe_warning: "If the window is empty, the auction blocks embedding. Open the platform directly.",
     open_auction: "Open auction",
     advantages: "Advantages", popular_brands: "Popular brands", auctions_platforms: "Auctions and platforms",
+    hot_deals_title: "Hot deals", hot_deals_sub: "Vehicle assemblies in stock and to order — reserve now at a great price",
+    hd_year: "Year", hd_mileage: "Mileage", hd_engine: "Engine", hd_reserve: "Reserve",
     origin_cta_title_pre: "Need vehicle assemblies from ", origin_cta_title_post: "?",
     origin_cta_sub: "Leave a request — we'll source cars to match your needs",
     // contacts
@@ -1025,6 +1037,48 @@ export default function Index() {
                   </div>
                 ))}
               </div>
+
+              {"hotDeals" in o && o.hotDeals && (
+                <div className="mb-14">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Icon name="Flame" size={24} className="text-[hsl(var(--gold))]" />
+                    <h2 className="font-['Montserrat'] font-black text-2xl navy">{t("hot_deals_title")}</h2>
+                  </div>
+                  <p className="text-[hsl(var(--navy)/0.5)] text-sm mb-6 max-w-2xl">{t("hot_deals_sub")}</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {o.hotDeals.map((d, i) => (
+                      <div key={i} className="card-light rounded-sm overflow-hidden flex flex-col group">
+                        <div className="relative h-40 bg-gradient-to-br from-[hsl(var(--navy))] to-[hsl(var(--navy)/0.7)] flex items-center justify-center">
+                          <Icon name="Car" size={56} className="text-white/15" />
+                          <span className="absolute top-3 left-3 text-[11px] font-['Montserrat'] font-bold px-2.5 py-1 bg-[hsl(var(--gold))] text-white rounded-sm uppercase tracking-wide">{d.badge[lang]}</span>
+                          <span className="absolute top-3 right-3 text-[11px] font-['Montserrat'] font-bold px-2.5 py-1 bg-white/90 navy rounded-sm">{d.brand}</span>
+                        </div>
+                        <div className="p-5 flex flex-col flex-1">
+                          <h3 className="font-['Montserrat'] font-bold text-lg navy leading-tight mb-3">{d.model[lang]}</h3>
+                          <div className="grid grid-cols-3 gap-2 mb-4 text-center">
+                            <div>
+                              <div className="text-[hsl(var(--navy)/0.4)] text-[10px] font-['Montserrat'] font-semibold uppercase tracking-wide">{t("hd_year")}</div>
+                              <div className="font-['Montserrat'] font-bold text-sm navy">{d.year}</div>
+                            </div>
+                            <div>
+                              <div className="text-[hsl(var(--navy)/0.4)] text-[10px] font-['Montserrat'] font-semibold uppercase tracking-wide">{t("hd_mileage")}</div>
+                              <div className="font-['Montserrat'] font-bold text-sm navy">{d.mileage[lang]}</div>
+                            </div>
+                            <div>
+                              <div className="text-[hsl(var(--navy)/0.4)] text-[10px] font-['Montserrat'] font-semibold uppercase tracking-wide">{t("hd_engine")}</div>
+                              <div className="font-['Montserrat'] font-bold text-sm navy">{d.engine[lang]}</div>
+                            </div>
+                          </div>
+                          <div className="mt-auto pt-4 border-t border-[hsl(220_15%_90%)] flex items-center justify-between gap-3">
+                            <span className="font-['Montserrat'] font-black text-lg gold">{d.price[lang]}</span>
+                            <button onClick={() => nav("contacts")} className="px-4 py-2.5 btn-gold rounded-sm whitespace-nowrap">{t("hd_reserve")}</button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {"auctionLinks" in o && o.auctionLinks && (
                 <div className="mb-14">
