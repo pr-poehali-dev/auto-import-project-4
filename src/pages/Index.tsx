@@ -454,7 +454,7 @@ export default function Index() {
                 <div className="text-6xl">{o.flag}</div>
                 <div>
                   <div className="section-tag mb-2">Направление</div>
-                  <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl navy">{o.name.toUpperCase()}</h1>
+                  <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl navy">{o.name.toUpperCase()} <span className="align-middle">{o.flag}</span></h1>
                 </div>
               </div>
               <div className="divider-navy mb-8" />
