@@ -1,0 +1,27 @@
+{
+  "tests": [
+    {
+      "name": "List hot deals public",
+      "method": "GET",
+      "path": "/?origin=hongkong",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Add deal unauthorized",
+      "method": "POST",
+      "path": "/",
+      "body": {"brand": "BMW", "model": "X5"},
+      "expectedStatus": 401,
+      "expectedBody": {"error": "string"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Delete deal unauthorized",
+      "method": "DELETE",
+      "path": "/?id=1",
+      "expectedStatus": 401,
+      "expectedBody": {"error": "string"},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

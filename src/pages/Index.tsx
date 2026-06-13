@@ -11,6 +11,7 @@ const CONTACTS_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-4
 const AUTH_URL = "https://functions.poehali.dev/ddb4a7f6-82c2-4cca-8d4c-ed685f8a3c72";
 const ORDERS_URL = "https://functions.poehali.dev/d57608b2-729a-4006-a5c2-598ca59a8239";
 const CARS_URL = "https://functions.poehali.dev/8f3531c8-943d-46dc-acd0-b9a6618054db";
+const HOT_DEALS_URL = "https://functions.poehali.dev/cc988794-2c9d-4cf0-935d-51df0229a699";
 
 // ── API helpers ──────────────────────────────────────────────
 async function apiAuth(action: string, payload: object = {}, token?: string) {
@@ -47,10 +48,24 @@ async function apiCars(method: "GET" | "POST" | "DELETE", token: string, opts: {
   return res.json();
 }
 
+async function apiHotDeals(method: "GET" | "POST" | "DELETE", opts: { token?: string; body?: object; query?: string } = {}) {
+  const headers: Record<string, string> = {};
+  if (opts.token) headers["X-Session-Token"] = opts.token;
+  if (opts.body) headers["Content-Type"] = "application/json";
+  const url = opts.query ? `${HOT_DEALS_URL}?${opts.query}` : HOT_DEALS_URL;
+  const res = await fetch(url, {
+    method,
+    headers,
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  return res.json();
+}
+
 // ── Types ────────────────────────────────────────────────────
 interface User { id: number; email: string; phone: string; full_name: string; company: string; inn: string; created_at: string; role?: string; }
 interface Order { id: number; order_number: string; car_brand: string; car_model: string; car_year: number; quantity: number; budget: number; status: string; status_label: string; origin: string; created_at: string; comment?: string; client_name?: string; client_email?: string; client_phone?: string; client_company?: string; cars_count?: number; }
 interface Car { id: number; car_brand: string; car_model: string; car_year: number; price: number; mileage: number; description: string; photos: string[]; created_at: string; }
+interface HotDeal { id: number; origin: string; brand: string; model: string; year: number | null; mileage: string; engine: string; price: string; badge: string; photo: string; sort_order: number; }
 
 type Lang = "ru" | "en";
 type LS = { ru: string; en: string };
@@ -83,14 +98,6 @@ const ORIGINS = [
       { ru: "Цены ниже европейского рынка", en: "Prices below the European market" },
       { ru: "Машины в отличном состоянии", en: "Vehicles in excellent condition" },
       { ru: "Редкие комплектации и дорогие агрегаты", en: "Rare trims and high-value components" },
-    ],
-    hotDeals: [
-      { brand: "BMW", model: { ru: "X5 xDrive40i", en: "X5 xDrive40i" }, year: 2021, mileage: { ru: "32 000 км", en: "32,000 km" }, engine: { ru: "3.0 бензин", en: "3.0 petrol" }, price: { ru: "от 4 250 000 ₽", en: "from ₽4,250,000" }, badge: { ru: "Хит", en: "Hot" } },
-      { brand: "Mercedes-Benz", model: { ru: "GLE 350d 4MATIC", en: "GLE 350d 4MATIC" }, year: 2020, mileage: { ru: "48 000 км", en: "48,000 km" }, engine: { ru: "3.0 дизель", en: "3.0 diesel" }, price: { ru: "от 3 980 000 ₽", en: "from ₽3,980,000" }, badge: { ru: "−12%", en: "−12%" } },
-      { brand: "Audi", model: { ru: "Q7 55 TFSI quattro", en: "Q7 55 TFSI quattro" }, year: 2021, mileage: { ru: "27 500 км", en: "27,500 km" }, engine: { ru: "3.0 бензин", en: "3.0 petrol" }, price: { ru: "от 4 100 000 ₽", en: "from ₽4,100,000" }, badge: { ru: "Хит", en: "Hot" } },
-      { brand: "Porsche", model: { ru: "Cayenne S", en: "Cayenne S" }, year: 2019, mileage: { ru: "61 000 км", en: "61,000 km" }, engine: { ru: "2.9 бензин", en: "2.9 petrol" }, price: { ru: "от 5 350 000 ₽", en: "from ₽5,350,000" }, badge: { ru: "Премиум", en: "Premium" } },
-      { brand: "Land Rover", model: { ru: "Range Rover Velar", en: "Range Rover Velar" }, year: 2020, mileage: { ru: "39 000 км", en: "39,000 km" }, engine: { ru: "2.0 дизель", en: "2.0 diesel" }, price: { ru: "от 3 650 000 ₽", en: "from ₽3,650,000" }, badge: { ru: "−8%", en: "−8%" } },
-      { brand: "Volkswagen", model: { ru: "Touareg R-Line", en: "Touareg R-Line" }, year: 2021, mileage: { ru: "24 000 км", en: "24,000 km" }, engine: { ru: "3.0 дизель", en: "3.0 diesel" }, price: { ru: "от 3 290 000 ₽", en: "from ₽3,290,000" }, badge: { ru: "Новинка", en: "New" } },
     ],
   },
   {
@@ -241,6 +248,15 @@ const I18N: Record<Lang, Record<string, string>> = {
     advantages: "Преимущества", popular_brands: "Популярные марки", auctions_platforms: "Аукционы и площадки",
     hot_deals_title: "Горячие предложения", hot_deals_sub: "Машинокомплекты в наличии и под заказ — успейте забронировать по выгодной цене",
     hd_year: "Год", hd_mileage: "Пробег", hd_engine: "Двигатель", hd_reserve: "Забронировать",
+    tab_hot_deals: "Горячие предложения",
+    hde_title: "Управление горячими предложениями (Гонконг)",
+    hde_sub: "Добавляйте, редактируйте и удаляйте машинокомплекты, которые видят клиенты на странице Гонконга.",
+    hde_brand: "Марка", hde_model: "Модель", hde_year: "Год выпуска", hde_mileage: "Пробег",
+    hde_engine: "Двигатель", hde_price: "Цена", hde_badge: "Бейдж (например: Хит)",
+    hde_photo: "Фото", hde_upload: "Загрузить фото", hde_add: "Добавить предложение",
+    hde_save: "Сохранить изменения", hde_cancel: "Отменить", hde_edit: "Редактировать", hde_delete: "Удалить",
+    hde_empty: "Предложений пока нет", hde_loading: "Загружаем предложения...", hde_saving: "Сохраняем...",
+    hde_form_new: "Новое предложение", hde_form_edit: "Редактирование предложения",
     origin_cta_title_pre: "Нужны машинокомплекты из ", origin_cta_title_post: "?",
     origin_cta_sub: "Оставьте заявку — подберём авто под ваш запрос",
     // contacts
@@ -376,6 +392,15 @@ const I18N: Record<Lang, Record<string, string>> = {
     advantages: "Advantages", popular_brands: "Popular brands", auctions_platforms: "Auctions and platforms",
     hot_deals_title: "Hot deals", hot_deals_sub: "Vehicle assemblies in stock and to order — reserve now at a great price",
     hd_year: "Year", hd_mileage: "Mileage", hd_engine: "Engine", hd_reserve: "Reserve",
+    tab_hot_deals: "Hot deals",
+    hde_title: "Manage hot deals (Hong Kong)",
+    hde_sub: "Add, edit and remove vehicle assemblies that clients see on the Hong Kong page.",
+    hde_brand: "Brand", hde_model: "Model", hde_year: "Year", hde_mileage: "Mileage",
+    hde_engine: "Engine", hde_price: "Price", hde_badge: "Badge (e.g. Hot)",
+    hde_photo: "Photo", hde_upload: "Upload photo", hde_add: "Add deal",
+    hde_save: "Save changes", hde_cancel: "Cancel", hde_edit: "Edit", hde_delete: "Delete",
+    hde_empty: "No deals yet", hde_loading: "Loading deals...", hde_saving: "Saving...",
+    hde_form_new: "New deal", hde_form_edit: "Edit deal",
     origin_cta_title_pre: "Need vehicle assemblies from ", origin_cta_title_post: "?",
     origin_cta_sub: "Leave a request — we'll source cars to match your needs",
     // contacts
@@ -476,7 +501,7 @@ const I18N: Record<Lang, Record<string, string>> = {
 };
 
 type Page = "home" | "directions" | "services" | "how" | "contacts" | "login" | "register" | "cabinet" | "origin" | "staff_login";
-type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile" | "clients" | "staff_users";
+type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile" | "clients" | "staff_users" | "hot_deals";
 
 // ════════════════════════════════════════════════════════════
 export default function Index() {
@@ -518,6 +543,48 @@ export default function Index() {
   const [staffUsers, setStaffUsers] = useState<ManagedUser[]>([]);
   const [staffUsersLoading, setStaffUsersLoading] = useState(false);
   const [roleSavingId, setRoleSavingId] = useState<number | null>(null);
+  // горячие предложения (Гонконг)
+  const emptyDeal = { id: 0, brand: "", model: "", year: "", mileage: "", engine: "", price: "", badge: "", photo: "" };
+  const [hotDeals, setHotDeals] = useState<HotDeal[]>([]);
+  const [hotDealsLoading, setHotDealsLoading] = useState(false);
+  const [dealForm, setDealForm] = useState({ ...emptyDeal });
+  const [dealSaving, setDealSaving] = useState(false);
+  const [dealDeletingId, setDealDeletingId] = useState<number | null>(null);
+
+  const loadHotDeals = async () => {
+    setHotDealsLoading(true);
+    const d = await apiHotDeals("GET", { query: "origin=hongkong" });
+    setHotDeals(d.deals || []);
+    setHotDealsLoading(false);
+  };
+
+  const pickDealPhoto = (file: File): Promise<string> =>
+    new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.readAsDataURL(file);
+    });
+
+  const editDeal = (d: HotDeal) => {
+    setDealForm({ id: d.id, brand: d.brand, model: d.model, year: d.year ? String(d.year) : "", mileage: d.mileage, engine: d.engine, price: d.price, badge: d.badge, photo: d.photo });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const saveDeal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDealSaving(true);
+    await apiHotDeals("POST", { token, body: { ...dealForm, origin: "hongkong", year: dealForm.year ? Number(dealForm.year) : null, sort_order: dealForm.id || hotDeals.length + 1 } });
+    setDealForm({ ...emptyDeal });
+    await loadHotDeals();
+    setDealSaving(false);
+  };
+
+  const deleteDeal = async (id: number) => {
+    setDealDeletingId(id);
+    await apiHotDeals("DELETE", { token, query: `id=${id}` });
+    await loadHotDeals();
+    setDealDeletingId(null);
+  };
 
   const loadStaffUsers = async () => {
     setStaffUsersLoading(true);
@@ -543,6 +610,16 @@ export default function Index() {
       });
     }
   }, []);
+
+  // ── load hot deals on Hong Kong origin page ──
+  useEffect(() => {
+    if (page === "origin" && originId === "hongkong") loadHotDeals();
+  }, [page, originId]);
+
+  // ── load hot deals in staff cabinet tab ──
+  useEffect(() => {
+    if (page === "cabinet" && token && user?.role === "staff" && cabinetTab === "hot_deals") loadHotDeals();
+  }, [page, cabinetTab, token, user]);
 
   // ── load orders when cabinet opens ──
   useEffect(() => {
@@ -1038,7 +1115,7 @@ export default function Index() {
                 ))}
               </div>
 
-              {"hotDeals" in o && o.hotDeals && (
+              {o.id === "hongkong" && hotDeals.length > 0 && (
                 <div className="mb-14">
                   <div className="flex items-center gap-3 mb-2">
                     <Icon name="Flame" size={24} className="text-[hsl(var(--gold))]" />
@@ -1046,31 +1123,35 @@ export default function Index() {
                   </div>
                   <p className="text-[hsl(var(--navy)/0.5)] text-sm mb-6 max-w-2xl">{t("hot_deals_sub")}</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                    {o.hotDeals.map((d, i) => (
-                      <div key={i} className="card-light rounded-sm overflow-hidden flex flex-col group">
-                        <div className="relative h-40 bg-gradient-to-br from-[hsl(var(--navy))] to-[hsl(var(--navy)/0.7)] flex items-center justify-center">
-                          <Icon name="Car" size={56} className="text-white/15" />
-                          <span className="absolute top-3 left-3 text-[11px] font-['Montserrat'] font-bold px-2.5 py-1 bg-[hsl(var(--gold))] text-white rounded-sm uppercase tracking-wide">{d.badge[lang]}</span>
-                          <span className="absolute top-3 right-3 text-[11px] font-['Montserrat'] font-bold px-2.5 py-1 bg-white/90 navy rounded-sm">{d.brand}</span>
+                    {hotDeals.map((d) => (
+                      <div key={d.id} className="card-light rounded-sm overflow-hidden flex flex-col group">
+                        <div className="relative h-40 bg-gradient-to-br from-[hsl(var(--navy))] to-[hsl(var(--navy)/0.7)] flex items-center justify-center overflow-hidden">
+                          {d.photo ? (
+                            <img src={d.photo} alt={d.model} className="w-full h-full object-cover" />
+                          ) : (
+                            <Icon name="Car" size={56} className="text-white/15" />
+                          )}
+                          {d.badge && <span className="absolute top-3 left-3 text-[11px] font-['Montserrat'] font-bold px-2.5 py-1 bg-[hsl(var(--gold))] text-white rounded-sm uppercase tracking-wide">{d.badge}</span>}
+                          {d.brand && <span className="absolute top-3 right-3 text-[11px] font-['Montserrat'] font-bold px-2.5 py-1 bg-white/90 navy rounded-sm">{d.brand}</span>}
                         </div>
                         <div className="p-5 flex flex-col flex-1">
-                          <h3 className="font-['Montserrat'] font-bold text-lg navy leading-tight mb-3">{d.model[lang]}</h3>
+                          <h3 className="font-['Montserrat'] font-bold text-lg navy leading-tight mb-3">{d.model}</h3>
                           <div className="grid grid-cols-3 gap-2 mb-4 text-center">
                             <div>
                               <div className="text-[hsl(var(--navy)/0.4)] text-[10px] font-['Montserrat'] font-semibold uppercase tracking-wide">{t("hd_year")}</div>
-                              <div className="font-['Montserrat'] font-bold text-sm navy">{d.year}</div>
+                              <div className="font-['Montserrat'] font-bold text-sm navy">{d.year || "—"}</div>
                             </div>
                             <div>
                               <div className="text-[hsl(var(--navy)/0.4)] text-[10px] font-['Montserrat'] font-semibold uppercase tracking-wide">{t("hd_mileage")}</div>
-                              <div className="font-['Montserrat'] font-bold text-sm navy">{d.mileage[lang]}</div>
+                              <div className="font-['Montserrat'] font-bold text-sm navy">{d.mileage || "—"}</div>
                             </div>
                             <div>
                               <div className="text-[hsl(var(--navy)/0.4)] text-[10px] font-['Montserrat'] font-semibold uppercase tracking-wide">{t("hd_engine")}</div>
-                              <div className="font-['Montserrat'] font-bold text-sm navy">{d.engine[lang]}</div>
+                              <div className="font-['Montserrat'] font-bold text-sm navy">{d.engine || "—"}</div>
                             </div>
                           </div>
                           <div className="mt-auto pt-4 border-t border-[hsl(220_15%_90%)] flex items-center justify-between gap-3">
-                            <span className="font-['Montserrat'] font-black text-lg gold">{d.price[lang]}</span>
+                            <span className="font-['Montserrat'] font-black text-lg gold">{d.price}</span>
                             <button onClick={() => nav("contacts")} className="px-4 py-2.5 btn-gold rounded-sm whitespace-nowrap">{t("hd_reserve")}</button>
                           </div>
                         </div>
@@ -1428,6 +1509,7 @@ export default function Index() {
               <div className="flex gap-1 flex-wrap mb-8 border-b border-[hsl(220_15%_88%)]">
                 {((isStaff ? [
                   { id: "clients", label: t("tab_clients"), icon: "Users" },
+                  { id: "hot_deals", label: t("tab_hot_deals"), icon: "Flame" },
                   { id: "staff_users", label: t("tab_staff_users"), icon: "ShieldCheck" },
                   { id: "profile", label: t("tab_profile"), icon: "User" },
                 ] : [
@@ -1865,6 +1947,112 @@ export default function Index() {
                       <p className="text-sm">{t("no_documents")}</p>
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* ── Горячие предложения (Гонконг) ── */}
+              {cabinetTab === "hot_deals" && isStaff && (
+                <div className="max-w-4xl">
+                  <div className="mb-6">
+                    <h2 className="font-['Montserrat'] font-bold text-xl navy mb-1">{t("hde_title")}</h2>
+                    <p className="text-[hsl(var(--navy)/0.5)] text-sm">{t("hde_sub")}</p>
+                  </div>
+
+                  <form onSubmit={saveDeal} className="card-light rounded-sm p-6 mb-8">
+                    <div className="flex items-center gap-2 mb-5">
+                      <Icon name={dealForm.id ? "Pencil" : "Plus"} size={18} className="text-[hsl(var(--gold))]" />
+                      <h3 className="font-['Montserrat'] font-bold text-base navy">{dealForm.id ? t("hde_form_edit") : t("hde_form_new")}</h3>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_brand")}</label>
+                        <input required value={dealForm.brand} onChange={(e) => setDealForm({ ...dealForm, brand: e.target.value })} className={inputCls} placeholder="BMW" />
+                      </div>
+                      <div>
+                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_model")}</label>
+                        <input required value={dealForm.model} onChange={(e) => setDealForm({ ...dealForm, model: e.target.value })} className={inputCls} placeholder="X5 xDrive40i" />
+                      </div>
+                      <div>
+                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_year")}</label>
+                        <input type="number" value={dealForm.year} onChange={(e) => setDealForm({ ...dealForm, year: e.target.value })} className={inputCls} placeholder="2021" />
+                      </div>
+                      <div>
+                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_mileage")}</label>
+                        <input value={dealForm.mileage} onChange={(e) => setDealForm({ ...dealForm, mileage: e.target.value })} className={inputCls} placeholder="32 000 км" />
+                      </div>
+                      <div>
+                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_engine")}</label>
+                        <input value={dealForm.engine} onChange={(e) => setDealForm({ ...dealForm, engine: e.target.value })} className={inputCls} placeholder="3.0 бензин" />
+                      </div>
+                      <div>
+                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_price")}</label>
+                        <input value={dealForm.price} onChange={(e) => setDealForm({ ...dealForm, price: e.target.value })} className={inputCls} placeholder="от 4 250 000 ₽" />
+                      </div>
+                      <div>
+                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_badge")}</label>
+                        <input value={dealForm.badge} onChange={(e) => setDealForm({ ...dealForm, badge: e.target.value })} className={inputCls} placeholder="Хит" />
+                      </div>
+                      <div>
+                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_photo")}</label>
+                        <div className="flex items-center gap-3">
+                          {dealForm.photo && <img src={dealForm.photo} alt="" className="w-12 h-12 object-cover rounded-sm border border-[hsl(220_15%_88%)]" />}
+                          <label className="flex items-center gap-2 px-4 py-2.5 border border-[hsl(220_15%_88%)] rounded-sm text-sm font-['Montserrat'] font-semibold navy cursor-pointer hover:border-[hsl(var(--navy))] transition-colors">
+                            <Icon name="Upload" size={15} />{t("hde_upload")}
+                            <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                              const f = e.target.files?.[0];
+                              if (f) setDealForm({ ...dealForm, photo: await pickDealPhoto(f) });
+                            }} />
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 mt-6">
+                      <button type="submit" disabled={dealSaving} className="px-6 py-3 btn-gold rounded-sm disabled:opacity-60 flex items-center gap-2">
+                        {dealSaving ? <Icon name="Loader" size={15} className="animate-spin" /> : <Icon name={dealForm.id ? "Save" : "Plus"} size={15} />}
+                        {dealSaving ? t("hde_saving") : dealForm.id ? t("hde_save") : t("hde_add")}
+                      </button>
+                      {dealForm.id ? (
+                        <button type="button" onClick={() => setDealForm({ ...emptyDeal })} className="px-5 py-3 border border-[hsl(220_15%_88%)] rounded-sm text-sm font-['Montserrat'] font-semibold text-[hsl(var(--navy)/0.6)] hover:text-[hsl(var(--navy))]">{t("hde_cancel")}</button>
+                      ) : null}
+                    </div>
+                  </form>
+
+                  {hotDealsLoading ? (
+                    <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.4)]">
+                      <Icon name="Loader" size={20} className="animate-spin" />{t("hde_loading")}
+                    </div>
+                  ) : hotDeals.length === 0 ? (
+                    <div className="text-center py-16">
+                      <Icon name="Flame" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.2)]" />
+                      <p className="font-['Montserrat'] font-bold navy">{t("hde_empty")}</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      {hotDeals.map((d) => (
+                        <div key={d.id} className="card-light rounded-sm p-4 flex flex-col sm:flex-row sm:items-center gap-4">
+                          <div className="w-16 h-16 rounded-sm bg-[hsl(220_25%_97%)] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            {d.photo ? <img src={d.photo} alt="" className="w-full h-full object-cover" /> : <Icon name="Car" size={24} className="text-[hsl(var(--navy)/0.3)]" />}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-['Montserrat'] font-bold text-sm navy">{d.brand} {d.model}</span>
+                              {d.badge && <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))]">{d.badge}</span>}
+                            </div>
+                            <div className="text-[hsl(var(--navy)/0.5)] text-xs mt-1">{[d.year, d.mileage, d.engine].filter(Boolean).join(" · ")}</div>
+                            <div className="font-['Montserrat'] font-bold text-sm gold mt-0.5">{d.price}</div>
+                          </div>
+                          <div className="flex gap-2 flex-shrink-0">
+                            <button onClick={() => editDeal(d)} className="flex items-center gap-1.5 px-3 py-2 border border-[hsl(220_15%_88%)] rounded-sm text-xs font-['Montserrat'] font-semibold navy hover:border-[hsl(var(--navy))] transition-colors">
+                              <Icon name="Pencil" size={14} />{t("hde_edit")}
+                            </button>
+                            <button onClick={() => deleteDeal(d.id)} disabled={dealDeletingId === d.id} className="flex items-center gap-1.5 px-3 py-2 border border-[hsl(220_15%_88%)] rounded-sm text-xs font-['Montserrat'] font-semibold text-[hsl(var(--navy)/0.6)] hover:text-red-600 hover:border-red-200 transition-colors disabled:opacity-60">
+                              {dealDeletingId === d.id ? <Icon name="Loader" size={14} className="animate-spin" /> : <Icon name="Trash2" size={14} />}{t("hde_delete")}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
