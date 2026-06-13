@@ -4,142 +4,196 @@
 
 @layer base {
   :root {
-    --background: 220 20% 6%;
-    --foreground: 0 0% 96%;
+    /* Цвета из логотипа */
+    --navy: 220 52% 18%; /* тёмно-синий */
+    --red: 5 78% 48%; /* красный */
+    --gold: 36 85% 50%; /* золотой/оранжевый */
 
-    --card: 220 18% 9%;
-    --card-foreground: 0 0% 96%;
+    --background: 0 0% 99%;
+    --foreground: 220 52% 18%;
 
-    --popover: 220 18% 9%;
-    --popover-foreground: 0 0% 96%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 52% 18%;
 
-    --primary: 32 100% 55%;
-    --primary-foreground: 220 20% 6%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 52% 18%;
 
-    --secondary: 220 15% 14%;
-    --secondary-foreground: 0 0% 96%;
+    --primary: 220 52% 18%;
+    --primary-foreground: 0 0% 100%;
 
-    --muted: 220 15% 14%;
-    --muted-foreground: 220 10% 55%;
+    --secondary: 220 20% 96%;
+    --secondary-foreground: 220 52% 18%;
 
-    --accent: 32 100% 55%;
-    --accent-foreground: 220 20% 6%;
+    --muted: 220 15% 95%;
+    --muted-foreground: 220 20% 45%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --accent: 36 85% 50%;
+    --accent-foreground: 0 0% 100%;
 
-    --border: 220 15% 16%;
-    --input: 220 15% 14%;
-    --ring: 32 100% 55%;
+    --destructive: 5 78% 48%;
+    --destructive-foreground: 0 0% 100%;
 
-    --radius: 0.5rem;
+    --border: 220 15% 88%;
+    --input: 220 15% 92%;
+    --ring: 220 52% 18%;
 
-    --neon: 32 100% 55%;
-    --neon-blue: 210 100% 60%;
-    --neon-red: 0 100% 55%;
+    --radius: 4px;
   }
 }
 
 @layer base {
   * {
     @apply border-border;
+    box-sizing: border-box;
   }
-
+  html {
+    scroll-behavior: smooth;
+  }
   body {
     @apply bg-background text-foreground;
     font-family: "IBM Plex Sans", sans-serif;
+    font-size: 15px;
   }
-
   h1,
   h2,
   h3,
   h4 {
-    font-family: "Oswald", sans-serif;
-    letter-spacing: 0.02em;
+    font-family: "Montserrat", sans-serif;
+    color: hsl(var(--navy));
   }
 }
 
 @layer utilities {
-  .neon-text {
-    color: hsl(var(--neon));
-    text-shadow:
-      0 0 20px hsl(var(--neon) / 0.6),
-      0 0 40px hsl(var(--neon) / 0.3);
+  .navy {
+    color: hsl(var(--navy));
+  }
+  .gold {
+    color: hsl(var(--gold));
+  }
+  .red {
+    color: hsl(var(--red));
   }
 
-  .neon-border {
-    border-color: hsl(var(--neon));
-    box-shadow:
-      0 0 15px hsl(var(--neon) / 0.3),
-      inset 0 0 15px hsl(var(--neon) / 0.05);
+  .bg-navy {
+    background: hsl(var(--navy));
+  }
+  .bg-gold {
+    background: hsl(var(--gold));
+  }
+  .bg-red {
+    background: hsl(var(--red));
   }
 
-  .glass {
-    background: rgba(255, 255, 255, 0.04);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
-
-  .grid-bg {
-    background-image:
-      linear-gradient(rgba(255, 160, 30, 0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 160, 30, 0.04) 1px, transparent 1px);
-    background-size: 60px 60px;
-  }
-
-  .stripe-accent {
-    background: linear-gradient(
-      135deg,
-      hsl(var(--neon)) 0%,
-      hsl(0 100% 55%) 100%
-    );
-  }
-
-  .card-hover {
+  .btn-navy {
+    background: hsl(var(--navy));
+    color: #fff;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
     transition:
-      transform 0.3s ease,
-      box-shadow 0.3s ease;
+      background 0.2s,
+      box-shadow 0.2s;
   }
-  .card-hover:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 20px 60px rgba(255, 160, 30, 0.15);
+  .btn-navy:hover {
+    background: hsl(220 52% 12%);
+    box-shadow: 0 4px 20px hsl(220 52% 18% / 0.25);
   }
 
-  @keyframes fadeInUp {
+  .btn-gold {
+    background: hsl(var(--gold));
+    color: #fff;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition:
+      background 0.2s,
+      box-shadow 0.2s;
+  }
+  .btn-gold:hover {
+    background: hsl(36 85% 44%);
+    box-shadow: 0 4px 20px hsl(36 85% 50% / 0.3);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: hsl(var(--navy));
+    border: 2px solid hsl(var(--navy));
+    font-family: "Montserrat", sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .btn-outline:hover {
+    background: hsl(var(--navy));
+    color: #fff;
+  }
+
+  .card-light {
+    background: #fff;
+    border: 1px solid hsl(220 15% 90%);
+    transition:
+      transform 0.22s ease,
+      box-shadow 0.22s ease;
+  }
+  .card-light:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px hsl(220 52% 18% / 0.1);
+  }
+
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-family: "Montserrat", sans-serif;
+    color: hsl(var(--gold));
+    border: 1px solid hsl(var(--gold) / 0.4);
+    border-radius: 2px;
+  }
+
+  .divider-navy {
+    width: 36px;
+    height: 3px;
+    background: hsl(var(--navy));
+    border-radius: 2px;
+  }
+
+  .divider-gold {
+    width: 36px;
+    height: 3px;
+    background: hsl(var(--gold));
+    border-radius: 2px;
+  }
+
+  /* subtle grid pattern */
+  .light-grid {
+    background-image:
+      linear-gradient(hsl(220 52% 18% / 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(220 52% 18% / 0.035) 1px, transparent 1px);
+    background-size: 44px 44px;
+  }
+
+  @keyframes fadeUp {
     from {
       opacity: 0;
-      transform: translateY(30px);
+      transform: translateY(20px);
     }
     to {
       opacity: 1;
       transform: translateY(0);
     }
   }
-
-  @keyframes slideInLeft {
-    from {
-      opacity: 0;
-      transform: translateX(-40px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes pulse-neon {
-    0%,
-    100% {
-      box-shadow: 0 0 15px hsl(32 100% 55% / 0.4);
-    }
-    50% {
-      box-shadow:
-        0 0 30px hsl(32 100% 55% / 0.8),
-        0 0 60px hsl(32 100% 55% / 0.3);
-    }
-  }
-
-  @keyframes ticker {
+  @keyframes scrollX {
     0% {
       transform: translateX(0);
     }
@@ -148,32 +202,23 @@
     }
   }
 
-  .animate-fade-up {
-    animation: fadeInUp 0.7s ease forwards;
+  .anim-up {
+    animation: fadeUp 0.6s ease both;
   }
-  .animate-slide-left {
-    animation: slideInLeft 0.7s ease forwards;
-  }
-  .animate-pulse-neon {
-    animation: pulse-neon 2s ease-in-out infinite;
-  }
-  .animate-ticker {
-    animation: ticker 30s linear infinite;
-  }
-
-  .delay-100 {
+  .d1 {
     animation-delay: 0.1s;
   }
-  .delay-200 {
-    animation-delay: 0.2s;
+  .d2 {
+    animation-delay: 0.22s;
   }
-  .delay-300 {
-    animation-delay: 0.3s;
+  .d3 {
+    animation-delay: 0.34s;
   }
-  .delay-400 {
-    animation-delay: 0.4s;
+  .d4 {
+    animation-delay: 0.46s;
   }
-  .delay-500 {
-    animation-delay: 0.5s;
+
+  .marquee {
+    animation: scrollX 28s linear infinite;
   }
 }
