@@ -267,6 +267,15 @@ const I18N: Record<Lang, Record<string, string>> = {
     staff_cabinet: "Кабинет сотрудника", personal_cabinet: "Личный кабинет", staff_badge: "Сотрудник",
     tab_clients: "Заявки клиентов", tab_profile: "Профиль", tab_orders: "Мои заявки",
     tab_active_orders: "Заказы", tab_new_order: "Новая заявка", tab_auctions: "Аукционы", tab_documents: "Документы",
+    tab_staff_users: "Сотрудники",
+    su_title: "Управление сотрудниками",
+    su_sub: "Назначайте роль «Сотрудник» — такие пользователи получают доступ к панели работы с клиентами.",
+    su_loading: "Загружаем пользователей...",
+    su_empty: "Пользователей пока нет",
+    su_role_staff: "Сотрудник", su_role_client: "Клиент",
+    su_make_staff: "Сделать сотрудником", su_remove_staff: "Снять роль",
+    su_you: "это вы",
+    su_registered: "Регистрация:",
     loading_orders: "Загружаем заявки...", no_new_orders: "Новых заявок нет",
     no_new_orders_sub: "Создайте заявку на подбор — она появится здесь до начала работы",
     create_order: "Создать заявку",
@@ -391,6 +400,15 @@ const I18N: Record<Lang, Record<string, string>> = {
     staff_cabinet: "Staff dashboard", personal_cabinet: "Dashboard", staff_badge: "Staff",
     tab_clients: "Client requests", tab_profile: "Profile", tab_orders: "My requests",
     tab_active_orders: "Orders", tab_new_order: "New request", tab_auctions: "Auctions", tab_documents: "Documents",
+    tab_staff_users: "Staff",
+    su_title: "Staff management",
+    su_sub: "Grant the \"Staff\" role — these users get access to the client management panel.",
+    su_loading: "Loading users...",
+    su_empty: "No users yet",
+    su_role_staff: "Staff", su_role_client: "Client",
+    su_make_staff: "Make staff", su_remove_staff: "Remove role",
+    su_you: "you",
+    su_registered: "Registered:",
     loading_orders: "Loading requests...", no_new_orders: "No new requests",
     no_new_orders_sub: "Create a sourcing request — it will appear here until work begins",
     create_order: "Create request",
@@ -446,7 +464,7 @@ const I18N: Record<Lang, Record<string, string>> = {
 };
 
 type Page = "home" | "directions" | "services" | "how" | "contacts" | "login" | "register" | "cabinet" | "origin" | "staff_login";
-type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile" | "clients";
+type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile" | "clients" | "staff_users";
 
 // ════════════════════════════════════════════════════════════
 export default function Index() {
@@ -483,6 +501,26 @@ export default function Index() {
   const [carsLoading, setCarsLoading] = useState(false);
   const [carForm, setCarForm] = useState({ car_brand: "", car_model: "", car_year: "", price: "", mileage: "", description: "", photos: [] as string[] });
   const [carSaving, setCarSaving] = useState(false);
+  // staff: управление сотрудниками
+  interface ManagedUser { id: number; email: string; full_name: string; phone: string; company: string; role: string; created_at: string; }
+  const [staffUsers, setStaffUsers] = useState<ManagedUser[]>([]);
+  const [staffUsersLoading, setStaffUsersLoading] = useState(false);
+  const [roleSavingId, setRoleSavingId] = useState<number | null>(null);
+
+  const loadStaffUsers = async () => {
+    setStaffUsersLoading(true);
+    const d = await apiAuth("list_users", {}, token);
+    setStaffUsers(d.users || []);
+    setStaffUsersLoading(false);
+  };
+
+  const toggleUserRole = async (u: ManagedUser) => {
+    setRoleSavingId(u.id);
+    const newRole = u.role === "staff" ? "client" : "staff";
+    await apiAuth("set_role", { user_id: u.id, role: newRole }, token);
+    await loadStaffUsers();
+    setRoleSavingId(null);
+  };
 
   // ── load user on mount ──
   useEffect(() => {
@@ -507,6 +545,12 @@ export default function Index() {
   }, [page, cabinetTab, token]);
 
   const isStaff = user?.role === "staff";
+
+  useEffect(() => {
+    if (page === "cabinet" && token && isStaff && cabinetTab === "staff_users") {
+      loadStaffUsers();
+    }
+  }, [page, cabinetTab, token, isStaff]);
 
   const loadCars = async (orderId: number) => {
     setCarsLoading(true);
@@ -1330,6 +1374,7 @@ export default function Index() {
               <div className="flex gap-1 flex-wrap mb-8 border-b border-[hsl(220_15%_88%)]">
                 {((isStaff ? [
                   { id: "clients", label: t("tab_clients"), icon: "Users" },
+                  { id: "staff_users", label: t("tab_staff_users"), icon: "ShieldCheck" },
                   { id: "profile", label: t("tab_profile"), icon: "User" },
                 ] : [
                   { id: "orders", label: t("tab_orders"), icon: "ClipboardList" },
@@ -1766,6 +1811,58 @@ export default function Index() {
                       <p className="text-sm">{t("no_documents")}</p>
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* ── Управление сотрудниками ── */}
+              {cabinetTab === "staff_users" && isStaff && (
+                <div className="max-w-3xl">
+                  <div className="mb-6">
+                    <h2 className="font-['Montserrat'] font-bold text-xl navy mb-1">{t("su_title")}</h2>
+                    <p className="text-[hsl(var(--navy)/0.5)] text-sm">{t("su_sub")}</p>
+                  </div>
+                  {staffUsersLoading ? (
+                    <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.4)]">
+                      <Icon name="Loader" size={20} className="animate-spin" />{t("su_loading")}
+                    </div>
+                  ) : staffUsers.length === 0 ? (
+                    <div className="text-center py-16">
+                      <Icon name="Users" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.2)]" />
+                      <p className="font-['Montserrat'] font-bold navy">{t("su_empty")}</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      {staffUsers.map((u) => {
+                        const staffRole = u.role === "staff";
+                        const isMe = u.id === user.id;
+                        return (
+                          <div key={u.id} className="card-light rounded-sm p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="flex items-start gap-4 min-w-0">
+                              <div className={`w-10 h-10 rounded-sm flex items-center justify-center flex-shrink-0 ${staffRole ? "bg-[hsl(var(--gold)/0.12)]" : "bg-[hsl(var(--navy)/0.06)]"}`}>
+                                <Icon name={staffRole ? "ShieldCheck" : "User"} size={18} className={staffRole ? "text-[hsl(var(--gold))]" : "text-[hsl(var(--navy))]"} />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-['Montserrat'] font-bold text-sm navy truncate">{u.full_name || u.email}</span>
+                                  <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${staffRole ? "bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))]" : "bg-gray-100 text-gray-600"}`}>{staffRole ? t("su_role_staff") : t("su_role_client")}</span>
+                                  {isMe && <span className="text-xs text-[hsl(var(--navy)/0.35)]">({t("su_you")})</span>}
+                                </div>
+                                <div className="text-[hsl(var(--navy)/0.6)] text-sm mt-0.5 truncate">{u.email}{u.phone ? ` · ${u.phone}` : ""}</div>
+                                <div className="text-[hsl(var(--navy)/0.35)] text-xs mt-1">{u.company ? `${u.company} · ` : ""}{t("su_registered")} {new Date(u.created_at).toLocaleDateString(lang === "ru" ? "ru" : "en")}</div>
+                              </div>
+                            </div>
+                            {!isMe && (
+                              <button onClick={() => toggleUserRole(u)} disabled={roleSavingId === u.id}
+                                className={`flex items-center gap-2 px-4 py-2.5 text-sm font-['Montserrat'] font-semibold rounded-sm transition-all flex-shrink-0 disabled:opacity-60 ${staffRole ? "border border-[hsl(220_15%_88%)] text-[hsl(var(--navy)/0.6)] hover:text-red-600 hover:border-red-200" : "btn-gold"}`}>
+                                {roleSavingId === u.id ? <Icon name="Loader" size={15} className="animate-spin" /> : <Icon name={staffRole ? "UserMinus" : "ShieldCheck"} size={15} />}
+                                {staffRole ? t("su_remove_staff") : t("su_make_staff")}
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
 

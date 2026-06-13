@@ -7,6 +7,24 @@
       "expectedStatus": 401,
       "expectedBody": {"error": "string"},
       "bodyMatcher": "partial"
+    },
+    {
+      "name": "List users unauthorized",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "list_users"},
+      "expectedStatus": 401,
+      "expectedBody": {"error": "string"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Set role unauthorized",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "set_role", "user_id": 1, "role": "staff"},
+      "expectedStatus": 401,
+      "expectedBody": {"error": "string"},
+      "bodyMatcher": "partial"
     }
   ]
 }

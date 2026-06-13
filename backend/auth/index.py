@@ -218,6 +218,45 @@ def handler(event: dict, context) -> dict:
             conn.commit()
             return ok({"message": "Профиль обновлён"})
 
+        if action == "list_users":
+            if not token:
+                return err("Не авторизован", 401)
+            me = get_user_by_token(cur, token)
+            if not me or me["role"] != "staff":
+                return err("Доступ только для сотрудников", 403)
+            cur.execute(
+                f"SELECT id, email, full_name, phone, company, role, created_at "
+                f"FROM {SCHEMA}.users ORDER BY id"
+            )
+            users = [
+                {"id": r[0], "email": r[1], "full_name": r[2] or "",
+                 "phone": r[3] or "", "company": r[4] or "",
+                 "role": r[5] or "client", "created_at": str(r[6])}
+                for r in cur.fetchall()
+            ]
+            return ok({"users": users})
+
+        if action == "set_role":
+            if not token:
+                return err("Не авторизован", 401)
+            me = get_user_by_token(cur, token)
+            if not me or me["role"] != "staff":
+                return err("Доступ только для сотрудников", 403)
+            target_id = body.get("user_id")
+            new_role = body.get("role", "")
+            if new_role not in ("client", "staff"):
+                return err("Недопустимая роль")
+            if not target_id:
+                return err("Не указан пользователь")
+            if int(target_id) == me["id"] and new_role != "staff":
+                return err("Нельзя снять роль сотрудника с самого себя")
+            cur.execute(
+                f"UPDATE {SCHEMA}.users SET role=%s, updated_at=NOW() WHERE id=%s",
+                (new_role, int(target_id))
+            )
+            conn.commit()
+            return ok({"message": "Роль обновлена"})
+
         if action == "logout":
             if token:
                 cur.execute(f"DELETE FROM {SCHEMA}.sessions WHERE token = %s", (token,))
