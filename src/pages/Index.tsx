@@ -35,9 +35,60 @@ interface User { id: number; email: string; phone: string; full_name: string; co
 interface Order { id: number; order_number: string; car_brand: string; car_model: string; car_year: number; quantity: number; budget: number; status: string; status_label: string; origin: string; created_at: string; }
 
 const ORIGINS = [
-  { flag: "🇯🇵", name: "Япония", desc: "Праворульные авто с аукционов USS, JU, TAA", volume: "от 50 ед./мес." },
-  { flag: "🇰🇷", name: "Корея", desc: "Hyundai, Kia, Ssangyong — высокий спрос на запчасти", volume: "от 30 ед./мес." },
-  { flag: "🇭🇰", name: "Гонконг", desc: "Европейские и американские марки по доступным ценам", volume: "от 20 ед./мес." },
+  {
+    id: "japan", flag: "🇯🇵", name: "Япония", desc: "Праворульные авто с аукционов USS, JU, TAA", volume: "от 50 ед./мес.",
+    intro: "Япония — ключевое направление для поставки машинокомплектов. Огромный выбор автомобилей в отличном состоянии, прозрачные аукционы и высокое качество узлов под разборку.",
+    brands: ["Toyota", "Lexus", "Honda", "Nissan", "Mazda", "Mitsubishi", "Subaru", "Suzuki"],
+    auctions: ["USS Auction", "JU Auction", "TAA (Toyota)", "HAA (Honda)"],
+    facts: [
+      { icon: "Clock", title: "Срок доставки", val: "40–50 дней" },
+      { icon: "Anchor", title: "Порт прибытия", val: "Владивосток" },
+      { icon: "Package", title: "Объём", val: "от 50 ед./мес." },
+      { icon: "Star", title: "Состояние", val: "Премиальное" },
+    ],
+    advantages: [
+      "Самый большой выбор лотов в Азии — более 20 000 авто еженедельно",
+      "Прозрачная аукционная оценка состояния (баллы 3.5–5)",
+      "Минимальная коррозия благодаря мягкому климату",
+      "Оригинальные неразобранные машинокомплекты",
+    ],
+  },
+  {
+    id: "korea", flag: "🇰🇷", name: "Корея", desc: "Hyundai, Kia, Ssangyong — высокий спрос на запчасти", volume: "от 30 ед./мес.",
+    intro: "Корея — выгодное направление для популярных в России марок. Hyundai, Kia и Ssangyong с высоким спросом на запчасти и привлекательной ценой машинокомплектов.",
+    brands: ["Hyundai", "Kia", "Ssangyong", "Genesis", "Daewoo", "Renault Samsung"],
+    auctions: ["Kcaa Auction", "Manheim Korea", "Lotte Auction"],
+    facts: [
+      { icon: "Clock", title: "Срок доставки", val: "35–45 дней" },
+      { icon: "Anchor", title: "Порт прибытия", val: "Владивосток" },
+      { icon: "Package", title: "Объём", val: "от 30 ед./мес." },
+      { icon: "TrendingUp", title: "Спрос на з/ч", val: "Высокий" },
+    ],
+    advantages: [
+      "Самые востребованные в РФ марки — быстрая оборачиваемость запчастей",
+      "Доступная цена машинокомплектов",
+      "Современные модели с актуальными агрегатами",
+      "Удобная логистика через порт Владивостока",
+    ],
+  },
+  {
+    id: "hongkong", flag: "🇭🇰", name: "Гонконг", desc: "Европейские и американские марки по доступным ценам", volume: "от 20 ед./мес.",
+    intro: "Гонконг — направление для премиальных европейских и американских марок. BMW, Mercedes-Benz, Audi и Volkswagen по ценам ниже европейского рынка.",
+    brands: ["BMW", "Mercedes-Benz", "Audi", "Volkswagen", "Land Rover", "Porsche"],
+    auctions: ["Прямые контракты с дилерами", "Закрытые торги"],
+    facts: [
+      { icon: "Clock", title: "Срок доставки", val: "45–55 дней" },
+      { icon: "Anchor", title: "Порт прибытия", val: "Новороссийск / СПб" },
+      { icon: "Package", title: "Объём", val: "от 20 ед./мес." },
+      { icon: "Gem", title: "Сегмент", val: "Премиум" },
+    ],
+    advantages: [
+      "Европейские и американские премиум-марки",
+      "Цены ниже европейского рынка",
+      "Левый руль — удобно для перепродажи в РФ",
+      "Редкие комплектации и дорогие агрегаты",
+    ],
+  },
 ];
 const SERVICES = [
   { icon: "Package", title: "Поставка авто под разборку", desc: "Подбираем автомобили с аукционов и у дилеров под ваш запрос. Битые, с пробегом, снятые с учёта." },
@@ -71,12 +122,13 @@ const STATUS_COLOR: Record<string, string> = {
   customs: "bg-orange-100 text-orange-700", delivered: "bg-teal-100 text-teal-700", done: "bg-green-100 text-green-700",
 };
 
-type Page = "home" | "services" | "how" | "contacts" | "login" | "register" | "cabinet";
+type Page = "home" | "services" | "how" | "contacts" | "login" | "register" | "cabinet" | "origin";
 type CabinetTab = "orders" | "new_order" | "auctions" | "documents" | "profile";
 
 // ════════════════════════════════════════════════════════════
 export default function Index() {
   const [page, setPage] = useState<Page>("home");
+  const [originId, setOriginId] = useState<string>("japan");
   const [menuOpen, setMenuOpen] = useState(false);
   // auth
   const [token, setToken] = useState(() => localStorage.getItem("pc_token") || "");
@@ -124,6 +176,7 @@ export default function Index() {
   }, [user]);
 
   const nav = (p: Page) => { setPage(p); setMenuOpen(false); setAuthError(""); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const openOrigin = (id: string) => { setOriginId(id); setPage("origin"); setMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
   const doLogin = async (e: React.FormEvent) => {
     e.preventDefault(); setAuthLoading(true); setAuthError("");
@@ -283,13 +336,16 @@ export default function Index() {
               <div className="mb-12"><div className="section-tag mb-3">Направления</div><h2 className="font-['Montserrat'] font-black text-4xl sm:text-5xl">ОТКУДА ВЕЗЁМ</h2><div className="divider-navy mt-4" /></div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                 {ORIGINS.map((o) => (
-                  <div key={o.name} className="card-light rounded-sm p-7 group relative overflow-hidden">
+                  <button key={o.name} onClick={() => openOrigin(o.id)} className="text-left card-light rounded-sm p-7 group relative overflow-hidden hover:shadow-lg transition-all cursor-pointer">
                     <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[hsl(var(--gold))] group-hover:w-full transition-all duration-500" />
                     <div className="text-4xl mb-4">{o.flag}</div>
                     <h3 className="font-['Montserrat'] font-bold text-xl mb-2 navy">{o.name}</h3>
                     <p className="text-[hsl(var(--navy)/0.5)] text-sm leading-relaxed mb-4">{o.desc}</p>
-                    <div className="flex items-center gap-2 text-xs font-['Montserrat'] font-semibold gold"><Icon name="Package" size={13} />{o.volume}</div>
-                  </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-xs font-['Montserrat'] font-semibold gold"><Icon name="Package" size={13} />{o.volume}</div>
+                      <div className="flex items-center gap-1 text-xs font-['Montserrat'] font-semibold text-[hsl(var(--navy))] group-hover:gap-2 transition-all">Подробнее <Icon name="ArrowRight" size={13} /></div>
+                    </div>
+                  </button>
                 ))}
               </div>
             </section>
@@ -384,6 +440,87 @@ export default function Index() {
             <div className="mt-14"><button onClick={() => nav("contacts")} className="px-10 py-4 btn-navy rounded-sm">Начать сотрудничество</button></div>
           </section>
         )}
+
+        {/* ════ ORIGIN (направление) ════ */}
+        {page === "origin" && (() => {
+          const o = ORIGINS.find((x) => x.id === originId) || ORIGINS[0];
+          return (
+            <section className="min-h-screen py-14 px-5 sm:px-8 max-w-7xl mx-auto">
+              <button onClick={() => nav("home")} className="flex items-center gap-2 text-[hsl(var(--navy)/0.5)] text-sm font-['Montserrat'] font-semibold mb-8 hover:text-[hsl(var(--navy))] transition-colors">
+                <Icon name="ArrowLeft" size={15} />Все направления
+              </button>
+
+              <div className="flex items-center gap-5 mb-6">
+                <div className="text-6xl">{o.flag}</div>
+                <div>
+                  <div className="section-tag mb-2">Направление</div>
+                  <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl navy">{o.name.toUpperCase()}</h1>
+                </div>
+              </div>
+              <div className="divider-navy mb-8" />
+              <p className="text-[hsl(var(--navy)/0.6)] text-lg leading-relaxed max-w-3xl mb-12">{o.intro}</p>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-14">
+                {o.facts.map((f) => (
+                  <div key={f.title} className="card-light rounded-sm p-5">
+                    <div className="w-10 h-10 bg-[hsl(var(--navy)/0.06)] rounded-sm flex items-center justify-center mb-3">
+                      <Icon name={f.icon} size={18} className="text-[hsl(var(--navy))]" />
+                    </div>
+                    <div className="text-[hsl(var(--navy)/0.4)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{f.title}</div>
+                    <div className="font-['Montserrat'] font-bold text-base navy mt-0.5">{f.val}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-14">
+                <div>
+                  <h2 className="font-['Montserrat'] font-black text-2xl navy mb-5">Преимущества</h2>
+                  <div className="flex flex-col gap-3">
+                    {o.advantages.map((a, i) => (
+                      <div key={i} className="flex items-start gap-3 card-light rounded-sm p-4">
+                        <Icon name="CheckCircle" size={18} className="text-[hsl(var(--gold))] flex-shrink-0 mt-0.5" />
+                        <span className="text-[hsl(var(--navy)/0.65)] text-sm leading-relaxed">{a}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex flex-col gap-8">
+                  <div>
+                    <h2 className="font-['Montserrat'] font-black text-2xl navy mb-5">Популярные марки</h2>
+                    <div className="flex flex-wrap gap-2">
+                      {o.brands.map((b) => (
+                        <span key={b} className="px-4 py-2 bg-[hsl(220_25%_97%)] border border-[hsl(220_15%_88%)] rounded-sm text-sm font-['Montserrat'] font-semibold navy">{b}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <h2 className="font-['Montserrat'] font-black text-2xl navy mb-5">Аукционы и площадки</h2>
+                    <div className="flex flex-col gap-2">
+                      {o.auctions.map((a) => (
+                        <div key={a} className="flex items-center gap-3 card-light rounded-sm px-4 py-3">
+                          <Icon name="Globe" size={16} className="text-[hsl(var(--navy))]" />
+                          <span className="text-sm font-medium navy">{a}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-[hsl(var(--navy))] rounded-sm p-8 sm:p-10 text-center relative overflow-hidden">
+                <div className="absolute inset-0 light-grid opacity-10" />
+                <div className="relative">
+                  <h3 className="font-['Montserrat'] font-black text-2xl sm:text-3xl text-white mb-3">Нужны машинокомплекты из {o.name === "Япония" ? "Японии" : o.name === "Корея" ? "Кореи" : "Гонконга"}?</h3>
+                  <p className="text-white/55 mb-7 text-sm">Оставьте заявку — подберём авто под ваш запрос</p>
+                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button onClick={() => nav("contacts")} className="px-8 py-3.5 btn-gold rounded-sm">Отправить заявку</button>
+                    <button onClick={() => nav("how")} className="px-8 py-3.5 border border-white/30 text-white rounded-sm font-['Montserrat'] font-semibold hover:bg-white/10 transition-colors">Как мы работаем</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+          );
+        })()}
 
         {/* ════ CONTACTS ════ */}
         {page === "contacts" && (
