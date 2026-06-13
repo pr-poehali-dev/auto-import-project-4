@@ -3,6 +3,7 @@ import Icon from "@/components/ui/icon";
 
 const LOGO = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/bucket/892f391f-a7d5-48a5-92ab-0fda67f800fc.jpg";
 const HERO_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/69b82125-e3a5-4f1b-9b5d-3f6a6b2bd5c4.jpg";
+const DIRECTIONS_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/b696b668-4aa3-4ccc-a176-579a2d4c20d3.jpg";
 
 const AUTH_URL = "https://functions.poehali.dev/ddb4a7f6-82c2-4cca-8d4c-ed685f8a3c72";
 const ORDERS_URL = "https://functions.poehali.dev/d57608b2-729a-4006-a5c2-598ca59a8239";
@@ -868,15 +869,19 @@ export default function Index() {
 
         {/* ════ DIRECTIONS (все направления) ════ */}
         {page === "directions" && (
-          <section className="min-h-screen py-14 px-5 sm:px-8 max-w-7xl mx-auto">
-            <div className="mb-12">
-              <div className="section-tag mb-3">{t("directions_tag")}</div>
-              <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl navy">{t("source_countries")}</h1>
-              <div className="divider-navy mt-4" />
-              <p className="text-[hsl(var(--navy)/0.6)] text-lg leading-relaxed max-w-3xl mt-6">{t("directions_intro")}</p>
+          <section className="min-h-screen">
+            <div className="relative overflow-hidden mb-12">
+              <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${DIRECTIONS_IMG})` }} />
+              <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--navy))] via-[hsl(var(--navy)/0.85)] to-[hsl(var(--navy)/0.55)]" />
+              <div className="relative max-w-7xl mx-auto px-5 sm:px-8 py-20 sm:py-24">
+                <div className="section-tag mb-3 border-[hsl(var(--gold)/0.5)] text-[hsl(var(--gold))]">{t("directions_tag")}</div>
+                <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl text-white">{t("source_countries")}</h1>
+                <div className="h-1 w-16 bg-[hsl(var(--gold))] mt-4" />
+                <p className="text-white/70 text-lg leading-relaxed max-w-3xl mt-6">{t("directions_intro")}</p>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-5 sm:px-8 max-w-7xl mx-auto pb-14">
               {ORIGINS.map((o) => (
                 <div key={o.id} onClick={() => openOrigin(o.id)}
                   className="card-light rounded-sm p-7 text-left flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 group cursor-pointer">
