@@ -36,6 +36,29 @@ interface Order { id: number; order_number: string; car_brand: string; car_model
 
 const ORIGINS = [
   {
+    id: "hongkong", flag: "🇭🇰", name: "Гонконг", desc: "Европейские и американские марки по доступным ценам", volume: "от 20 ед./мес.",
+    intro: "Гонконг — направление для премиальных европейских и американских марок. BMW, Mercedes-Benz, Audi и Volkswagen по ценам ниже европейского рынка.",
+    brands: ["BMW", "Mercedes-Benz", "Audi", "Volkswagen", "Land Rover", "Porsche"],
+    auctions: ["Прямые контракты с дилерами", "Закрытые торги"],
+    auctionLinks: [
+      { name: "28car", url: "https://28car.com", desc: "Крупнейшая площадка авто в Гонконге" },
+      { name: "Carused.hk", url: "https://www.carused.hk", desc: "Каталог подержанных авто Гонконга" },
+      { name: "Hong Kong Car", url: "https://www.hkcars.com", desc: "Премиальные европейские марки" },
+    ],
+    facts: [
+      { icon: "Clock", title: "Срок доставки", val: "45–55 дней" },
+      { icon: "Anchor", title: "Порт прибытия", val: "Владивосток" },
+      { icon: "Package", title: "Объём", val: "от 20 ед./мес." },
+      { icon: "Gem", title: "Сегмент", val: "Премиум" },
+    ],
+    advantages: [
+      "Европейские и американские премиум-марки",
+      "Цены ниже европейского рынка",
+      "Машины в отличном состоянии",
+      "Редкие комплектации и дорогие агрегаты",
+    ],
+  },
+  {
     id: "japan", flag: "🇯🇵", name: "Япония", desc: "Праворульные авто с аукционов USS, JU, TAA", volume: "от 50 ед./мес.",
     intro: "Япония — ключевое направление для поставки машинокомплектов. Огромный выбор автомобилей в отличном состоянии, прозрачные аукционы и высокое качество узлов под разборку.",
     brands: ["Toyota", "Lexus", "Honda", "Nissan", "Mazda", "Mitsubishi", "Subaru", "Suzuki"],
@@ -83,29 +106,6 @@ const ORIGINS = [
       "Удобная логистика через порт Владивостока",
     ],
   },
-  {
-    id: "hongkong", flag: "🇭🇰", name: "Гонконг", desc: "Европейские и американские марки по доступным ценам", volume: "от 20 ед./мес.",
-    intro: "Гонконг — направление для премиальных европейских и американских марок. BMW, Mercedes-Benz, Audi и Volkswagen по ценам ниже европейского рынка.",
-    brands: ["BMW", "Mercedes-Benz", "Audi", "Volkswagen", "Land Rover", "Porsche"],
-    auctions: ["Прямые контракты с дилерами", "Закрытые торги"],
-    auctionLinks: [
-      { name: "28car", url: "https://28car.com", desc: "Крупнейшая площадка авто в Гонконге" },
-      { name: "Carused.hk", url: "https://www.carused.hk", desc: "Каталог подержанных авто Гонконга" },
-      { name: "Hong Kong Car", url: "https://www.hkcars.com", desc: "Премиальные европейские марки" },
-    ],
-    facts: [
-      { icon: "Clock", title: "Срок доставки", val: "45–55 дней" },
-      { icon: "Anchor", title: "Порт прибытия", val: "Владивосток" },
-      { icon: "Package", title: "Объём", val: "от 20 ед./мес." },
-      { icon: "Gem", title: "Сегмент", val: "Премиум" },
-    ],
-    advantages: [
-      "Европейские и американские премиум-марки",
-      "Цены ниже европейского рынка",
-      "Машины в отличном состоянии",
-      "Редкие комплектации и дорогие агрегаты",
-    ],
-  },
 ];
 const SERVICES = [
   { icon: "Package", title: "Поставка авто под разборку", desc: "Подбираем автомобили с аукционов и у дилеров под ваш запрос. Битые, с пробегом, снятые с учёта." },
@@ -145,7 +145,7 @@ type CabinetTab = "orders" | "new_order" | "auctions" | "documents" | "profile";
 // ════════════════════════════════════════════════════════════
 export default function Index() {
   const [page, setPage] = useState<Page>("home");
-  const [originId, setOriginId] = useState<string>("japan");
+  const [originId, setOriginId] = useState<string>("hongkong");
   const [activeAuction, setActiveAuction] = useState<{ name: string; url: string } | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   // auth
