@@ -489,41 +489,6 @@ export default function Index() {
                 ))}
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-14">
-                <div>
-                  <h2 className="font-['Montserrat'] font-black text-2xl navy mb-5">Преимущества</h2>
-                  <div className="flex flex-col gap-3">
-                    {o.advantages.map((a, i) => (
-                      <div key={i} className="flex items-start gap-3 card-light rounded-sm p-4">
-                        <Icon name="CheckCircle" size={18} className="text-[hsl(var(--gold))] flex-shrink-0 mt-0.5" />
-                        <span className="text-[hsl(var(--navy)/0.65)] text-sm leading-relaxed">{a}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex flex-col gap-8">
-                  <div>
-                    <h2 className="font-['Montserrat'] font-black text-2xl navy mb-5">Популярные марки</h2>
-                    <div className="flex flex-wrap gap-2">
-                      {o.brands.map((b) => (
-                        <span key={b} className="px-4 py-2 bg-[hsl(220_25%_97%)] border border-[hsl(220_15%_88%)] rounded-sm text-sm font-['Montserrat'] font-semibold navy">{b}</span>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <h2 className="font-['Montserrat'] font-black text-2xl navy mb-5">Аукционы и площадки</h2>
-                    <div className="flex flex-col gap-2">
-                      {o.auctions.map((a) => (
-                        <div key={a} className="flex items-center gap-3 card-light rounded-sm px-4 py-3">
-                          <Icon name="Globe" size={16} className="text-[hsl(var(--navy))]" />
-                          <span className="text-sm font-medium navy">{a}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               {"auctionLinks" in o && o.auctionLinks && (
                 <div className="mb-14">
                   <div className="flex items-center gap-3 mb-2">
@@ -590,6 +555,41 @@ export default function Index() {
                   )}
                 </div>
               )}
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-14">
+                <div>
+                  <h2 className="font-['Montserrat'] font-black text-2xl navy mb-5">Преимущества</h2>
+                  <div className="flex flex-col gap-3">
+                    {o.advantages.map((a, i) => (
+                      <div key={i} className="flex items-start gap-3 card-light rounded-sm p-4">
+                        <Icon name="CheckCircle" size={18} className="text-[hsl(var(--gold))] flex-shrink-0 mt-0.5" />
+                        <span className="text-[hsl(var(--navy)/0.65)] text-sm leading-relaxed">{a}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex flex-col gap-8">
+                  <div>
+                    <h2 className="font-['Montserrat'] font-black text-2xl navy mb-5">Популярные марки</h2>
+                    <div className="flex flex-wrap gap-2">
+                      {o.brands.map((b) => (
+                        <span key={b} className="px-4 py-2 bg-[hsl(220_25%_97%)] border border-[hsl(220_15%_88%)] rounded-sm text-sm font-['Montserrat'] font-semibold navy">{b}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <h2 className="font-['Montserrat'] font-black text-2xl navy mb-5">Аукционы и площадки</h2>
+                    <div className="flex flex-col gap-2">
+                      {o.auctions.map((a) => (
+                        <div key={a} className="flex items-center gap-3 card-light rounded-sm px-4 py-3">
+                          <Icon name="Globe" size={16} className="text-[hsl(var(--navy))]" />
+                          <span className="text-sm font-medium navy">{a}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <div className="bg-[hsl(var(--navy))] rounded-sm p-8 sm:p-10 text-center relative overflow-hidden">
                 <div className="absolute inset-0 light-grid opacity-10" />
