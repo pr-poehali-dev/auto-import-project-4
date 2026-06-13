@@ -40,6 +40,12 @@ const ORIGINS = [
     intro: "Япония — ключевое направление для поставки машинокомплектов. Огромный выбор автомобилей в отличном состоянии, прозрачные аукционы и высокое качество узлов под разборку.",
     brands: ["Toyota", "Lexus", "Honda", "Nissan", "Mazda", "Mitsubishi", "Subaru", "Suzuki"],
     auctions: ["USS Auction", "JU Auction", "TAA (Toyota)", "HAA (Honda)"],
+    auctionLinks: [
+      { name: "USS Auction", url: "https://www.ussnet.co.jp", desc: "Крупнейший аукцион Японии · 20 000+ лотов в неделю" },
+      { name: "JU Auction", url: "https://www.ju-group.co.jp", desc: "Сеть региональных аукционов по всей Японии" },
+      { name: "TAA (Toyota)", url: "https://www.taa.gr.jp", desc: "Официальный аукцион Toyota и Lexus" },
+      { name: "HAA Kobe (Honda)", url: "https://www.honda-auto-auction.com", desc: "Аукцион Honda и Acura" },
+    ],
     facts: [
       { icon: "Clock", title: "Срок доставки", val: "40–50 дней" },
       { icon: "Anchor", title: "Порт прибытия", val: "Владивосток" },
@@ -129,6 +135,7 @@ type CabinetTab = "orders" | "new_order" | "auctions" | "documents" | "profile";
 export default function Index() {
   const [page, setPage] = useState<Page>("home");
   const [originId, setOriginId] = useState<string>("japan");
+  const [activeAuction, setActiveAuction] = useState<{ name: string; url: string } | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   // auth
   const [token, setToken] = useState(() => localStorage.getItem("pc_token") || "");
@@ -176,7 +183,7 @@ export default function Index() {
   }, [user]);
 
   const nav = (p: Page) => { setPage(p); setMenuOpen(false); setAuthError(""); window.scrollTo({ top: 0, behavior: "smooth" }); };
-  const openOrigin = (id: string) => { setOriginId(id); setPage("origin"); setMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const openOrigin = (id: string) => { setOriginId(id); setActiveAuction(null); setPage("origin"); setMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
   const doLogin = async (e: React.FormEvent) => {
     e.preventDefault(); setAuthLoading(true); setAuthError("");
@@ -505,6 +512,73 @@ export default function Index() {
                   </div>
                 </div>
               </div>
+
+              {"auctionLinks" in o && o.auctionLinks && (
+                <div className="mb-14">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h2 className="font-['Montserrat'] font-black text-2xl navy">Доступ к аукционам</h2>
+                    <span className="text-[10px] font-['Montserrat'] font-bold px-2 py-0.5 bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))] rounded-full uppercase tracking-wide">Live</span>
+                  </div>
+                  <p className="text-[hsl(var(--navy)/0.5)] text-sm mb-6 max-w-2xl">Выберите площадку — мы откроем её во встроенном окне. Если аукцион не разрешает встраивание, откройте его в отдельной вкладке.</p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+                    {o.auctionLinks.map((a) => (
+                      <div key={a.name} className={`card-light rounded-sm p-4 flex flex-col gap-3 transition-all ${activeAuction?.name === a.name ? "ring-2 ring-[hsl(var(--gold))]" : ""}`}>
+                        <div className="flex items-start gap-2">
+                          <Icon name="Gavel" size={16} className="text-[hsl(var(--navy))] mt-0.5 flex-shrink-0" />
+                          <div>
+                            <div className="font-['Montserrat'] font-bold text-sm navy leading-tight">{a.name}</div>
+                            <div className="text-[hsl(var(--navy)/0.45)] text-xs mt-1 leading-snug">{a.desc}</div>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 mt-auto">
+                          <button onClick={() => setActiveAuction({ name: a.name, url: a.url })}
+                            className="flex-1 py-2 bg-[hsl(var(--navy))] text-white text-xs font-['Montserrat'] font-semibold rounded-sm hover:bg-[hsl(var(--navy)/0.9)] transition-colors">
+                            Открыть здесь
+                          </button>
+                          <a href={a.url} target="_blank" rel="noopener noreferrer"
+                            className="px-3 py-2 border border-[hsl(220_15%_85%)] rounded-sm flex items-center justify-center hover:border-[hsl(var(--navy))] transition-colors" title="Открыть в новой вкладке">
+                            <Icon name="ExternalLink" size={14} className="text-[hsl(var(--navy))]" />
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {activeAuction && (
+                    <div className="card-light rounded-sm overflow-hidden">
+                      <div className="flex items-center justify-between px-4 py-3 bg-[hsl(220_25%_97%)] border-b border-[hsl(220_15%_88%)]">
+                        <div className="flex items-center gap-2">
+                          <Icon name="Globe" size={15} className="text-[hsl(var(--navy))]" />
+                          <span className="font-['Montserrat'] font-semibold text-sm navy">{activeAuction.name}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <a href={activeAuction.url} target="_blank" rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-xs font-['Montserrat'] font-semibold text-[hsl(var(--gold))] hover:underline">
+                            В новой вкладке <Icon name="ExternalLink" size={12} />
+                          </a>
+                          <button onClick={() => setActiveAuction(null)} className="text-[hsl(var(--navy)/0.4)] hover:text-[hsl(var(--navy))]">
+                            <Icon name="X" size={16} />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="relative bg-[hsl(220_25%_97%)]">
+                        <iframe src={activeAuction.url} title={activeAuction.name} className="w-full h-[600px] border-0" sandbox="allow-same-origin allow-scripts allow-popups allow-forms" />
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="bg-white/90 rounded-sm px-5 py-4 text-center max-w-xs pointer-events-auto shadow-lg" style={{ opacity: 0.95 }}>
+                            <Icon name="Info" size={20} className="text-[hsl(var(--gold))] mx-auto mb-2" />
+                            <p className="text-[hsl(var(--navy)/0.7)] text-xs leading-relaxed mb-3">Если окно пустое — аукцион запрещает встраивание. Откройте площадку напрямую.</p>
+                            <a href={activeAuction.url} target="_blank" rel="noopener noreferrer"
+                              className="inline-block px-4 py-2 bg-[hsl(var(--navy))] text-white text-xs font-['Montserrat'] font-semibold rounded-sm">
+                              Открыть аукцион
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="bg-[hsl(var(--navy))] rounded-sm p-8 sm:p-10 text-center relative overflow-hidden">
                 <div className="absolute inset-0 light-grid opacity-10" />
