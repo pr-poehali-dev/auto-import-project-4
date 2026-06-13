@@ -78,9 +78,9 @@ export default function Index() {
 
       {/* ── HEADER ── */}
       <header className="fixed top-0 inset-x-0 z-50 bg-white border-b border-[hsl(220_15%_88%)] shadow-sm">
-        <div className="max-w-7xl mx-auto px-5 sm:px-8 flex items-center justify-between h-16">
+        <div className="max-w-7xl mx-auto px-5 sm:px-8 flex items-center justify-between h-20">
           <button onClick={() => nav("home")}>
-            <img src={LOGO} alt="Partcore Logistics" className="h-10 w-auto object-contain" />
+            <img src={LOGO} alt="Partcore Logistics" className="h-14 w-auto object-contain" />
           </button>
 
           <nav className="hidden md:flex items-center gap-0.5">
@@ -136,7 +136,7 @@ export default function Index() {
         )}
       </header>
 
-      <div className="pt-16">
+      <div className="pt-20">
 
         {/* ════ HOME ════ */}
         {page === "home" && (
