@@ -254,6 +254,8 @@ const I18N: Record<Lang, Record<string, string>> = {
     code_title: "Подтверждение телефона", code_sub: "Введите код из SMS, отправленный на номер",
     sms_code: "Код из SMS", confirm: "Подтвердить", change_number: "Изменить номер",
     resend_code: "Отправить код повторно",
+    auction_locked_title: "Доступ только для зарегистрированных",
+    auction_locked_sub: "Войдите или зарегистрируйтесь, чтобы получить доступ к просмотру аукционов.",
     // cabinet
     auth_required: "Для доступа необходимо войти",
     staff_cabinet: "Кабинет сотрудника", personal_cabinet: "Личный кабинет", staff_badge: "Сотрудник",
@@ -374,6 +376,8 @@ const I18N: Record<Lang, Record<string, string>> = {
     code_title: "Phone verification", code_sub: "Enter the code from the SMS sent to",
     sms_code: "SMS code", confirm: "Confirm", change_number: "Change number",
     resend_code: "Resend code",
+    auction_locked_title: "Registered users only",
+    auction_locked_sub: "Log in or sign up to get access to auction viewing.",
     // cabinet
     auth_required: "You need to log in to access this",
     staff_cabinet: "Staff dashboard", personal_cabinet: "Dashboard", staff_badge: "Staff",
@@ -937,6 +941,20 @@ export default function Index() {
                   </div>
                   <p className="text-[hsl(var(--navy)/0.5)] text-sm mb-6 max-w-2xl">{t("auction_access_sub")}</p>
 
+                  {!user ? (
+                    <div className="card-light rounded-sm p-10 text-center flex flex-col items-center">
+                      <div className="w-14 h-14 rounded-full bg-[hsl(var(--navy)/0.06)] flex items-center justify-center mb-4">
+                        <Icon name="Lock" size={26} className="text-[hsl(var(--navy)/0.5)]" />
+                      </div>
+                      <h3 className="font-['Montserrat'] font-bold text-lg navy mb-2">{t("auction_locked_title")}</h3>
+                      <p className="text-[hsl(var(--navy)/0.5)] text-sm mb-6 max-w-md">{t("auction_locked_sub")}</p>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <button onClick={() => nav("login")} className="px-6 py-3 btn-navy rounded-sm">{t("login")}</button>
+                        <button onClick={() => nav("register")} className="px-6 py-3 btn-outline rounded-sm">{t("register")}</button>
+                      </div>
+                    </div>
+                  ) : (
+                  <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
                     {o.auctionLinks.map((a) => (
                       <div key={a.name} className={`card-light rounded-sm p-4 flex flex-col gap-3 transition-all ${activeAuction?.name === a.name ? "ring-2 ring-[hsl(var(--gold))]" : ""}`}>
@@ -992,6 +1010,8 @@ export default function Index() {
                         </div>
                       </div>
                     </div>
+                  )}
+                  </>
                   )}
                 </div>
               )}
