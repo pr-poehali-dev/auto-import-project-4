@@ -471,8 +471,8 @@ export default function Index() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {ORIGINS.map((o) => (
-                <button key={o.id} onClick={() => openOrigin(o.id)}
-                  className="card-light rounded-sm p-7 text-left flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 group">
+                <div key={o.id} onClick={() => openOrigin(o.id)}
+                  className="card-light rounded-sm p-7 text-left flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 group cursor-pointer">
                   <div className="flex items-center justify-between mb-5">
                     <div className="text-5xl">{o.flag}</div>
                     <Icon name="ArrowRight" size={20} className="text-[hsl(var(--navy)/0.3)] group-hover:text-[hsl(var(--gold))] transition-colors" />
@@ -484,10 +484,12 @@ export default function Index() {
                       <span key={b} className="px-2.5 py-1 bg-[hsl(220_25%_97%)] border border-[hsl(220_15%_88%)] rounded-sm text-xs font-['Montserrat'] font-semibold navy">{b}</span>
                     ))}
                   </div>
-                  <div className="flex items-center gap-2 text-[hsl(var(--navy)/0.45)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide pt-4 border-t border-[hsl(220_15%_90%)]">
+                  <div className="flex items-center gap-2 text-[hsl(var(--navy)/0.45)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide pt-4 border-t border-[hsl(220_15%_90%)] mb-4">
                     <Icon name="Package" size={14} />{o.volume}
                   </div>
-                </button>
+                  <button onClick={(e) => { e.stopPropagation(); nav("contacts"); }}
+                    className="w-full py-3 btn-gold rounded-sm">Оставить заявку</button>
+                </div>
               ))}
             </div>
           </section>
