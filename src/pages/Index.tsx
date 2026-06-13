@@ -260,6 +260,8 @@ const I18N: Record<Lang, Record<string, string>> = {
     resend_code: "Отправить код повторно",
     auction_locked_title: "Доступ только для зарегистрированных",
     auction_locked_sub: "Войдите или зарегистрируйтесь, чтобы получить доступ к просмотру аукционов.",
+    staff_login_title: "Вход для сотрудников", staff_login_sub: "Служебный доступ к панели работы с клиентами",
+    err_not_staff: "Этот аккаунт не является сотрудником",
     // cabinet
     auth_required: "Для доступа необходимо войти",
     staff_cabinet: "Кабинет сотрудника", personal_cabinet: "Личный кабинет", staff_badge: "Сотрудник",
@@ -382,6 +384,8 @@ const I18N: Record<Lang, Record<string, string>> = {
     resend_code: "Resend code",
     auction_locked_title: "Registered users only",
     auction_locked_sub: "Log in or sign up to get access to auction viewing.",
+    staff_login_title: "Staff login", staff_login_sub: "Internal access to the client management panel",
+    err_not_staff: "This account is not a staff member",
     // cabinet
     auth_required: "You need to log in to access this",
     staff_cabinet: "Staff dashboard", personal_cabinet: "Dashboard", staff_badge: "Staff",
@@ -441,7 +445,7 @@ const I18N: Record<Lang, Record<string, string>> = {
   },
 };
 
-type Page = "home" | "directions" | "services" | "how" | "contacts" | "login" | "register" | "cabinet" | "origin";
+type Page = "home" | "directions" | "services" | "how" | "contacts" | "login" | "register" | "cabinet" | "origin" | "staff_login";
 type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile" | "clients";
 
 // ════════════════════════════════════════════════════════════
@@ -449,7 +453,7 @@ export default function Index() {
   const [lang, setLang] = useState<Lang>(() => (localStorage.getItem("pc_lang") as Lang) || "ru");
   const t = (key: string) => I18N[lang][key] || key;
   const changeLang = (l: Lang) => { setLang(l); localStorage.setItem("pc_lang", l); };
-  const [page, setPage] = useState<Page>("home");
+  const [page, setPage] = useState<Page>(() => (typeof window !== "undefined" && window.location.hash === "#staff") ? "staff_login" : "home");
   const [originId, setOriginId] = useState<string>("hongkong");
   const [activeAuction, setActiveAuction] = useState<{ name: string; url: string } | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -593,6 +597,23 @@ export default function Index() {
       if (me.user) setUser(me.user);
       nav("cabinet");
     } else setAuthError(data.error || t("err_login"));
+  };
+
+  const doStaffLogin = async (e: React.FormEvent) => {
+    e.preventDefault(); setAuthLoading(true); setAuthError("");
+    const data = await apiAuth("login", loginForm);
+    if (!data.token) { setAuthLoading(false); setAuthError(data.error || t("err_login")); return; }
+    const me = await apiAuth("me", {}, data.token);
+    setAuthLoading(false);
+    if (me.user && me.user.role === "staff") {
+      setToken(data.token); localStorage.setItem("pc_token", data.token);
+      setUser(me.user);
+      window.location.hash = "";
+      nav("cabinet");
+    } else {
+      await apiAuth("logout", {}, data.token);
+      setAuthError(t("err_not_staff"));
+    }
   };
 
   const doSendCode = async (e: React.FormEvent) => {
@@ -1151,6 +1172,40 @@ export default function Index() {
                 </div>
               </div>
             </div>
+            </div>
+          </section>
+        )}
+
+        {/* ════ STAFF LOGIN (скрытая страница #staff) ════ */}
+        {page === "staff_login" && (
+          <section className="min-h-screen flex items-center justify-center py-14 px-5 bg-[hsl(var(--navy))]">
+            <div className="w-full max-w-md">
+              <div className="text-center mb-8">
+                <div className="w-14 h-14 rounded-full bg-[hsl(var(--gold)/0.15)] flex items-center justify-center mx-auto mb-5">
+                  <Icon name="ShieldCheck" size={28} className="text-[hsl(var(--gold))]" />
+                </div>
+                <h1 className="font-['Montserrat'] font-black text-3xl text-white mb-2">{t("staff_login_title")}</h1>
+                <p className="text-white/55 text-sm">{t("staff_login_sub")}</p>
+              </div>
+              <div className="bg-white rounded-sm p-8 shadow-xl">
+                <form onSubmit={doStaffLogin} className="flex flex-col gap-5">
+                  {authError && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-sm">{authError}</div>}
+                  <div>
+                    <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">Email *</label>
+                    <input required type="email" placeholder="staff@partcore.ru" value={loginForm.email} onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })} className={inputCls} />
+                  </div>
+                  <div>
+                    <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("pwd")}</label>
+                    <input required type="password" placeholder="••••••••" value={loginForm.password} onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })} className={inputCls} />
+                  </div>
+                  <button type="submit" disabled={authLoading} className="w-full py-3.5 btn-navy rounded-sm disabled:opacity-60">
+                    {authLoading ? t("logging_in") : t("login")}
+                  </button>
+                </form>
+                <div className="text-center mt-5">
+                  <button onClick={() => { window.location.hash = ""; nav("home"); }} className="text-[hsl(var(--navy)/0.4)] text-sm hover:text-[hsl(var(--navy))] font-medium">← {t("nav_home")}</button>
+                </div>
+              </div>
             </div>
           </section>
         )}
