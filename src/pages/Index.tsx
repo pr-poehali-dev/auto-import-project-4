@@ -64,6 +64,12 @@ const ORIGINS = [
     intro: "Корея — выгодное направление для популярных в России марок. Hyundai, Kia и Ssangyong с высоким спросом на запчасти и привлекательной ценой машинокомплектов.",
     brands: ["Hyundai", "Kia", "Ssangyong", "Genesis", "Daewoo", "Renault Samsung"],
     auctions: ["Kcaa Auction", "Manheim Korea", "Lotte Auction"],
+    auctionLinks: [
+      { name: "Kcaa Auction", url: "https://www.kcaa.or.kr", desc: "Крупнейший автоаукцион Кореи" },
+      { name: "Manheim Korea", url: "https://korea.manheim.com", desc: "Международная площадка с базой корейских авто" },
+      { name: "Lotte Auto Auction", url: "https://www.lotteautoauction.net", desc: "Аукцион Lotte — широкий выбор лотов" },
+      { name: "Encar", url: "https://www.encar.com", desc: "Каталог авто с пробегом по всей Корее" },
+    ],
     facts: [
       { icon: "Clock", title: "Срок доставки", val: "35–45 дней" },
       { icon: "Anchor", title: "Порт прибытия", val: "Владивосток" },
@@ -82,6 +88,11 @@ const ORIGINS = [
     intro: "Гонконг — направление для премиальных европейских и американских марок. BMW, Mercedes-Benz, Audi и Volkswagen по ценам ниже европейского рынка.",
     brands: ["BMW", "Mercedes-Benz", "Audi", "Volkswagen", "Land Rover", "Porsche"],
     auctions: ["Прямые контракты с дилерами", "Закрытые торги"],
+    auctionLinks: [
+      { name: "28car", url: "https://28car.com", desc: "Крупнейшая площадка авто в Гонконге" },
+      { name: "Carused.hk", url: "https://www.carused.hk", desc: "Каталог подержанных авто Гонконга" },
+      { name: "Hong Kong Car", url: "https://www.hkcars.com", desc: "Премиальные европейские марки" },
+    ],
     facts: [
       { icon: "Clock", title: "Срок доставки", val: "45–55 дней" },
       { icon: "Anchor", title: "Порт прибытия", val: "Владивосток" },
