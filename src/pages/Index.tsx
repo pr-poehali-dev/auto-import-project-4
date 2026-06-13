@@ -337,7 +337,7 @@ export default function Index() {
               <div className="absolute inset-0 light-grid opacity-10" />
               <div className="relative max-w-3xl mx-auto px-5 sm:px-8 text-center">
                 <div className="section-tag mb-5 justify-center border-[hsl(var(--gold)/0.5)] text-[hsl(var(--gold))]">Начните сотрудничество</div>
-                <h2 className="font-['Montserrat'] font-black text-4xl sm:text-5xl text-white mb-4">НУЖНЫ АВТО<br /><span className="text-[hsl(var(--gold))]">ПОД РАЗБОРКУ?</span></h2>
+                <h2 className="font-['Montserrat'] font-black text-4xl sm:text-5xl text-white mb-4">НУЖНЫ<br /><span className="text-[hsl(var(--gold))]">КОНТРАКТНЫЕ ЗАПЧАСТИ?</span></h2>
                 <p className="text-white/55 mb-8">Оставьте заявку — менеджер свяжется в течение 2 часов</p>
                 <button onClick={() => nav("contacts")} className="px-10 py-4 btn-gold rounded-sm">Отправить заявку</button>
               </div>
