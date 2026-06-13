@@ -48,102 +48,126 @@ interface User { id: number; email: string; phone: string; full_name: string; co
 interface Order { id: number; order_number: string; car_brand: string; car_model: string; car_year: number; quantity: number; budget: number; status: string; status_label: string; origin: string; created_at: string; comment?: string; client_name?: string; client_email?: string; client_phone?: string; client_company?: string; cars_count?: number; }
 interface Car { id: number; car_brand: string; car_model: string; car_year: number; price: number; mileage: number; description: string; photos: string[]; created_at: string; }
 
+type Lang = "ru" | "en";
+type LS = { ru: string; en: string };
+
 const ORIGINS = [
   {
-    id: "hongkong", flag: "🇭🇰", name: "Гонконг", desc: "Европейские и американские марки по доступным ценам", volume: "от 20 ед./мес.",
-    intro: "Гонконг — направление для премиальных европейских и американских марок. BMW, Mercedes-Benz, Audi и Volkswagen по ценам ниже европейского рынка.",
+    id: "hongkong", flag: "🇭🇰",
+    name: { ru: "Гонконг", en: "Hong Kong" },
+    desc: { ru: "Европейские и американские марки по доступным ценам", en: "European and American brands at competitive prices" },
+    volume: { ru: "от 20 ед./мес.", en: "from 20 units/month" },
+    intro: { ru: "Гонконг — направление для премиальных европейских и американских марок. BMW, Mercedes-Benz, Audi и Volkswagen по ценам ниже европейского рынка.", en: "Hong Kong is the destination for premium European and American brands. BMW, Mercedes-Benz, Audi and Volkswagen at prices below the European market." },
     brands: ["BMW", "Mercedes-Benz", "Audi", "Volkswagen", "Land Rover", "Porsche"],
-    auctions: ["Прямые контракты с дилерами", "Закрытые торги"],
+    auctions: [
+      { ru: "Прямые контракты с дилерами", en: "Direct dealer contracts" },
+      { ru: "Закрытые торги", en: "Closed auctions" },
+    ],
     auctionLinks: [
-      { name: "28car", url: "https://28car.com", desc: "Крупнейшая площадка авто в Гонконге" },
-      { name: "Carused.hk", url: "https://www.carused.hk", desc: "Каталог подержанных авто Гонконга" },
-      { name: "Hong Kong Car", url: "https://www.hkcars.com", desc: "Премиальные европейские марки" },
+      { name: "28car", url: "https://28car.com", desc: { ru: "Крупнейшая площадка авто в Гонконге", en: "Largest car marketplace in Hong Kong" } },
+      { name: "Carused.hk", url: "https://www.carused.hk", desc: { ru: "Каталог подержанных авто Гонконга", en: "Used car catalog of Hong Kong" } },
+      { name: "Hong Kong Car", url: "https://www.hkcars.com", desc: { ru: "Премиальные европейские марки", en: "Premium European brands" } },
     ],
     facts: [
-      { icon: "Clock", title: "Срок доставки", val: "45–55 дней" },
-      { icon: "Anchor", title: "Порт прибытия", val: "Владивосток" },
-      { icon: "Package", title: "Объём", val: "от 20 ед./мес." },
-      { icon: "Gem", title: "Сегмент", val: "Премиум" },
+      { icon: "Clock", title: { ru: "Срок доставки", en: "Delivery time" }, val: { ru: "45–55 дней", en: "45–55 days" } },
+      { icon: "Anchor", title: { ru: "Порт прибытия", en: "Port of arrival" }, val: { ru: "Владивосток", en: "Vladivostok" } },
+      { icon: "Package", title: { ru: "Объём", en: "Volume" }, val: { ru: "от 20 ед./мес.", en: "from 20 units/month" } },
+      { icon: "Gem", title: { ru: "Сегмент", en: "Segment" }, val: { ru: "Премиум", en: "Premium" } },
     ],
     advantages: [
-      "Европейские и американские премиум-марки",
-      "Цены ниже европейского рынка",
-      "Машины в отличном состоянии",
-      "Редкие комплектации и дорогие агрегаты",
+      { ru: "Европейские и американские премиум-марки", en: "Premium European and American brands" },
+      { ru: "Цены ниже европейского рынка", en: "Prices below the European market" },
+      { ru: "Машины в отличном состоянии", en: "Vehicles in excellent condition" },
+      { ru: "Редкие комплектации и дорогие агрегаты", en: "Rare trims and high-value components" },
     ],
   },
   {
-    id: "japan", flag: "🇯🇵", name: "Япония", desc: "Праворульные авто с аукционов USS, JU, TAA", volume: "от 50 ед./мес.",
-    intro: "Япония — ключевое направление для поставки машинокомплектов. Огромный выбор автомобилей в отличном состоянии, прозрачные аукционы и высокое качество узлов под разборку.",
+    id: "japan", flag: "🇯🇵",
+    name: { ru: "Япония", en: "Japan" },
+    desc: { ru: "Праворульные авто с аукционов USS, JU, TAA", en: "Right-hand drive vehicles from USS, JU, TAA auctions" },
+    volume: { ru: "от 50 ед./мес.", en: "from 50 units/month" },
+    intro: { ru: "Япония — ключевое направление для поставки машинокомплектов. Огромный выбор автомобилей в отличном состоянии, прозрачные аукционы и высокое качество узлов под разборку.", en: "Japan is the key destination for sourcing vehicle assemblies. A huge selection of cars in excellent condition, transparent auctions and high-quality components for dismantling." },
     brands: ["Toyota", "Lexus", "Honda", "Nissan", "Mazda", "Mitsubishi", "Subaru", "Suzuki"],
-    auctions: ["USS Auction", "JU Auction", "TAA (Toyota)", "HAA (Honda)"],
+    auctions: [
+      { ru: "USS Auction", en: "USS Auction" },
+      { ru: "JU Auction", en: "JU Auction" },
+      { ru: "TAA (Toyota)", en: "TAA (Toyota)" },
+      { ru: "HAA (Honda)", en: "HAA (Honda)" },
+    ],
     auctionLinks: [
-      { name: "USS Auction", url: "https://www.ussnet.co.jp", desc: "Крупнейший аукцион Японии · 20 000+ лотов в неделю" },
-      { name: "JU Auction", url: "https://www.ju-group.co.jp", desc: "Сеть региональных аукционов по всей Японии" },
-      { name: "TAA (Toyota)", url: "https://www.taa.gr.jp", desc: "Официальный аукцион Toyota и Lexus" },
-      { name: "HAA Kobe (Honda)", url: "https://www.honda-auto-auction.com", desc: "Аукцион Honda и Acura" },
+      { name: "USS Auction", url: "https://www.ussnet.co.jp", desc: { ru: "Крупнейший аукцион Японии · 20 000+ лотов в неделю", en: "Largest auction in Japan · 20,000+ lots per week" } },
+      { name: "JU Auction", url: "https://www.ju-group.co.jp", desc: { ru: "Сеть региональных аукционов по всей Японии", en: "Network of regional auctions across Japan" } },
+      { name: "TAA (Toyota)", url: "https://www.taa.gr.jp", desc: { ru: "Официальный аукцион Toyota и Lexus", en: "Official Toyota and Lexus auction" } },
+      { name: "HAA Kobe (Honda)", url: "https://www.honda-auto-auction.com", desc: { ru: "Аукцион Honda и Acura", en: "Honda and Acura auction" } },
     ],
     facts: [
-      { icon: "Clock", title: "Срок доставки", val: "40–50 дней" },
-      { icon: "Anchor", title: "Порт прибытия", val: "Владивосток" },
-      { icon: "Package", title: "Объём", val: "от 50 ед./мес." },
-      { icon: "Star", title: "Состояние", val: "Премиальное" },
+      { icon: "Clock", title: { ru: "Срок доставки", en: "Delivery time" }, val: { ru: "40–50 дней", en: "40–50 days" } },
+      { icon: "Anchor", title: { ru: "Порт прибытия", en: "Port of arrival" }, val: { ru: "Владивосток", en: "Vladivostok" } },
+      { icon: "Package", title: { ru: "Объём", en: "Volume" }, val: { ru: "от 50 ед./мес.", en: "from 50 units/month" } },
+      { icon: "Star", title: { ru: "Состояние", en: "Condition" }, val: { ru: "Премиальное", en: "Premium" } },
     ],
     advantages: [
-      "Самый большой выбор лотов в Азии — более 20 000 авто еженедельно",
-      "Прозрачная аукционная оценка состояния (баллы 3.5–5)",
-      "Минимальная коррозия благодаря мягкому климату",
-      "Оригинальные машинокомплекты",
+      { ru: "Самый большой выбор лотов в Азии — более 20 000 авто еженедельно", en: "The widest selection of lots in Asia — over 20,000 cars weekly" },
+      { ru: "Прозрачная аукционная оценка состояния (баллы 3.5–5)", en: "Transparent auction condition grading (scores 3.5–5)" },
+      { ru: "Минимальная коррозия благодаря мягкому климату", en: "Minimal corrosion thanks to the mild climate" },
+      { ru: "Оригинальные машинокомплекты", en: "Genuine vehicle assemblies" },
     ],
   },
   {
-    id: "korea", flag: "🇰🇷", name: "Корея", desc: "Hyundai, Kia, Ssangyong — высокий спрос на запчасти", volume: "от 30 ед./мес.",
-    intro: "Корея — выгодное направление для популярных в России марок. Hyundai, Kia и Ssangyong с высоким спросом на запчасти и привлекательной ценой машинокомплектов.",
+    id: "korea", flag: "🇰🇷",
+    name: { ru: "Корея", en: "Korea" },
+    desc: { ru: "Hyundai, Kia, Ssangyong — высокий спрос на запчасти", en: "Hyundai, Kia, Ssangyong — high demand for parts" },
+    volume: { ru: "от 30 ед./мес.", en: "from 30 units/month" },
+    intro: { ru: "Корея — выгодное направление для популярных в России марок. Hyundai, Kia и Ssangyong с высоким спросом на запчасти и привлекательной ценой машинокомплектов.", en: "Korea is a cost-effective destination for brands popular in Russia. Hyundai, Kia and Ssangyong with high demand for parts and attractive prices for vehicle assemblies." },
     brands: ["Hyundai", "Kia", "Ssangyong", "Genesis", "Daewoo", "Renault Samsung"],
-    auctions: ["Kcaa Auction", "Manheim Korea", "Lotte Auction"],
+    auctions: [
+      { ru: "Kcaa Auction", en: "Kcaa Auction" },
+      { ru: "Manheim Korea", en: "Manheim Korea" },
+      { ru: "Lotte Auction", en: "Lotte Auction" },
+    ],
     auctionLinks: [
-      { name: "Kcaa Auction", url: "https://www.kcaa.or.kr", desc: "Крупнейший автоаукцион Кореи" },
-      { name: "Manheim Korea", url: "https://korea.manheim.com", desc: "Международная площадка с базой корейских авто" },
-      { name: "Lotte Auto Auction", url: "https://www.lotteautoauction.net", desc: "Аукцион Lotte — широкий выбор лотов" },
-      { name: "Encar", url: "https://www.encar.com", desc: "Каталог авто с пробегом по всей Корее" },
+      { name: "Kcaa Auction", url: "https://www.kcaa.or.kr", desc: { ru: "Крупнейший автоаукцион Кореи", en: "Largest car auction in Korea" } },
+      { name: "Manheim Korea", url: "https://korea.manheim.com", desc: { ru: "Международная площадка с базой корейских авто", en: "International platform with a base of Korean cars" } },
+      { name: "Lotte Auto Auction", url: "https://www.lotteautoauction.net", desc: { ru: "Аукцион Lotte — широкий выбор лотов", en: "Lotte auction — a wide selection of lots" } },
+      { name: "Encar", url: "https://www.encar.com", desc: { ru: "Каталог авто с пробегом по всей Корее", en: "Catalog of used cars across Korea" } },
     ],
     facts: [
-      { icon: "Clock", title: "Срок доставки", val: "35–45 дней" },
-      { icon: "Anchor", title: "Порт прибытия", val: "Владивосток" },
-      { icon: "Package", title: "Объём", val: "от 30 ед./мес." },
-      { icon: "TrendingUp", title: "Спрос на з/ч", val: "Высокий" },
+      { icon: "Clock", title: { ru: "Срок доставки", en: "Delivery time" }, val: { ru: "35–45 дней", en: "35–45 days" } },
+      { icon: "Anchor", title: { ru: "Порт прибытия", en: "Port of arrival" }, val: { ru: "Владивосток", en: "Vladivostok" } },
+      { icon: "Package", title: { ru: "Объём", en: "Volume" }, val: { ru: "от 30 ед./мес.", en: "from 30 units/month" } },
+      { icon: "TrendingUp", title: { ru: "Спрос на з/ч", en: "Parts demand" }, val: { ru: "Высокий", en: "High" } },
     ],
     advantages: [
-      "Самые востребованные в РФ марки — быстрая оборачиваемость запчастей",
-      "Доступная цена машинокомплектов",
-      "Современные модели с актуальными агрегатами",
-      "Удобная логистика через порт Владивостока",
+      { ru: "Самые востребованные в РФ марки — быстрая оборачиваемость запчастей", en: "The most in-demand brands in Russia — fast parts turnover" },
+      { ru: "Доступная цена машинокомплектов", en: "Affordable price for vehicle assemblies" },
+      { ru: "Современные модели с актуальными агрегатами", en: "Modern models with up-to-date components" },
+      { ru: "Удобная логистика через порт Владивостока", en: "Convenient logistics via the port of Vladivostok" },
     ],
   },
 ];
 const SERVICES = [
-  { icon: "Package", title: "Поставка авто под разборку", desc: "Подбираем автомобили с аукционов и у дилеров под ваш запрос. Битые, с пробегом, снятые с учёта." },
-  { icon: "FileCheck", title: "Таможенное оформление", desc: "Полное сопровождение: документы, СБКТС, таможенная декларация. Растаможка под ключ." },
-  { icon: "Truck", title: "Доставка по России", desc: "Логистика от порта до вашего склада. Работаем с Владивостоком, Санкт-Петербургом, Новороссийском." },
-  { icon: "Search", title: "Подбор по запросу", desc: "Нужна конкретная марка, модель или год? Ищем точно под ваши требования на аукционах Азии." },
-  { icon: "Warehouse", title: "Хранение на складе", desc: "Временное хранение до вашей готовности принять партию. Охраняемые склады у портов." },
-  { icon: "ShieldCheck", title: "Проверка перед покупкой", desc: "Инспекция состояния авто, фото и отчёт о комплектности узлов до отправки из страны." },
+  { icon: "Package", title: { ru: "Поставка авто под разборку", en: "Supply of cars for dismantling" }, desc: { ru: "Подбираем автомобили с аукционов и у дилеров под ваш запрос. Битые, с пробегом, снятые с учёта.", en: "We source cars from auctions and dealers to match your request. Damaged, used, deregistered." } },
+  { icon: "FileCheck", title: { ru: "Таможенное оформление", en: "Customs clearance" }, desc: { ru: "Полное сопровождение: документы, СБКТС, таможенная декларация. Растаможка под ключ.", en: "Full support: documents, certification, customs declaration. Turnkey customs clearance." } },
+  { icon: "Truck", title: { ru: "Доставка по России", en: "Delivery across Russia" }, desc: { ru: "Логистика от порта до вашего склада. Работаем с Владивостоком, Санкт-Петербургом, Новороссийском.", en: "Logistics from the port to your warehouse. We work with Vladivostok, St. Petersburg and Novorossiysk." } },
+  { icon: "Search", title: { ru: "Подбор по запросу", en: "Sourcing on request" }, desc: { ru: "Нужна конкретная марка, модель или год? Ищем точно под ваши требования на аукционах Азии.", en: "Need a specific make, model or year? We search precisely to your requirements at Asian auctions." } },
+  { icon: "Warehouse", title: { ru: "Хранение на складе", en: "Warehouse storage" }, desc: { ru: "Временное хранение до вашей готовности принять партию. Охраняемые склады у портов.", en: "Temporary storage until you are ready to receive the batch. Secured warehouses near the ports." } },
+  { icon: "ShieldCheck", title: { ru: "Проверка перед покупкой", en: "Pre-purchase inspection" }, desc: { ru: "Инспекция состояния авто, фото и отчёт о комплектности узлов до отправки из страны.", en: "Vehicle condition inspection, photos and a report on component completeness before shipping from the country." } },
 ];
 const STATS = [
-  { num: "1 200+", label: "Авто поставлено" }, { num: "8 лет", label: "На рынке" },
-  { num: "3", label: "Страны отправки" }, { num: "40–55", label: "Дней — срок доставки" },
+  { num: "1 200+", label: { ru: "Авто поставлено", en: "Cars supplied" } }, { num: "8 лет", label: { ru: "На рынке", en: "Years on the market" } },
+  { num: "3", label: { ru: "Страны отправки", en: "Source countries" } }, { num: "40–55", label: { ru: "Дней — срок доставки", en: "Days — delivery time" } },
 ];
 const WHY = [
-  { icon: "Building2", title: "Прямые контракты", desc: "Работаем напрямую с аукционными домами без посредников — ниже цена, быстрее сделка." },
-  { icon: "BarChart3", title: "Оптовые объёмы", desc: "Ориентированы на B2B: минимальная партия от 3 авто. Чем больше объём — тем выгоднее условия." },
-  { icon: "ClipboardList", title: "Прозрачная отчётность", desc: "Фото, видео и отчёт на каждом этапе — от аукциона до разгрузки на вашем складе." },
-  { icon: "Headphones", title: "Персональный менеджер", desc: "Один контакт на весь цикл сделки. Знает ваш бизнес и подбирает авто точно под ваш профиль." },
+  { icon: "Building2", title: { ru: "Прямые контракты", en: "Direct contracts" }, desc: { ru: "Работаем напрямую с аукционными домами без посредников — ниже цена, быстрее сделка.", en: "We work directly with auction houses without intermediaries — lower prices, faster deals." } },
+  { icon: "BarChart3", title: { ru: "Оптовые объёмы", en: "Wholesale volumes" }, desc: { ru: "Ориентированы на B2B: минимальная партия от 3 авто. Чем больше объём — тем выгоднее условия.", en: "Focused on B2B: minimum batch of 3 cars. The larger the volume, the better the terms." } },
+  { icon: "ClipboardList", title: { ru: "Прозрачная отчётность", en: "Transparent reporting" }, desc: { ru: "Фото, видео и отчёт на каждом этапе — от аукциона до разгрузки на вашем складе.", en: "Photos, video and a report at every stage — from the auction to unloading at your warehouse." } },
+  { icon: "Headphones", title: { ru: "Персональный менеджер", en: "Personal manager" }, desc: { ru: "Один контакт на весь цикл сделки. Знает ваш бизнес и подбирает авто точно под ваш профиль.", en: "One contact for the entire deal cycle. They know your business and source cars to fit your profile." } },
 ];
 const STEPS = [
-  { n: "01", title: "Заявка", desc: "Присылаете список нужных марок, моделей, годов и бюджет." },
-  { n: "02", title: "Подбор и торги", desc: "Участвуем в аукционах. Согласовываем лот с вами до покупки." },
-  { n: "03", title: "Проверка и отгрузка", desc: "Инспектируем авто, грузим в контейнер, оформляем документы." },
-  { n: "04", title: "Таможня и доставка", desc: "Растаможиваем и доставляем до вашего склада по России." },
+  { n: "01", title: { ru: "Заявка", en: "Request" }, desc: { ru: "Присылаете список нужных марок, моделей, годов и бюджет.", en: "You send a list of the makes, models, years and budget you need." } },
+  { n: "02", title: { ru: "Подбор и торги", en: "Sourcing and bidding" }, desc: { ru: "Участвуем в аукционах. Согласовываем лот с вами до покупки.", en: "We take part in auctions. We confirm the lot with you before purchase." } },
+  { n: "03", title: { ru: "Проверка и отгрузка", en: "Inspection and shipping" }, desc: { ru: "Инспектируем авто, грузим в контейнер, оформляем документы.", en: "We inspect the cars, load them into a container and prepare the documents." } },
+  { n: "04", title: { ru: "Таможня и доставка", en: "Customs and delivery" }, desc: { ru: "Растаможиваем и доставляем до вашего склада по России.", en: "We clear customs and deliver to your warehouse across Russia." } },
 ];
 const BRANDS = ["Toyota","Lexus","Honda","Nissan","Mazda","Mitsubishi","Subaru","Hyundai","Kia","Ssangyong","BMW","Mercedes-Benz","Audi","Volkswagen"];
 
@@ -153,11 +177,260 @@ const STATUS_COLOR: Record<string, string> = {
   customs: "bg-orange-100 text-orange-700", delivered: "bg-teal-100 text-teal-700", done: "bg-green-100 text-green-700",
 };
 
+// ── Status labels (frontend translation by status code) ──
+const STATUS_LABEL: Record<Lang, Record<string, string>> = {
+  ru: { new: "Новая", processing: "В обработке", auction: "На аукционе", shipped: "Отправлен", customs: "На таможне", delivered: "Доставлен", done: "Завершён" },
+  en: { new: "New", processing: "Processing", auction: "At auction", shipped: "Shipped", customs: "At customs", delivered: "Delivered", done: "Completed" },
+};
+
+// ── Origin name <-> code map (для перевода поля origin из заявок) ──
+const ORIGIN_LABEL: Record<Lang, Record<string, string>> = {
+  ru: { "Япония": "Япония", "Корея": "Корея", "Гонконг": "Гонконг" },
+  en: { "Япония": "Japan", "Корея": "Korea", "Гонконг": "Hong Kong" },
+};
+
+// ── i18n dictionary ──────────────────────────────────────────
+const I18N: Record<Lang, Record<string, string>> = {
+  ru: {
+    // nav
+    nav_home: "Главная", nav_directions: "Направления", nav_services: "Услуги", nav_how: "Как работаем", nav_contacts: "Контакты",
+    login: "Войти", register: "Регистрация", cabinet: "Личный кабинет", logout: "Выйти",
+    // home hero
+    hero_tag: "B2B поставки · Япония · Корея · Гонконг",
+    hero_title_1: "ПОСТАВКА", hero_title_2: "МАШИНОКОМПЛЕКТОВ",
+    hero_subtitle: "Partcore Logistics поставляет автомобили с азиатских аукционов для разборщиков и автомагазинов. Опт от 3 авто, полное таможенное сопровождение.",
+    send_request: "Отправить заявку", how_we_work: "Как мы работаем",
+    // home sections
+    directions_tag: "Направления", from_where: "ОТКУДА ВЕЗЁМ",
+    more: "Подробнее",
+    what_we_do: "Что мы делаем", services_title: "УСЛУГИ",
+    advantages_tag: "Преимущества", why_us: "ПОЧЕМУ МЫ",
+    start_coop_tag: "Начните сотрудничество",
+    cta_need_1: "НУЖНЫ", cta_need_2: "КОНТРАКТНЫЕ ЗАПЧАСТИ?",
+    cta_subtitle: "Оставьте заявку — менеджер свяжется в течение 2 часов",
+    // services page
+    custom_service_title: "Нужна индивидуальная услуга?",
+    custom_service_sub: "Расскажите о своём запросе — найдём решение под ваш бизнес",
+    discuss_task: "Обсудить задачу",
+    // how page
+    process_tag: "Процесс", how_we_work_title: "КАК МЫ РАБОТАЕМ", start_coop: "Начать сотрудничество",
+    // directions page
+    source_countries: "СТРАНЫ ОТПРАВКИ",
+    directions_intro: "Поставляем машинокомплекты с аукционов и от дилеров из Азии. Выберите направление, чтобы посмотреть марки, аукционы и условия доставки.",
+    leave_request: "Оставить заявку",
+    // origin page
+    all_directions: "Все направления", direction_tag: "Направление",
+    auction_access: "Доступ к аукционам",
+    auction_access_sub: "Выберите площадку — мы откроем её во встроенном окне. Если аукцион не разрешает встраивание, откройте его в отдельной вкладке.",
+    open_here: "Открыть здесь", open_new_tab_title: "Открыть в новой вкладке",
+    in_new_tab: "В новой вкладке",
+    iframe_warning: "Если окно пустое — аукцион запрещает встраивание. Откройте площадку напрямую.",
+    open_auction: "Открыть аукцион",
+    advantages: "Преимущества", popular_brands: "Популярные марки", auctions_platforms: "Аукционы и площадки",
+    origin_cta_title_pre: "Нужны машинокомплекты из ", origin_cta_title_post: "?",
+    origin_cta_sub: "Оставьте заявку — подберём авто под ваш запрос",
+    // contacts
+    contact_tag: "Связь", leave_request_title: "ОСТАВИТЬ ЗАЯВКУ",
+    request_accepted: "Заявка принята!",
+    request_accepted_sub: "Менеджер свяжется с вами в течение 2 рабочих часов",
+    send_another: "Отправить ещё заявку",
+    supply_request: "Заявка на поставку",
+    supply_request_sub: "Для разборщиков и автомагазинов. Ответим за 2 часа.",
+    contact_person: "Контактное лицо *", company_ip: "Компания / ИП", phone_req: "Телефон *",
+    comment: "Комментарий", comment_ph: "Марки, объём, бюджет...",
+    contacts: "Контакты", phone: "Телефон", phone_sub: "Бесплатно по России",
+    email_sub: "Для коммерческих запросов", messenger_sub: "Ответим в течение 15 мин",
+    office: "Офис", office_city: "Москва", office_hours: "Пн–Пт 9:00–18:00",
+    ph_name: "Иван Петров", ph_company: "ООО «АвтоРазбор»",
+    // login / register
+    login_title: "Вход в кабинет", login_sub: "Введите email и пароль для входа",
+    pwd: "Пароль *", logging_in: "Входим...", no_account: "Нет аккаунта?", do_register: "Зарегистрироваться",
+    register_title: "Регистрация", register_sub: "Создайте аккаунт для доступа к личному кабинету",
+    your_name: "Ваше имя *", phone_opt: "Телефон", pwd_min: "Пароль * (мин. 6 символов)",
+    registering: "Регистрируем...", have_account: "Уже есть аккаунт?",
+    err_login: "Ошибка входа", err_register: "Ошибка регистрации",
+    // cabinet
+    auth_required: "Для доступа необходимо войти",
+    staff_cabinet: "Кабинет сотрудника", personal_cabinet: "Личный кабинет", staff_badge: "Сотрудник",
+    tab_clients: "Заявки клиентов", tab_profile: "Профиль", tab_orders: "Мои заявки",
+    tab_active_orders: "Заказы", tab_new_order: "Новая заявка", tab_auctions: "Аукционы", tab_documents: "Документы",
+    loading_orders: "Загружаем заявки...", no_new_orders: "Новых заявок нет",
+    no_new_orders_sub: "Создайте заявку на подбор — она появится здесь до начала работы",
+    create_order: "Создать заявку",
+    pcs: "шт.", up_to: "до",
+    loading_active: "Загружаем заказы...", no_active_orders: "Активных заказов нет",
+    no_active_orders_sub: "Здесь появятся заказы, как только менеджер возьмёт заявку в работу",
+    step_processing: "В обработке", step_auction: "Торги", step_shipped: "Отгрузка",
+    step_customs: "Таможня", step_delivered: "Доставка", step_done: "Готово",
+    selected_cars: "Подобранные автомобили", km: "км",
+    loading_clients: "Загружаем заявки клиентов...", no_client_orders: "Заявок пока нет",
+    no_client_orders_sub: "Здесь появятся заявки от клиентов",
+    cars_word: "авто", request_word: "Запрос:",
+    all_client_orders: "Все заявки клиентов",
+    client: "Клиент:", company_label: "Компания:", email_label: "Email:", phone_label: "Телефон:",
+    request_label: "Запрос:", direction_label: "Направление:",
+    client_comment: "Комментарий клиента: ",
+    order_status: "Статус заказа",
+    st_new: "Новая", st_processing: "В обработке", st_auction: "На аукционе", st_shipped: "Отправлен",
+    st_customs: "На таможне", st_delivered: "Доставлен", st_done: "Завершён",
+    add_car_title: "Добавить автомобиль клиенту",
+    brand: "Марка *", model: "Модель", year: "Год", price_rub: "Цена, ₽", mileage_km: "Пробег, км",
+    description_trim: "Описание / комплектация", description_ph: "Состояние, оценка аукциона, комплектация, узлы...",
+    car_photos: "Фото автомобиля", photo: "Фото",
+    saving: "Сохраняем...", add_car: "Добавить автомобиль",
+    proposed_cars: "Предложенные автомобили", loading: "Загрузка...", nothing_added: "Пока ничего не добавлено",
+    new_order_created: "Заявка создана!", new_order_redirect: "Переходим к списку заявок...",
+    new_order_title: "Новая заявка на подбор", new_order_sub: "Укажите параметры — менеджер подберёт варианты",
+    qty: "Кол-во шт.", direction: "Направление", budget_unit: "Бюджет за ед., ₽",
+    comment_req_ph: "Доп. требования к комплектации, состоянию...",
+    jp_auctions: "Японские аукционы",
+    jp_auctions_sub: "Прямой доступ к крупнейшим аукционным площадкам Японии и Кореи",
+    go_to_auction: "Перейти на аукцион",
+    auction_info_pre: "Наши менеджеры могут участвовать в торгах от вашего имени. ",
+    auction_info_link: "Создайте заявку", auction_info_post: " — мы найдём нужный лот.",
+    documents: "Документы", documents_sub: "Загрузите необходимые документы для оформления поставки",
+    upload_document: "Загрузить документ", upload_hint: "PDF, JPG, PNG — до 10 МБ", choose_file: "Выбрать файл",
+    no_documents: "Документов пока нет",
+    edit_profile: "Редактировать профиль", profile_saved: "Профиль сохранён",
+    full_name: "Полное имя", inn: "ИНН", save_changes: "Сохранить изменения",
+    ph_inn: "1234567890",
+    // footer
+    footer_copy: "© 2024 Partcore Logistics. Поставка авто под разборку.",
+    // auctions tab descriptions
+    auc_uss: "Крупнейший аукцион Японии. Более 20 000 лотов еженедельно.",
+    auc_ju: "Японский аукцион с широким выбором битых и страховых авто.",
+    auc_taa: "Toyota Automobile Auction — официальная площадка Toyota.",
+    auc_haa: "Honda Auto Auction — специализация на Honda и Acura.",
+    auc_kcaa: "Крупнейший аукцион Кореи. Hyundai, Kia, Ssangyong.",
+    auc_manheim: "Международная платформа с широкой базой корейских авто.",
+    auc_tag_jp1: "Топ-1 Япония", auc_tag_crash: "Битые авто", auc_tag_toyota: "Toyota Official",
+    auc_tag_honda: "Honda Official", auc_tag_kr1: "Топ-1 Корея", auc_tag_intl: "Международный",
+  },
+  en: {
+    // nav
+    nav_home: "Home", nav_directions: "Destinations", nav_services: "Services", nav_how: "How we work", nav_contacts: "Contacts",
+    login: "Log in", register: "Sign up", cabinet: "Dashboard", logout: "Log out",
+    // home hero
+    hero_tag: "B2B supply · Japan · Korea · Hong Kong",
+    hero_title_1: "VEHICLE ASSEMBLY", hero_title_2: "SUPPLY",
+    hero_subtitle: "Partcore Logistics supplies cars from Asian auctions for dismantlers and auto shops. Wholesale from 3 cars, full customs support.",
+    send_request: "Send request", how_we_work: "How we work",
+    // home sections
+    directions_tag: "Destinations", from_where: "WHERE WE SOURCE",
+    more: "Learn more",
+    what_we_do: "What we do", services_title: "SERVICES",
+    advantages_tag: "Advantages", why_us: "WHY US",
+    start_coop_tag: "Start cooperation",
+    cta_need_1: "NEED", cta_need_2: "CONTRACT PARTS?",
+    cta_subtitle: "Leave a request — a manager will contact you within 2 hours",
+    // services page
+    custom_service_title: "Need a custom service?",
+    custom_service_sub: "Tell us about your request — we'll find a solution for your business",
+    discuss_task: "Discuss your task",
+    // how page
+    process_tag: "Process", how_we_work_title: "HOW WE WORK", start_coop: "Start cooperation",
+    // directions page
+    source_countries: "SOURCE COUNTRIES",
+    directions_intro: "We supply vehicle assemblies from auctions and dealers across Asia. Select a destination to view brands, auctions and delivery terms.",
+    leave_request: "Leave a request",
+    // origin page
+    all_directions: "All destinations", direction_tag: "Destination",
+    auction_access: "Auction access",
+    auction_access_sub: "Select a platform — we'll open it in an embedded window. If the auction does not allow embedding, open it in a separate tab.",
+    open_here: "Open here", open_new_tab_title: "Open in a new tab",
+    in_new_tab: "In a new tab",
+    iframe_warning: "If the window is empty, the auction blocks embedding. Open the platform directly.",
+    open_auction: "Open auction",
+    advantages: "Advantages", popular_brands: "Popular brands", auctions_platforms: "Auctions and platforms",
+    origin_cta_title_pre: "Need vehicle assemblies from ", origin_cta_title_post: "?",
+    origin_cta_sub: "Leave a request — we'll source cars to match your needs",
+    // contacts
+    contact_tag: "Contact", leave_request_title: "LEAVE A REQUEST",
+    request_accepted: "Request received!",
+    request_accepted_sub: "A manager will contact you within 2 business hours",
+    send_another: "Send another request",
+    supply_request: "Supply request",
+    supply_request_sub: "For dismantlers and auto shops. We'll reply within 2 hours.",
+    contact_person: "Contact person *", company_ip: "Company / sole proprietor", phone_req: "Phone *",
+    comment: "Comment", comment_ph: "Brands, volume, budget...",
+    contacts: "Contacts", phone: "Phone", phone_sub: "Toll-free across Russia",
+    email_sub: "For commercial inquiries", messenger_sub: "We reply within 15 min",
+    office: "Office", office_city: "Moscow", office_hours: "Mon–Fri 9:00–18:00",
+    ph_name: "John Smith", ph_company: "Acme Auto Parts LLC",
+    // login / register
+    login_title: "Log in to your dashboard", login_sub: "Enter your email and password to log in",
+    pwd: "Password *", logging_in: "Logging in...", no_account: "No account?", do_register: "Sign up",
+    register_title: "Sign up", register_sub: "Create an account to access your dashboard",
+    your_name: "Your name *", phone_opt: "Phone", pwd_min: "Password * (min. 6 characters)",
+    registering: "Signing up...", have_account: "Already have an account?",
+    err_login: "Login error", err_register: "Registration error",
+    // cabinet
+    auth_required: "You need to log in to access this",
+    staff_cabinet: "Staff dashboard", personal_cabinet: "Dashboard", staff_badge: "Staff",
+    tab_clients: "Client requests", tab_profile: "Profile", tab_orders: "My requests",
+    tab_active_orders: "Orders", tab_new_order: "New request", tab_auctions: "Auctions", tab_documents: "Documents",
+    loading_orders: "Loading requests...", no_new_orders: "No new requests",
+    no_new_orders_sub: "Create a sourcing request — it will appear here until work begins",
+    create_order: "Create request",
+    pcs: "pcs", up_to: "up to",
+    loading_active: "Loading orders...", no_active_orders: "No active orders",
+    no_active_orders_sub: "Orders will appear here once a manager starts working on your request",
+    step_processing: "Processing", step_auction: "Bidding", step_shipped: "Shipping",
+    step_customs: "Customs", step_delivered: "Delivery", step_done: "Done",
+    selected_cars: "Selected cars", km: "km",
+    loading_clients: "Loading client requests...", no_client_orders: "No requests yet",
+    no_client_orders_sub: "Client requests will appear here",
+    cars_word: "cars", request_word: "Request:",
+    all_client_orders: "All client requests",
+    client: "Client:", company_label: "Company:", email_label: "Email:", phone_label: "Phone:",
+    request_label: "Request:", direction_label: "Destination:",
+    client_comment: "Client comment: ",
+    order_status: "Order status",
+    st_new: "New", st_processing: "Processing", st_auction: "At auction", st_shipped: "Shipped",
+    st_customs: "At customs", st_delivered: "Delivered", st_done: "Completed",
+    add_car_title: "Add a car for the client",
+    brand: "Make *", model: "Model", year: "Year", price_rub: "Price, ₽", mileage_km: "Mileage, km",
+    description_trim: "Description / trim", description_ph: "Condition, auction grade, trim, components...",
+    car_photos: "Car photos", photo: "Photo",
+    saving: "Saving...", add_car: "Add car",
+    proposed_cars: "Proposed cars", loading: "Loading...", nothing_added: "Nothing added yet",
+    new_order_created: "Request created!", new_order_redirect: "Redirecting to the request list...",
+    new_order_title: "New sourcing request", new_order_sub: "Specify the parameters — a manager will find options",
+    qty: "Quantity", direction: "Destination", budget_unit: "Budget per unit, ₽",
+    comment_req_ph: "Additional requirements for trim, condition...",
+    jp_auctions: "Japanese auctions",
+    jp_auctions_sub: "Direct access to the largest auction platforms in Japan and Korea",
+    go_to_auction: "Go to auction",
+    auction_info_pre: "Our managers can bid on your behalf. ",
+    auction_info_link: "Create a request", auction_info_post: " — we'll find the right lot.",
+    documents: "Documents", documents_sub: "Upload the documents required to process the supply",
+    upload_document: "Upload document", upload_hint: "PDF, JPG, PNG — up to 10 MB", choose_file: "Choose file",
+    no_documents: "No documents yet",
+    edit_profile: "Edit profile", profile_saved: "Profile saved",
+    full_name: "Full name", inn: "Tax ID (INN)", save_changes: "Save changes",
+    ph_inn: "1234567890",
+    // footer
+    footer_copy: "© 2024 Partcore Logistics. Supply of cars for dismantling.",
+    // auctions tab descriptions
+    auc_uss: "The largest auction in Japan. Over 20,000 lots weekly.",
+    auc_ju: "Japanese auction with a wide selection of damaged and insurance cars.",
+    auc_taa: "Toyota Automobile Auction — Toyota's official platform.",
+    auc_haa: "Honda Auto Auction — specializing in Honda and Acura.",
+    auc_kcaa: "The largest auction in Korea. Hyundai, Kia, Ssangyong.",
+    auc_manheim: "International platform with a wide base of Korean cars.",
+    auc_tag_jp1: "Top-1 Japan", auc_tag_crash: "Damaged cars", auc_tag_toyota: "Toyota Official",
+    auc_tag_honda: "Honda Official", auc_tag_kr1: "Top-1 Korea", auc_tag_intl: "International",
+  },
+};
+
 type Page = "home" | "directions" | "services" | "how" | "contacts" | "login" | "register" | "cabinet" | "origin";
 type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile" | "clients";
 
 // ════════════════════════════════════════════════════════════
 export default function Index() {
+  const [lang, setLang] = useState<Lang>(() => (localStorage.getItem("pc_lang") as Lang) || "ru");
+  const t = (key: string) => I18N[lang][key] || key;
+  const changeLang = (l: Lang) => { setLang(l); localStorage.setItem("pc_lang", l); };
   const [page, setPage] = useState<Page>("home");
   const [originId, setOriginId] = useState<string>("hongkong");
   const [activeAuction, setActiveAuction] = useState<{ name: string; url: string } | null>(null);
@@ -299,7 +572,7 @@ export default function Index() {
       const me = await apiAuth("me", {}, data.token);
       if (me.user) setUser(me.user);
       nav("cabinet");
-    } else setAuthError(data.error || "Ошибка входа");
+    } else setAuthError(data.error || t("err_login"));
   };
 
   const doRegister = async (e: React.FormEvent) => {
@@ -311,7 +584,7 @@ export default function Index() {
       const me = await apiAuth("me", {}, data.token);
       if (me.user) setUser(me.user);
       nav("cabinet");
-    } else setAuthError(data.error || "Ошибка регистрации");
+    } else setAuthError(data.error || t("err_register"));
   };
 
   const doLogout = async () => {
@@ -336,11 +609,11 @@ export default function Index() {
   };
 
   const navItems = [
-    { id: "home" as Page, label: "Главная" },
-    { id: "directions" as Page, label: "Направления" },
-    { id: "services" as Page, label: "Услуги" },
-    { id: "how" as Page, label: "Как работаем" },
-    { id: "contacts" as Page, label: "Контакты" },
+    { id: "home" as Page, label: t("nav_home") },
+    { id: "directions" as Page, label: t("nav_directions") },
+    { id: "services" as Page, label: t("nav_services") },
+    { id: "how" as Page, label: t("nav_how") },
+    { id: "contacts" as Page, label: t("nav_contacts") },
   ];
 
   const inputCls = "w-full bg-[hsl(220_25%_97%)] border border-[hsl(220_15%_88%)] px-4 py-3 text-sm text-[hsl(var(--navy))] placeholder-[hsl(var(--navy)/0.3)] focus:outline-none focus:border-[hsl(var(--navy)/0.5)] transition-colors rounded-sm";
@@ -365,6 +638,12 @@ export default function Index() {
           </nav>
 
           <div className="hidden md:flex items-center gap-3">
+            <div className="flex items-center gap-0.5 mr-1">
+              <button onClick={() => changeLang("ru")}
+                className={`px-2 py-1.5 text-base rounded-sm transition-all ${lang === "ru" ? "bg-[hsl(36_85%_50%/0.12)] opacity-100" : "opacity-45 hover:opacity-80"}`} title="Русский" aria-label="Русский">🇷🇺</button>
+              <button onClick={() => changeLang("en")}
+                className={`px-2 py-1.5 text-base rounded-sm transition-all ${lang === "en" ? "bg-[hsl(36_85%_50%/0.12)] opacity-100" : "opacity-45 hover:opacity-80"}`} title="English" aria-label="English">🇬🇧</button>
+            </div>
             {user ? (
               <button onClick={() => nav("cabinet")}
                 className="flex items-center gap-2 px-4 py-2 btn-navy rounded-sm">
@@ -375,11 +654,11 @@ export default function Index() {
               <>
                 <button onClick={() => nav("login")}
                   className="px-4 py-2 btn-outline rounded-sm text-xs">
-                  Войти
+                  {t("login")}
                 </button>
                 <button onClick={() => nav("register")}
                   className="px-4 py-2 btn-navy rounded-sm text-xs">
-                  Регистрация
+                  {t("register")}
                 </button>
               </>
             )}
@@ -398,14 +677,20 @@ export default function Index() {
                 {item.label}
               </button>
             ))}
+            <div className="flex items-center gap-2 mt-2 mb-1">
+              <button onClick={() => changeLang("ru")}
+                className={`flex-1 py-2.5 text-base rounded-sm transition-all border border-[hsl(220_15%_88%)] ${lang === "ru" ? "bg-[hsl(36_85%_50%/0.12)] border-[hsl(var(--gold))] opacity-100" : "opacity-50"}`} aria-label="Русский">🇷🇺</button>
+              <button onClick={() => changeLang("en")}
+                className={`flex-1 py-2.5 text-base rounded-sm transition-all border border-[hsl(220_15%_88%)] ${lang === "en" ? "bg-[hsl(36_85%_50%/0.12)] border-[hsl(var(--gold))] opacity-100" : "opacity-50"}`} aria-label="English">🇬🇧</button>
+            </div>
             {user ? (
               <button onClick={() => nav("cabinet")} className="mt-2 py-3 btn-navy rounded-sm flex items-center justify-center gap-2">
-                <Icon name="User" size={15} />{user.full_name || "Личный кабинет"}
+                <Icon name="User" size={15} />{user.full_name || t("cabinet")}
               </button>
             ) : (
               <div className="flex gap-2 mt-2">
-                <button onClick={() => nav("login")} className="flex-1 py-3 btn-outline rounded-sm text-xs">Войти</button>
-                <button onClick={() => nav("register")} className="flex-1 py-3 btn-navy rounded-sm text-xs">Регистрация</button>
+                <button onClick={() => nav("login")} className="flex-1 py-3 btn-outline rounded-sm text-xs">{t("login")}</button>
+                <button onClick={() => nav("register")} className="flex-1 py-3 btn-navy rounded-sm text-xs">{t("register")}</button>
               </div>
             )}
           </div>
@@ -424,20 +709,20 @@ export default function Index() {
               <div className="absolute left-0 top-0 bottom-0 w-1 bg-[hsl(var(--navy))]" />
               <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 py-20">
                 <div className="max-w-xl flex flex-col items-center text-center">
-                  <div className="section-tag mb-6 anim-up"><span className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--gold))] inline-block" />B2B поставки · Япония · Корея · Гонконг</div>
+                  <div className="section-tag mb-6 anim-up"><span className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--gold))] inline-block" />{t("hero_tag")}</div>
                   <h1 className="font-['Montserrat'] font-black leading-[0.95] mb-5 anim-up d1 navy whitespace-nowrap text-center" style={{ fontSize: "clamp(1.7rem, 4vw, 3.4rem)" }}>
-                    ПОСТАВКА<br /><span className="text-[hsl(var(--red))]">МАШИНОКОМПЛЕКТОВ</span>
+                    {t("hero_title_1")}<br /><span className="text-[hsl(var(--red))]">{t("hero_title_2")}</span>
                   </h1>
-                  <p className="text-[hsl(var(--navy)/0.55)] text-base leading-relaxed mb-9 anim-up d2">Partcore Logistics поставляет автомобили с азиатских аукционов для разборщиков и автомагазинов. Опт от 3 авто, полное таможенное сопровождение.</p>
+                  <p className="text-[hsl(var(--navy)/0.55)] text-base leading-relaxed mb-9 anim-up d2">{t("hero_subtitle")}</p>
                   <div className="flex flex-col sm:flex-row gap-3 anim-up d3 justify-center">
-                    <button onClick={() => nav("contacts")} className="px-8 py-3.5 btn-navy rounded-sm">Отправить заявку</button>
-                    <button onClick={() => nav("how")} className="px-8 py-3.5 btn-outline rounded-sm">Как мы работаем</button>
+                    <button onClick={() => nav("contacts")} className="px-8 py-3.5 btn-navy rounded-sm">{t("send_request")}</button>
+                    <button onClick={() => nav("how")} className="px-8 py-3.5 btn-outline rounded-sm">{t("how_we_work")}</button>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-5 mt-12 anim-up d4">
                     {STATS.map(({ num, label }) => (
-                      <div key={label} className="border-l-2 border-[hsl(var(--gold))] pl-4">
+                      <div key={label.ru} className="border-l-2 border-[hsl(var(--gold))] pl-4">
                         <div className="font-['Montserrat'] font-black text-2xl text-[hsl(var(--navy))] leading-none">{num}</div>
-                        <div className="text-[hsl(var(--navy)/0.45)] text-xs mt-1 leading-tight">{label}</div>
+                        <div className="text-[hsl(var(--navy)/0.45)] text-xs mt-1 leading-tight">{label[lang]}</div>
                       </div>
                     ))}
                   </div>
@@ -446,16 +731,16 @@ export default function Index() {
             </section>
 
             <section className="py-20 px-5 sm:px-8 max-w-7xl mx-auto">
-              <div className="mb-12"><div className="section-tag mb-3">Направления</div><h2 className="font-['Montserrat'] font-black text-4xl sm:text-5xl">ОТКУДА ВЕЗЁМ</h2><div className="divider-navy mt-4" /></div>
+              <div className="mb-12"><div className="section-tag mb-3">{t("directions_tag")}</div><h2 className="font-['Montserrat'] font-black text-4xl sm:text-5xl">{t("from_where")}</h2><div className="divider-navy mt-4" /></div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                 {ORIGINS.map((o) => (
-                  <button key={o.name} onClick={() => openOrigin(o.id)} className="text-left card-light rounded-sm p-7 group relative overflow-hidden hover:shadow-lg transition-all cursor-pointer">
+                  <button key={o.id} onClick={() => openOrigin(o.id)} className="text-left card-light rounded-sm p-7 group relative overflow-hidden hover:shadow-lg transition-all cursor-pointer">
                     <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[hsl(var(--gold))] group-hover:w-full transition-all duration-500" />
-                    <h3 className="font-['Montserrat'] font-bold text-xl mb-2 navy flex items-center gap-2"><span className="text-4xl">{o.flag}</span>{o.name}</h3>
-                    <p className="text-[hsl(var(--navy)/0.5)] text-sm leading-relaxed mb-4">{o.desc}</p>
+                    <h3 className="font-['Montserrat'] font-bold text-xl mb-2 navy flex items-center gap-2"><span className="text-4xl">{o.flag}</span>{o.name[lang]}</h3>
+                    <p className="text-[hsl(var(--navy)/0.5)] text-sm leading-relaxed mb-4">{o.desc[lang]}</p>
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-xs font-['Montserrat'] font-semibold gold"><Icon name="Package" size={13} />{o.volume}</div>
-                      <div className="flex items-center gap-1 text-xs font-['Montserrat'] font-semibold text-[hsl(var(--navy))] group-hover:gap-2 transition-all">Подробнее <Icon name="ArrowRight" size={13} /></div>
+                      <div className="flex items-center gap-2 text-xs font-['Montserrat'] font-semibold gold"><Icon name="Package" size={13} />{o.volume[lang]}</div>
+                      <div className="flex items-center gap-1 text-xs font-['Montserrat'] font-semibold text-[hsl(var(--navy))] group-hover:gap-2 transition-all">{t("more")} <Icon name="ArrowRight" size={13} /></div>
                     </div>
                   </button>
                 ))}
@@ -465,8 +750,8 @@ export default function Index() {
             <section className="py-20 px-5 sm:px-8 bg-[hsl(220_25%_97%)]">
               <div className="max-w-7xl mx-auto">
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
-                  <div><div className="section-tag mb-3">Что мы делаем</div><h2 className="font-['Montserrat'] font-black text-4xl sm:text-5xl">УСЛУГИ</h2><div className="divider-navy mt-4" /></div>
-                  <button onClick={() => nav("services")} className="flex items-center gap-2 text-[hsl(var(--gold))] text-sm font-['Montserrat'] font-semibold hover:gap-3 transition-all">Подробнее <Icon name="ArrowRight" size={15} /></button>
+                  <div><div className="section-tag mb-3">{t("what_we_do")}</div><h2 className="font-['Montserrat'] font-black text-4xl sm:text-5xl">{t("services_title")}</h2><div className="divider-navy mt-4" /></div>
+                  <button onClick={() => nav("services")} className="flex items-center gap-2 text-[hsl(var(--gold))] text-sm font-['Montserrat'] font-semibold hover:gap-3 transition-all">{t("more")} <Icon name="ArrowRight" size={15} /></button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {SERVICES.map((s, i) => (
@@ -474,7 +759,7 @@ export default function Index() {
                       <div className="w-10 h-10 rounded-sm bg-[hsl(var(--navy)/0.06)] flex items-center justify-center flex-shrink-0 group-hover:bg-[hsl(var(--navy)/0.12)] transition-colors">
                         <Icon name={s.icon} size={18} className="text-[hsl(var(--navy))]" />
                       </div>
-                      <div><h3 className="font-['Montserrat'] font-bold text-sm mb-1.5 navy leading-snug">{s.title}</h3><p className="text-[hsl(var(--navy)/0.48)] text-xs leading-relaxed">{s.desc}</p></div>
+                      <div><h3 className="font-['Montserrat'] font-bold text-sm mb-1.5 navy leading-snug">{s.title[lang]}</h3><p className="text-[hsl(var(--navy)/0.48)] text-xs leading-relaxed">{s.desc[lang]}</p></div>
                     </div>
                   ))}
                 </div>
@@ -482,14 +767,14 @@ export default function Index() {
             </section>
 
             <section className="py-20 px-5 sm:px-8 max-w-7xl mx-auto">
-              <div className="mb-12"><div className="section-tag mb-3">Преимущества</div><h2 className="font-['Montserrat'] font-black text-4xl sm:text-5xl">ПОЧЕМУ МЫ</h2><div className="divider-navy mt-4" /></div>
+              <div className="mb-12"><div className="section-tag mb-3">{t("advantages_tag")}</div><h2 className="font-['Montserrat'] font-black text-4xl sm:text-5xl">{t("why_us")}</h2><div className="divider-navy mt-4" /></div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {WHY.map((w, i) => (
                   <div key={i} className="card-light rounded-sm p-6 group flex gap-5">
                     <div className="w-11 h-11 rounded-sm bg-[hsl(var(--gold)/0.1)] flex items-center justify-center flex-shrink-0 group-hover:bg-[hsl(var(--gold)/0.18)] transition-colors">
                       <Icon name={w.icon} size={20} className="text-[hsl(var(--gold))]" />
                     </div>
-                    <div><h3 className="font-['Montserrat'] font-bold text-base mb-1.5 navy">{w.title}</h3><p className="text-[hsl(var(--navy)/0.5)] text-sm leading-relaxed">{w.desc}</p></div>
+                    <div><h3 className="font-['Montserrat'] font-bold text-base mb-1.5 navy">{w.title[lang]}</h3><p className="text-[hsl(var(--navy)/0.5)] text-sm leading-relaxed">{w.desc[lang]}</p></div>
                   </div>
                 ))}
               </div>
@@ -498,10 +783,10 @@ export default function Index() {
             <section className="bg-[hsl(var(--navy))] py-20 relative overflow-hidden">
               <div className="absolute inset-0 light-grid opacity-10" />
               <div className="relative max-w-3xl mx-auto px-5 sm:px-8 text-center">
-                <div className="section-tag mb-5 justify-center border-[hsl(var(--gold)/0.5)] text-[hsl(var(--gold))]">Начните сотрудничество</div>
-                <h2 className="font-['Montserrat'] font-black text-4xl sm:text-5xl text-white mb-4">НУЖНЫ<br /><span className="text-[hsl(var(--gold))]">КОНТРАКТНЫЕ ЗАПЧАСТИ?</span></h2>
-                <p className="text-white/55 mb-8">Оставьте заявку — менеджер свяжется в течение 2 часов</p>
-                <button onClick={() => nav("contacts")} className="px-10 py-4 btn-gold rounded-sm">Отправить заявку</button>
+                <div className="section-tag mb-5 justify-center border-[hsl(var(--gold)/0.5)] text-[hsl(var(--gold))]">{t("start_coop_tag")}</div>
+                <h2 className="font-['Montserrat'] font-black text-4xl sm:text-5xl text-white mb-4">{t("cta_need_1")}<br /><span className="text-[hsl(var(--gold))]">{t("cta_need_2")}</span></h2>
+                <p className="text-white/55 mb-8">{t("cta_subtitle")}</p>
+                <button onClick={() => nav("contacts")} className="px-10 py-4 btn-gold rounded-sm">{t("send_request")}</button>
               </div>
             </section>
           </>
@@ -510,21 +795,21 @@ export default function Index() {
         {/* ════ SERVICES ════ */}
         {page === "services" && (
           <section className="min-h-screen py-14 px-5 sm:px-8 max-w-7xl mx-auto">
-            <div className="mb-12"><div className="section-tag mb-3">Что мы делаем</div><h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl">УСЛУГИ</h1><div className="divider-navy mt-4" /></div>
+            <div className="mb-12"><div className="section-tag mb-3">{t("what_we_do")}</div><h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl">{t("services_title")}</h1><div className="divider-navy mt-4" /></div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-16">
               {SERVICES.map((s, i) => (
                 <div key={i} className="card-light rounded-sm p-7 group flex gap-5">
                   <div className="w-12 h-12 rounded-sm bg-[hsl(var(--navy)/0.06)] flex items-center justify-center flex-shrink-0 group-hover:bg-[hsl(var(--navy)/0.12)] transition-colors">
                     <Icon name={s.icon} size={22} className="text-[hsl(var(--navy))]" />
                   </div>
-                  <div><h3 className="font-['Montserrat'] font-bold text-lg mb-2 navy">{s.title}</h3><p className="text-[hsl(var(--navy)/0.5)] text-sm leading-relaxed">{s.desc}</p></div>
+                  <div><h3 className="font-['Montserrat'] font-bold text-lg mb-2 navy">{s.title[lang]}</h3><p className="text-[hsl(var(--navy)/0.5)] text-sm leading-relaxed">{s.desc[lang]}</p></div>
                 </div>
               ))}
             </div>
             <div className="bg-[hsl(220_25%_97%)] rounded-sm p-8 border border-[hsl(var(--gold)/0.3)] text-center">
-              <h3 className="font-['Montserrat'] font-bold text-2xl mb-3 navy">Нужна индивидуальная услуга?</h3>
-              <p className="text-[hsl(var(--navy)/0.5)] mb-6 text-sm">Расскажите о своём запросе — найдём решение под ваш бизнес</p>
-              <button onClick={() => nav("contacts")} className="px-8 py-3.5 btn-navy rounded-sm">Обсудить задачу</button>
+              <h3 className="font-['Montserrat'] font-bold text-2xl mb-3 navy">{t("custom_service_title")}</h3>
+              <p className="text-[hsl(var(--navy)/0.5)] mb-6 text-sm">{t("custom_service_sub")}</p>
+              <button onClick={() => nav("contacts")} className="px-8 py-3.5 btn-navy rounded-sm">{t("discuss_task")}</button>
             </div>
           </section>
         )}
@@ -532,7 +817,7 @@ export default function Index() {
         {/* ════ HOW ════ */}
         {page === "how" && (
           <section className="min-h-screen py-14 px-5 sm:px-8 max-w-7xl mx-auto">
-            <div className="mb-14"><div className="section-tag mb-3">Процесс</div><h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl">КАК МЫ РАБОТАЕМ</h1><div className="divider-navy mt-4" /></div>
+            <div className="mb-14"><div className="section-tag mb-3">{t("process_tag")}</div><h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl">{t("how_we_work_title")}</h1><div className="divider-navy mt-4" /></div>
             <div className="relative max-w-2xl">
               <div className="absolute left-6 top-0 bottom-10 w-px bg-[hsl(var(--navy)/0.12)]" />
               <div className="flex flex-col gap-5">
@@ -542,14 +827,14 @@ export default function Index() {
                       <div className="w-12 h-12 bg-[hsl(var(--navy))] flex items-center justify-center font-['Montserrat'] font-black text-white text-sm z-10 relative group-hover:bg-[hsl(var(--gold))] transition-colors rounded-sm">{s.n}</div>
                     </div>
                     <div className="flex-1 card-light rounded-sm px-6 py-5 mb-2">
-                      <h3 className="font-['Montserrat'] font-bold text-lg mb-1.5 navy">{s.title}</h3>
-                      <p className="text-[hsl(var(--navy)/0.5)] text-sm leading-relaxed">{s.desc}</p>
+                      <h3 className="font-['Montserrat'] font-bold text-lg mb-1.5 navy">{s.title[lang]}</h3>
+                      <p className="text-[hsl(var(--navy)/0.5)] text-sm leading-relaxed">{s.desc[lang]}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="mt-14"><button onClick={() => nav("contacts")} className="px-10 py-4 btn-navy rounded-sm">Начать сотрудничество</button></div>
+            <div className="mt-14"><button onClick={() => nav("contacts")} className="px-10 py-4 btn-navy rounded-sm">{t("start_coop")}</button></div>
           </section>
         )}
 
@@ -557,10 +842,10 @@ export default function Index() {
         {page === "directions" && (
           <section className="min-h-screen py-14 px-5 sm:px-8 max-w-7xl mx-auto">
             <div className="mb-12">
-              <div className="section-tag mb-3">Направления</div>
-              <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl navy">СТРАНЫ ОТПРАВКИ</h1>
+              <div className="section-tag mb-3">{t("directions_tag")}</div>
+              <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl navy">{t("source_countries")}</h1>
               <div className="divider-navy mt-4" />
-              <p className="text-[hsl(var(--navy)/0.6)] text-lg leading-relaxed max-w-3xl mt-6">Поставляем машинокомплекты с аукционов и от дилеров из Азии. Выберите направление, чтобы посмотреть марки, аукционы и условия доставки.</p>
+              <p className="text-[hsl(var(--navy)/0.6)] text-lg leading-relaxed max-w-3xl mt-6">{t("directions_intro")}</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -571,18 +856,18 @@ export default function Index() {
                     <div className="text-5xl">{o.flag}</div>
                     <Icon name="ArrowRight" size={20} className="text-[hsl(var(--navy)/0.3)] group-hover:text-[hsl(var(--gold))] transition-colors" />
                   </div>
-                  <h2 className="font-['Montserrat'] font-black text-2xl navy mb-2">{o.name}</h2>
-                  <p className="text-[hsl(var(--navy)/0.55)] text-sm leading-relaxed mb-5 flex-1">{o.desc}</p>
+                  <h2 className="font-['Montserrat'] font-black text-2xl navy mb-2">{o.name[lang]}</h2>
+                  <p className="text-[hsl(var(--navy)/0.55)] text-sm leading-relaxed mb-5 flex-1">{o.desc[lang]}</p>
                   <div className="flex flex-wrap gap-1.5 mb-5">
                     {o.brands.slice(0, 4).map((b) => (
                       <span key={b} className="px-2.5 py-1 bg-[hsl(220_25%_97%)] border border-[hsl(220_15%_88%)] rounded-sm text-xs font-['Montserrat'] font-semibold navy">{b}</span>
                     ))}
                   </div>
                   <div className="flex items-center gap-2 text-[hsl(var(--navy)/0.45)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide pt-4 border-t border-[hsl(220_15%_90%)] mb-4">
-                    <Icon name="Package" size={14} />{o.volume}
+                    <Icon name="Package" size={14} />{o.volume[lang]}
                   </div>
                   <button onClick={(e) => { e.stopPropagation(); nav("contacts"); }}
-                    className="w-full py-3 btn-gold rounded-sm">Оставить заявку</button>
+                    className="w-full py-3 btn-gold rounded-sm">{t("leave_request")}</button>
                 </div>
               ))}
             </div>
@@ -595,27 +880,27 @@ export default function Index() {
           return (
             <section className="min-h-screen py-14 px-5 sm:px-8 max-w-7xl mx-auto">
               <button onClick={() => nav("home")} className="flex items-center gap-2 text-[hsl(var(--navy)/0.5)] text-sm font-['Montserrat'] font-semibold mb-8 hover:text-[hsl(var(--navy))] transition-colors">
-                <Icon name="ArrowLeft" size={15} />Все направления
+                <Icon name="ArrowLeft" size={15} />{t("all_directions")}
               </button>
 
               <div className="flex items-center gap-5 mb-6">
                 <div className="text-6xl">{o.flag}</div>
                 <div>
-                  <div className="section-tag mb-2">Направление</div>
-                  <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl navy">{o.name.toUpperCase()} <span className="align-middle">{o.flag}</span></h1>
+                  <div className="section-tag mb-2">{t("direction_tag")}</div>
+                  <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl navy">{o.name[lang].toUpperCase()} <span className="align-middle">{o.flag}</span></h1>
                 </div>
               </div>
               <div className="divider-navy mb-8" />
-              <p className="text-[hsl(var(--navy)/0.6)] text-lg leading-relaxed max-w-3xl mb-12">{o.intro}</p>
+              <p className="text-[hsl(var(--navy)/0.6)] text-lg leading-relaxed max-w-3xl mb-12">{o.intro[lang]}</p>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-14">
                 {o.facts.map((f) => (
-                  <div key={f.title} className="card-light rounded-sm p-5">
+                  <div key={f.title.ru} className="card-light rounded-sm p-5">
                     <div className="w-10 h-10 bg-[hsl(var(--navy)/0.06)] rounded-sm flex items-center justify-center mb-3">
                       <Icon name={f.icon} size={18} className="text-[hsl(var(--navy))]" />
                     </div>
-                    <div className="text-[hsl(var(--navy)/0.4)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{f.title}</div>
-                    <div className="font-['Montserrat'] font-bold text-base navy mt-0.5">{f.val}</div>
+                    <div className="text-[hsl(var(--navy)/0.4)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{f.title[lang]}</div>
+                    <div className="font-['Montserrat'] font-bold text-base navy mt-0.5">{f.val[lang]}</div>
                   </div>
                 ))}
               </div>
@@ -623,10 +908,10 @@ export default function Index() {
               {"auctionLinks" in o && o.auctionLinks && (
                 <div className="mb-14">
                   <div className="flex items-center gap-3 mb-2">
-                    <h2 className="font-['Montserrat'] font-black text-2xl navy">Доступ к аукционам</h2>
+                    <h2 className="font-['Montserrat'] font-black text-2xl navy">{t("auction_access")}</h2>
                     <span className="text-[10px] font-['Montserrat'] font-bold px-2 py-0.5 bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))] rounded-full uppercase tracking-wide">Live</span>
                   </div>
-                  <p className="text-[hsl(var(--navy)/0.5)] text-sm mb-6 max-w-2xl">Выберите площадку — мы откроем её во встроенном окне. Если аукцион не разрешает встраивание, откройте его в отдельной вкладке.</p>
+                  <p className="text-[hsl(var(--navy)/0.5)] text-sm mb-6 max-w-2xl">{t("auction_access_sub")}</p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
                     {o.auctionLinks.map((a) => (
@@ -635,16 +920,16 @@ export default function Index() {
                           <Icon name="Gavel" size={16} className="text-[hsl(var(--navy))] mt-0.5 flex-shrink-0" />
                           <div>
                             <div className="font-['Montserrat'] font-bold text-sm navy leading-tight">{a.name}</div>
-                            <div className="text-[hsl(var(--navy)/0.45)] text-xs mt-1 leading-snug">{a.desc}</div>
+                            <div className="text-[hsl(var(--navy)/0.45)] text-xs mt-1 leading-snug">{a.desc[lang]}</div>
                           </div>
                         </div>
                         <div className="flex gap-2 mt-auto">
                           <button onClick={() => setActiveAuction({ name: a.name, url: a.url })}
                             className="flex-1 py-2 bg-[hsl(var(--navy))] text-white text-xs font-['Montserrat'] font-semibold rounded-sm hover:bg-[hsl(var(--navy)/0.9)] transition-colors">
-                            Открыть здесь
+                            {t("open_here")}
                           </button>
                           <a href={a.url} target="_blank" rel="noopener noreferrer"
-                            className="px-3 py-2 border border-[hsl(220_15%_85%)] rounded-sm flex items-center justify-center hover:border-[hsl(var(--navy))] transition-colors" title="Открыть в новой вкладке">
+                            className="px-3 py-2 border border-[hsl(220_15%_85%)] rounded-sm flex items-center justify-center hover:border-[hsl(var(--navy))] transition-colors" title={t("open_new_tab_title")}>
                             <Icon name="ExternalLink" size={14} className="text-[hsl(var(--navy))]" />
                           </a>
                         </div>
@@ -662,7 +947,7 @@ export default function Index() {
                         <div className="flex items-center gap-3">
                           <a href={activeAuction.url} target="_blank" rel="noopener noreferrer"
                             className="flex items-center gap-1 text-xs font-['Montserrat'] font-semibold text-[hsl(var(--gold))] hover:underline">
-                            В новой вкладке <Icon name="ExternalLink" size={12} />
+                            {t("in_new_tab")} <Icon name="ExternalLink" size={12} />
                           </a>
                           <button onClick={() => setActiveAuction(null)} className="text-[hsl(var(--navy)/0.4)] hover:text-[hsl(var(--navy))]">
                             <Icon name="X" size={16} />
@@ -674,10 +959,10 @@ export default function Index() {
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                           <div className="bg-white/90 rounded-sm px-5 py-4 text-center max-w-xs pointer-events-auto shadow-lg" style={{ opacity: 0.95 }}>
                             <Icon name="Info" size={20} className="text-[hsl(var(--gold))] mx-auto mb-2" />
-                            <p className="text-[hsl(var(--navy)/0.7)] text-xs leading-relaxed mb-3">Если окно пустое — аукцион запрещает встраивание. Откройте площадку напрямую.</p>
+                            <p className="text-[hsl(var(--navy)/0.7)] text-xs leading-relaxed mb-3">{t("iframe_warning")}</p>
                             <a href={activeAuction.url} target="_blank" rel="noopener noreferrer"
                               className="inline-block px-4 py-2 bg-[hsl(var(--navy))] text-white text-xs font-['Montserrat'] font-semibold rounded-sm">
-                              Открыть аукцион
+                              {t("open_auction")}
                             </a>
                           </div>
                         </div>
@@ -689,19 +974,19 @@ export default function Index() {
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-14">
                 <div>
-                  <h2 className="font-['Montserrat'] font-black text-2xl navy mb-5">Преимущества</h2>
+                  <h2 className="font-['Montserrat'] font-black text-2xl navy mb-5">{t("advantages")}</h2>
                   <div className="flex flex-col gap-3">
                     {o.advantages.map((a, i) => (
                       <div key={i} className="flex items-start gap-3 card-light rounded-sm p-4">
                         <Icon name="CheckCircle" size={18} className="text-[hsl(var(--gold))] flex-shrink-0 mt-0.5" />
-                        <span className="text-[hsl(var(--navy)/0.65)] text-sm leading-relaxed">{a}</span>
+                        <span className="text-[hsl(var(--navy)/0.65)] text-sm leading-relaxed">{a[lang]}</span>
                       </div>
                     ))}
                   </div>
                 </div>
                 <div className="flex flex-col gap-8">
                   <div>
-                    <h2 className="font-['Montserrat'] font-black text-2xl navy mb-5">Популярные марки</h2>
+                    <h2 className="font-['Montserrat'] font-black text-2xl navy mb-5">{t("popular_brands")}</h2>
                     <div className="flex flex-wrap gap-2">
                       {o.brands.map((b) => (
                         <span key={b} className="px-4 py-2 bg-[hsl(220_25%_97%)] border border-[hsl(220_15%_88%)] rounded-sm text-sm font-['Montserrat'] font-semibold navy">{b}</span>
@@ -709,12 +994,12 @@ export default function Index() {
                     </div>
                   </div>
                   <div>
-                    <h2 className="font-['Montserrat'] font-black text-2xl navy mb-5">Аукционы и площадки</h2>
+                    <h2 className="font-['Montserrat'] font-black text-2xl navy mb-5">{t("auctions_platforms")}</h2>
                     <div className="flex flex-col gap-2">
                       {o.auctions.map((a) => (
-                        <div key={a} className="flex items-center gap-3 card-light rounded-sm px-4 py-3">
+                        <div key={a.ru} className="flex items-center gap-3 card-light rounded-sm px-4 py-3">
                           <Icon name="Globe" size={16} className="text-[hsl(var(--navy))]" />
-                          <span className="text-sm font-medium navy">{a}</span>
+                          <span className="text-sm font-medium navy">{a[lang]}</span>
                         </div>
                       ))}
                     </div>
@@ -725,11 +1010,11 @@ export default function Index() {
               <div className="bg-[hsl(var(--navy))] rounded-sm p-8 sm:p-10 text-center relative overflow-hidden">
                 <div className="absolute inset-0 light-grid opacity-10" />
                 <div className="relative">
-                  <h3 className="font-['Montserrat'] font-black text-2xl sm:text-3xl text-white mb-3">Нужны машинокомплекты из {o.name === "Япония" ? "Японии" : o.name === "Корея" ? "Кореи" : "Гонконга"}?</h3>
-                  <p className="text-white/55 mb-7 text-sm">Оставьте заявку — подберём авто под ваш запрос</p>
+                  <h3 className="font-['Montserrat'] font-black text-2xl sm:text-3xl text-white mb-3">{t("origin_cta_title_pre")}{o.name[lang]}{t("origin_cta_title_post")}</h3>
+                  <p className="text-white/55 mb-7 text-sm">{t("origin_cta_sub")}</p>
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                    <button onClick={() => nav("contacts")} className="px-8 py-3.5 btn-gold rounded-sm">Отправить заявку</button>
-                    <button onClick={() => nav("how")} className="px-8 py-3.5 border border-white/30 text-white rounded-sm font-['Montserrat'] font-semibold hover:bg-white/10 transition-colors">Как мы работаем</button>
+                    <button onClick={() => nav("contacts")} className="px-8 py-3.5 btn-gold rounded-sm">{t("send_request")}</button>
+                    <button onClick={() => nav("how")} className="px-8 py-3.5 border border-white/30 text-white rounded-sm font-['Montserrat'] font-semibold hover:bg-white/10 transition-colors">{t("how_we_work")}</button>
                   </div>
                 </div>
               </div>
@@ -740,23 +1025,23 @@ export default function Index() {
         {/* ════ CONTACTS ════ */}
         {page === "contacts" && (
           <section className="min-h-screen py-14 px-5 sm:px-8 max-w-7xl mx-auto">
-            <div className="mb-12"><div className="section-tag mb-3">Связь</div><h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl">ОСТАВИТЬ ЗАЯВКУ</h1><div className="divider-navy mt-4" /></div>
+            <div className="mb-12"><div className="section-tag mb-3">{t("contact_tag")}</div><h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl">{t("leave_request_title")}</h1><div className="divider-navy mt-4" /></div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="card-light rounded-sm p-8">
                 {contactSent ? (
                   <div className="flex flex-col items-center justify-center py-16 text-center">
                     <div className="w-14 h-14 rounded-sm bg-[hsl(var(--gold)/0.1)] flex items-center justify-center mb-5"><Icon name="CheckCircle" size={30} className="text-[hsl(var(--gold))]" /></div>
-                    <h3 className="font-['Montserrat'] font-bold text-2xl mb-2 navy">Заявка принята!</h3>
-                    <p className="text-[hsl(var(--navy)/0.5)] text-sm">Менеджер свяжется с вами в течение 2 рабочих часов</p>
-                    <button onClick={() => setContactSent(false)} className="mt-6 text-[hsl(var(--gold))] text-sm hover:underline font-['Montserrat'] font-semibold">Отправить ещё заявку</button>
+                    <h3 className="font-['Montserrat'] font-bold text-2xl mb-2 navy">{t("request_accepted")}</h3>
+                    <p className="text-[hsl(var(--navy)/0.5)] text-sm">{t("request_accepted_sub")}</p>
+                    <button onClick={() => setContactSent(false)} className="mt-6 text-[hsl(var(--gold))] text-sm hover:underline font-['Montserrat'] font-semibold">{t("send_another")}</button>
                   </div>
                 ) : (
                   <form onSubmit={(e) => { e.preventDefault(); setContactSent(true); }} className="flex flex-col gap-5">
-                    <div><h2 className="font-['Montserrat'] font-bold text-xl mb-1 navy">Заявка на поставку</h2><p className="text-[hsl(var(--navy)/0.45)] text-sm">Для разборщиков и автомагазинов. Ответим за 2 часа.</p></div>
+                    <div><h2 className="font-['Montserrat'] font-bold text-xl mb-1 navy">{t("supply_request")}</h2><p className="text-[hsl(var(--navy)/0.45)] text-sm">{t("supply_request_sub")}</p></div>
                     {[
-                      { key: "name", label: "Контактное лицо *", placeholder: "Иван Петров", type: "text", required: true },
-                      { key: "company", label: "Компания / ИП", placeholder: "ООО «АвтоРазбор»", type: "text", required: false },
-                      { key: "phone", label: "Телефон *", placeholder: "+7 (___) ___-__-__", type: "tel", required: true },
+                      { key: "name", label: t("contact_person"), placeholder: t("ph_name"), type: "text", required: true },
+                      { key: "company", label: t("company_ip"), placeholder: t("ph_company"), type: "text", required: false },
+                      { key: "phone", label: t("phone_req"), placeholder: "+7 (___) ___-__-__", type: "tel", required: true },
                     ].map((f) => (
                       <div key={f.key}>
                         <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{f.label}</label>
@@ -764,18 +1049,18 @@ export default function Index() {
                       </div>
                     ))}
                     <div>
-                      <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">Комментарий</label>
-                      <textarea rows={3} value={contactForm.comment} onChange={(e) => setContactForm({ ...contactForm, comment: e.target.value })} placeholder="Марки, объём, бюджет..." className={inputCls + " resize-none"} />
+                      <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("comment")}</label>
+                      <textarea rows={3} value={contactForm.comment} onChange={(e) => setContactForm({ ...contactForm, comment: e.target.value })} placeholder={t("comment_ph")} className={inputCls + " resize-none"} />
                     </div>
-                    <button type="submit" className="w-full py-4 btn-navy rounded-sm">Отправить заявку</button>
+                    <button type="submit" className="w-full py-4 btn-navy rounded-sm">{t("send_request")}</button>
                   </form>
                 )}
               </div>
               <div className="flex flex-col gap-5">
                 <div className="card-light rounded-sm p-6">
-                  <h3 className="font-['Montserrat'] font-bold text-base mb-5 navy uppercase tracking-wider">Контакты</h3>
+                  <h3 className="font-['Montserrat'] font-bold text-base mb-5 navy uppercase tracking-wider">{t("contacts")}</h3>
                   <div className="flex flex-col gap-5">
-                    {[{ icon: "Phone", label: "Телефон", val: "+7 (800) 000-00-00", sub: "Бесплатно по России" }, { icon: "Mail", label: "Email", val: "info@partcore.ru", sub: "Для коммерческих запросов" }, { icon: "MessageCircle", label: "Telegram / WhatsApp", val: "+7 (900) 000-00-00", sub: "Ответим в течение 15 мин" }, { icon: "MapPin", label: "Офис", val: "Москва", sub: "Пн–Пт 9:00–18:00" }].map((c) => (
+                    {[{ icon: "Phone", label: t("phone"), val: "+7 (800) 000-00-00", sub: t("phone_sub") }, { icon: "Mail", label: "Email", val: "info@partcore.ru", sub: t("email_sub") }, { icon: "MessageCircle", label: "Telegram / WhatsApp", val: "+7 (900) 000-00-00", sub: t("messenger_sub") }, { icon: "MapPin", label: t("office"), val: t("office_city"), sub: t("office_hours") }].map((c) => (
                       <div key={c.label} className="flex items-start gap-4">
                         <div className="w-9 h-9 bg-[hsl(var(--navy)/0.07)] flex items-center justify-center flex-shrink-0 rounded-sm"><Icon name={c.icon} size={16} className="text-[hsl(var(--navy))]" /></div>
                         <div><div className="text-[hsl(var(--navy)/0.4)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase">{c.label}</div><div className="text-[hsl(var(--navy))] font-medium text-sm mt-0.5">{c.val}</div><div className="text-[hsl(var(--navy)/0.35)] text-xs">{c.sub}</div></div>
@@ -794,8 +1079,8 @@ export default function Index() {
             <div className="w-full max-w-md">
               <div className="text-center mb-8">
                 <img src={LOGO} alt="Partcore" className="h-12 mx-auto mb-6 object-contain" />
-                <h1 className="font-['Montserrat'] font-black text-3xl navy mb-2">Вход в кабинет</h1>
-                <p className="text-[hsl(var(--navy)/0.5)] text-sm">Введите email и пароль для входа</p>
+                <h1 className="font-['Montserrat'] font-black text-3xl navy mb-2">{t("login_title")}</h1>
+                <p className="text-[hsl(var(--navy)/0.5)] text-sm">{t("login_sub")}</p>
               </div>
               <div className="card-light rounded-sm p-8">
                 <form onSubmit={doLogin} className="flex flex-col gap-5">
@@ -805,16 +1090,16 @@ export default function Index() {
                     <input required type="email" placeholder="you@example.com" value={loginForm.email} onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })} className={inputCls} />
                   </div>
                   <div>
-                    <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">Пароль *</label>
+                    <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("pwd")}</label>
                     <input required type="password" placeholder="••••••••" value={loginForm.password} onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })} className={inputCls} />
                   </div>
                   <button type="submit" disabled={authLoading} className="w-full py-3.5 btn-navy rounded-sm disabled:opacity-60">
-                    {authLoading ? "Входим..." : "Войти"}
+                    {authLoading ? t("logging_in") : t("login")}
                   </button>
                 </form>
                 <div className="text-center mt-5 text-sm text-[hsl(var(--navy)/0.5)]">
-                  Нет аккаунта?{" "}
-                  <button onClick={() => nav("register")} className="text-[hsl(var(--gold))] font-semibold hover:underline">Зарегистрироваться</button>
+                  {t("no_account")}{" "}
+                  <button onClick={() => nav("register")} className="text-[hsl(var(--gold))] font-semibold hover:underline">{t("do_register")}</button>
                 </div>
               </div>
             </div>
@@ -827,18 +1112,18 @@ export default function Index() {
             <div className="w-full max-w-md">
               <div className="text-center mb-8">
                 <img src={LOGO} alt="Partcore" className="h-12 mx-auto mb-6 object-contain" />
-                <h1 className="font-['Montserrat'] font-black text-3xl navy mb-2">Регистрация</h1>
-                <p className="text-[hsl(var(--navy)/0.5)] text-sm">Создайте аккаунт для доступа к личному кабинету</p>
+                <h1 className="font-['Montserrat'] font-black text-3xl navy mb-2">{t("register_title")}</h1>
+                <p className="text-[hsl(var(--navy)/0.5)] text-sm">{t("register_sub")}</p>
               </div>
               <div className="card-light rounded-sm p-8">
                 <form onSubmit={doRegister} className="flex flex-col gap-4">
                   {authError && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-sm">{authError}</div>}
                   {[
-                    { key: "full_name", label: "Ваше имя *", placeholder: "Иван Петров", type: "text", required: true },
+                    { key: "full_name", label: t("your_name"), placeholder: t("ph_name"), type: "text", required: true },
                     { key: "email", label: "Email *", placeholder: "you@example.com", type: "email", required: true },
-                    { key: "phone", label: "Телефон", placeholder: "+7 (___) ___-__-__", type: "tel", required: false },
-                    { key: "company", label: "Компания / ИП", placeholder: "ООО «АвтоРазбор»", type: "text", required: false },
-                    { key: "password", label: "Пароль * (мин. 6 символов)", placeholder: "••••••••", type: "password", required: true },
+                    { key: "phone", label: t("phone_opt"), placeholder: "+7 (___) ___-__-__", type: "tel", required: false },
+                    { key: "company", label: t("company_ip"), placeholder: t("ph_company"), type: "text", required: false },
+                    { key: "password", label: t("pwd_min"), placeholder: "••••••••", type: "password", required: true },
                   ].map((f) => (
                     <div key={f.key}>
                       <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{f.label}</label>
@@ -846,12 +1131,12 @@ export default function Index() {
                     </div>
                   ))}
                   <button type="submit" disabled={authLoading} className="w-full py-3.5 btn-navy rounded-sm disabled:opacity-60 mt-1">
-                    {authLoading ? "Регистрируем..." : "Зарегистрироваться"}
+                    {authLoading ? t("registering") : t("do_register")}
                   </button>
                 </form>
                 <div className="text-center mt-5 text-sm text-[hsl(var(--navy)/0.5)]">
-                  Уже есть аккаунт?{" "}
-                  <button onClick={() => nav("login")} className="text-[hsl(var(--gold))] font-semibold hover:underline">Войти</button>
+                  {t("have_account")}{" "}
+                  <button onClick={() => nav("login")} className="text-[hsl(var(--gold))] font-semibold hover:underline">{t("login")}</button>
                 </div>
               </div>
             </div>
@@ -864,8 +1149,8 @@ export default function Index() {
             <div className="min-h-screen flex items-center justify-center">
               <div className="text-center">
                 <Icon name="Lock" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.3)]" />
-                <p className="font-['Montserrat'] font-bold navy mb-4">Для доступа необходимо войти</p>
-                <button onClick={() => nav("login")} className="px-6 py-3 btn-navy rounded-sm">Войти</button>
+                <p className="font-['Montserrat'] font-bold navy mb-4">{t("auth_required")}</p>
+                <button onClick={() => nav("login")} className="px-6 py-3 btn-navy rounded-sm">{t("login")}</button>
               </div>
             </div>
           ) : (
@@ -873,34 +1158,34 @@ export default function Index() {
               {/* Cabinet header */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                  <div className="section-tag mb-2">{isStaff ? "Кабинет сотрудника" : "Личный кабинет"}</div>
+                  <div className="section-tag mb-2">{isStaff ? t("staff_cabinet") : t("personal_cabinet")}</div>
                   <h1 className="font-['Montserrat'] font-black text-3xl navy flex items-center gap-3">
                     {user.full_name || user.email}
-                    {isStaff && <span className="text-xs px-2.5 py-1 bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))] rounded-full font-['Montserrat'] font-bold uppercase tracking-wide">Сотрудник</span>}
+                    {isStaff && <span className="text-xs px-2.5 py-1 bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))] rounded-full font-['Montserrat'] font-bold uppercase tracking-wide">{t("staff_badge")}</span>}
                   </h1>
                   {user.company && <p className="text-[hsl(var(--navy)/0.45)] text-sm mt-0.5">{user.company}</p>}
                 </div>
                 <button onClick={doLogout} className="flex items-center gap-2 px-4 py-2 border border-[hsl(220_15%_88%)] text-[hsl(var(--navy)/0.5)] text-sm font-['Montserrat'] font-semibold hover:text-red-600 hover:border-red-200 transition-all rounded-sm">
-                  <Icon name="LogOut" size={15} />Выйти
+                  <Icon name="LogOut" size={15} />{t("logout")}
                 </button>
               </div>
 
               {/* Tabs */}
               <div className="flex gap-1 flex-wrap mb-8 border-b border-[hsl(220_15%_88%)]">
                 {((isStaff ? [
-                  { id: "clients", label: "Заявки клиентов", icon: "Users" },
-                  { id: "profile", label: "Профиль", icon: "User" },
+                  { id: "clients", label: t("tab_clients"), icon: "Users" },
+                  { id: "profile", label: t("tab_profile"), icon: "User" },
                 ] : [
-                  { id: "orders", label: "Мои заявки", icon: "ClipboardList" },
-                  { id: "active_orders", label: "Заказы", icon: "Package" },
-                  { id: "new_order", label: "Новая заявка", icon: "Plus" },
-                  { id: "auctions", label: "Аукционы", icon: "Globe" },
-                  { id: "documents", label: "Документы", icon: "FileText" },
-                  { id: "profile", label: "Профиль", icon: "User" },
-                ]) as { id: CabinetTab; label: string; icon: string }[]).map((t) => (
-                  <button key={t.id} onClick={() => { setCabinetTab(t.id); setSelectedOrder(null); }}
-                    className={`flex items-center gap-2 px-4 py-3 text-sm font-['Montserrat'] font-semibold border-b-2 transition-all ${cabinetTab === t.id ? "border-[hsl(var(--navy))] text-[hsl(var(--navy))]" : "border-transparent text-[hsl(var(--navy)/0.45)] hover:text-[hsl(var(--navy))]"}`}>
-                    <Icon name={t.icon} size={15} />{t.label}
+                  { id: "orders", label: t("tab_orders"), icon: "ClipboardList" },
+                  { id: "active_orders", label: t("tab_active_orders"), icon: "Package" },
+                  { id: "new_order", label: t("tab_new_order"), icon: "Plus" },
+                  { id: "auctions", label: t("tab_auctions"), icon: "Globe" },
+                  { id: "documents", label: t("tab_documents"), icon: "FileText" },
+                  { id: "profile", label: t("tab_profile"), icon: "User" },
+                ]) as { id: CabinetTab; label: string; icon: string }[]).map((tab) => (
+                  <button key={tab.id} onClick={() => { setCabinetTab(tab.id); setSelectedOrder(null); }}
+                    className={`flex items-center gap-2 px-4 py-3 text-sm font-['Montserrat'] font-semibold border-b-2 transition-all ${cabinetTab === tab.id ? "border-[hsl(var(--navy))] text-[hsl(var(--navy))]" : "border-transparent text-[hsl(var(--navy)/0.45)] hover:text-[hsl(var(--navy))]"}`}>
+                    <Icon name={tab.icon} size={15} />{tab.label}
                   </button>
                 ))}
               </div>
@@ -912,14 +1197,14 @@ export default function Index() {
                 <div>
                   {ordersLoading ? (
                     <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.4)]">
-                      <Icon name="Loader" size={20} className="animate-spin" />Загружаем заявки...
+                      <Icon name="Loader" size={20} className="animate-spin" />{t("loading_orders")}
                     </div>
                   ) : list.length === 0 ? (
                     <div className="text-center py-16">
                       <Icon name="ClipboardList" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.2)]" />
-                      <p className="font-['Montserrat'] font-bold navy mb-2">Новых заявок нет</p>
-                      <p className="text-[hsl(var(--navy)/0.45)] text-sm mb-6">Создайте заявку на подбор — она появится здесь до начала работы</p>
-                      <button onClick={() => setCabinetTab("new_order")} className="px-6 py-3 btn-navy rounded-sm">Создать заявку</button>
+                      <p className="font-['Montserrat'] font-bold navy mb-2">{t("no_new_orders")}</p>
+                      <p className="text-[hsl(var(--navy)/0.45)] text-sm mb-6">{t("no_new_orders_sub")}</p>
+                      <button onClick={() => setCabinetTab("new_order")} className="px-6 py-3 btn-navy rounded-sm">{t("create_order")}</button>
                     </div>
                   ) : (
                     <div className="flex flex-col gap-3">
@@ -932,13 +1217,13 @@ export default function Index() {
                             <div>
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className="font-['Montserrat'] font-bold text-sm navy">{o.order_number}</span>
-                                <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${STATUS_COLOR[o.status] || "bg-gray-100 text-gray-600"}`}>{o.status_label}</span>
+                                <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${STATUS_COLOR[o.status] || "bg-gray-100 text-gray-600"}`}>{STATUS_LABEL[lang][o.status] || o.status_label}</span>
                               </div>
                               <div className="text-[hsl(var(--navy)/0.6)] text-sm mt-0.5">
-                                {[o.car_brand, o.car_model, o.car_year].filter(Boolean).join(" ")} · {o.origin}
+                                {[o.car_brand, o.car_model, o.car_year].filter(Boolean).join(" ")} · {ORIGIN_LABEL[lang][o.origin] || o.origin}
                               </div>
                               <div className="text-[hsl(var(--navy)/0.35)] text-xs mt-1">
-                                {o.quantity} шт.{o.budget ? ` · до ${o.budget.toLocaleString()} ₽` : ""} · {new Date(o.created_at).toLocaleDateString("ru")}
+                                {o.quantity} {t("pcs")}{o.budget ? ` · ${t("up_to")} ${o.budget.toLocaleString()} ₽` : ""} · {new Date(o.created_at).toLocaleDateString(lang === "ru" ? "ru" : "en")}
                               </div>
                             </div>
                           </div>
@@ -957,24 +1242,24 @@ export default function Index() {
                 <div>
                   {ordersLoading ? (
                     <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.4)]">
-                      <Icon name="Loader" size={20} className="animate-spin" />Загружаем заказы...
+                      <Icon name="Loader" size={20} className="animate-spin" />{t("loading_active")}
                     </div>
                   ) : list.length === 0 ? (
                     <div className="text-center py-16">
                       <Icon name="Package" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.2)]" />
-                      <p className="font-['Montserrat'] font-bold navy mb-2">Активных заказов нет</p>
-                      <p className="text-[hsl(var(--navy)/0.45)] text-sm">Здесь появятся заказы, как только менеджер возьмёт заявку в работу</p>
+                      <p className="font-['Montserrat'] font-bold navy mb-2">{t("no_active_orders")}</p>
+                      <p className="text-[hsl(var(--navy)/0.45)] text-sm">{t("no_active_orders_sub")}</p>
                     </div>
                   ) : (
                     <div className="flex flex-col gap-3">
                       {list.map((o) => {
                         const steps = [
-                          { key: "processing", label: "В обработке" },
-                          { key: "auction", label: "Торги" },
-                          { key: "shipped", label: "Отгрузка" },
-                          { key: "customs", label: "Таможня" },
-                          { key: "delivered", label: "Доставка" },
-                          { key: "done", label: "Готово" },
+                          { key: "processing", label: t("step_processing") },
+                          { key: "auction", label: t("step_auction") },
+                          { key: "shipped", label: t("step_shipped") },
+                          { key: "customs", label: t("step_customs") },
+                          { key: "delivered", label: t("step_delivered") },
+                          { key: "done", label: t("step_done") },
                         ];
                         const order = ["processing", "auction", "shipped", "customs", "delivered", "done"];
                         const curIdx = order.indexOf(o.status);
@@ -988,13 +1273,13 @@ export default function Index() {
                               <div>
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <span className="font-['Montserrat'] font-bold text-sm navy">{o.order_number}</span>
-                                  <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${STATUS_COLOR[o.status] || "bg-gray-100 text-gray-600"}`}>{o.status_label}</span>
+                                  <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${STATUS_COLOR[o.status] || "bg-gray-100 text-gray-600"}`}>{STATUS_LABEL[lang][o.status] || o.status_label}</span>
                                 </div>
                                 <div className="text-[hsl(var(--navy)/0.6)] text-sm mt-0.5">
-                                  {[o.car_brand, o.car_model, o.car_year].filter(Boolean).join(" ")} · {o.origin}
+                                  {[o.car_brand, o.car_model, o.car_year].filter(Boolean).join(" ")} · {ORIGIN_LABEL[lang][o.origin] || o.origin}
                                 </div>
                                 <div className="text-[hsl(var(--navy)/0.35)] text-xs mt-1">
-                                  {o.quantity} шт.{o.budget ? ` · до ${o.budget.toLocaleString()} ₽` : ""} · {new Date(o.created_at).toLocaleDateString("ru")}
+                                  {o.quantity} {t("pcs")}{o.budget ? ` · ${t("up_to")} ${o.budget.toLocaleString()} ₽` : ""} · {new Date(o.created_at).toLocaleDateString(lang)}
                                 </div>
                               </div>
                             </div>
@@ -1019,7 +1304,7 @@ export default function Index() {
                           {!!o.cars_count && (
                             <div className="pt-4 mt-4 border-t border-[hsl(220_15%_90%)]">
                               <button onClick={() => toggleOrderCars(o.id)} className="flex items-center gap-2 text-sm font-['Montserrat'] font-semibold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors">
-                                <Icon name="Car" size={15} />Подобранные автомобили ({o.cars_count})
+                                <Icon name="Car" size={15} />{t("selected_cars")} ({o.cars_count})
                                 <Icon name={expandedOrder === o.id ? "ChevronUp" : "ChevronDown"} size={15} />
                               </button>
                               {expandedOrder === o.id && (
@@ -1035,7 +1320,7 @@ export default function Index() {
                                         <div className="font-['Montserrat'] font-bold navy">{[c.car_brand, c.car_model, c.car_year].filter(Boolean).join(" ")}</div>
                                         <div className="flex gap-4 text-sm mt-1 text-[hsl(var(--navy)/0.6)]">
                                           {!!c.price && <span className="font-semibold text-[hsl(var(--gold))]">{c.price.toLocaleString()} ₽</span>}
-                                          {!!c.mileage && <span>{c.mileage.toLocaleString()} км</span>}
+                                          {!!c.mileage && <span>{c.mileage.toLocaleString()} {t("km")}</span>}
                                         </div>
                                         {c.description && <p className="text-[hsl(var(--navy)/0.55)] text-sm mt-2 leading-relaxed">{c.description}</p>}
                                       </div>
@@ -1060,13 +1345,13 @@ export default function Index() {
                   {!selectedOrder ? (
                     ordersLoading ? (
                       <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.4)]">
-                        <Icon name="Loader" size={20} className="animate-spin" />Загружаем заявки клиентов...
+                        <Icon name="Loader" size={20} className="animate-spin" />{t("loading_clients")}
                       </div>
                     ) : orders.length === 0 ? (
                       <div className="text-center py-16">
                         <Icon name="Users" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.2)]" />
-                        <p className="font-['Montserrat'] font-bold navy mb-2">Заявок пока нет</p>
-                        <p className="text-[hsl(var(--navy)/0.45)] text-sm">Здесь появятся заявки от клиентов</p>
+                        <p className="font-['Montserrat'] font-bold navy mb-2">{t("no_client_orders")}</p>
+                        <p className="text-[hsl(var(--navy)/0.45)] text-sm">{t("no_client_orders_sub")}</p>
                       </div>
                     ) : (
                       <div className="flex flex-col gap-3">
@@ -1080,14 +1365,14 @@ export default function Index() {
                               <div>
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <span className="font-['Montserrat'] font-bold text-sm navy">{o.order_number}</span>
-                                  <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${STATUS_COLOR[o.status] || "bg-gray-100 text-gray-600"}`}>{o.status_label}</span>
-                                  {!!o.cars_count && <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))]">{o.cars_count} авто</span>}
+                                  <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${STATUS_COLOR[o.status] || "bg-gray-100 text-gray-600"}`}>{STATUS_LABEL[lang][o.status] || o.status_label}</span>
+                                  {!!o.cars_count && <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))]">{o.cars_count} {t("cars_word")}</span>}
                                 </div>
                                 <div className="text-[hsl(var(--navy))] text-sm font-semibold mt-1">{o.client_name || o.client_email}{o.client_company ? ` · ${o.client_company}` : ""}</div>
                                 <div className="text-[hsl(var(--navy)/0.55)] text-sm mt-0.5">
-                                  Запрос: {[o.car_brand, o.car_model, o.car_year].filter(Boolean).join(" ")} · {o.origin} · {o.quantity} шт.
+                                  {t("request_word")} {[o.car_brand, o.car_model, o.car_year].filter(Boolean).join(" ")} · {ORIGIN_LABEL[lang][o.origin] || o.origin} · {o.quantity} {t("pcs")}
                                 </div>
-                                <div className="text-[hsl(var(--navy)/0.35)] text-xs mt-1">{o.client_phone} · {new Date(o.created_at).toLocaleDateString("ru")}</div>
+                                <div className="text-[hsl(var(--navy)/0.35)] text-xs mt-1">{o.client_phone} · {new Date(o.created_at).toLocaleDateString(lang)}</div>
                               </div>
                             </div>
                             <Icon name="ChevronRight" size={20} className="text-[hsl(var(--navy)/0.3)]" />
@@ -1098,69 +1383,69 @@ export default function Index() {
                   ) : (
                     <div>
                       <button onClick={() => setSelectedOrder(null)} className="flex items-center gap-2 text-[hsl(var(--navy)/0.5)] text-sm font-['Montserrat'] font-semibold mb-6 hover:text-[hsl(var(--navy))] transition-colors">
-                        <Icon name="ArrowLeft" size={15} />Все заявки клиентов
+                        <Icon name="ArrowLeft" size={15} />{t("all_client_orders")}
                       </button>
 
                       {/* Карточка заявки + смена статуса */}
                       <div className="card-light rounded-sm p-6 mb-6">
                         <div className="flex items-center gap-2 flex-wrap mb-3">
                           <span className="font-['Montserrat'] font-black text-xl navy">{selectedOrder.order_number}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${STATUS_COLOR[selectedOrder.status] || "bg-gray-100 text-gray-600"}`}>{selectedOrder.status_label}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${STATUS_COLOR[selectedOrder.status] || "bg-gray-100 text-gray-600"}`}>{STATUS_LABEL[lang][selectedOrder.status] || selectedOrder.status_label}</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm mb-5">
-                          <div><span className="text-[hsl(var(--navy)/0.4)]">Клиент:</span> <span className="navy font-semibold">{selectedOrder.client_name || "—"}</span></div>
-                          <div><span className="text-[hsl(var(--navy)/0.4)]">Компания:</span> <span className="navy">{selectedOrder.client_company || "—"}</span></div>
-                          <div><span className="text-[hsl(var(--navy)/0.4)]">Email:</span> <span className="navy">{selectedOrder.client_email || "—"}</span></div>
-                          <div><span className="text-[hsl(var(--navy)/0.4)]">Телефон:</span> <span className="navy">{selectedOrder.client_phone || "—"}</span></div>
-                          <div><span className="text-[hsl(var(--navy)/0.4)]">Запрос:</span> <span className="navy">{[selectedOrder.car_brand, selectedOrder.car_model, selectedOrder.car_year].filter(Boolean).join(" ") || "—"}</span></div>
-                          <div><span className="text-[hsl(var(--navy)/0.4)]">Направление:</span> <span className="navy">{selectedOrder.origin} · {selectedOrder.quantity} шт.</span></div>
+                          <div><span className="text-[hsl(var(--navy)/0.4)]">{t("client")}</span> <span className="navy font-semibold">{selectedOrder.client_name || "—"}</span></div>
+                          <div><span className="text-[hsl(var(--navy)/0.4)]">{t("company_label")}</span> <span className="navy">{selectedOrder.client_company || "—"}</span></div>
+                          <div><span className="text-[hsl(var(--navy)/0.4)]">{t("email_label")}</span> <span className="navy">{selectedOrder.client_email || "—"}</span></div>
+                          <div><span className="text-[hsl(var(--navy)/0.4)]">{t("phone_label")}</span> <span className="navy">{selectedOrder.client_phone || "—"}</span></div>
+                          <div><span className="text-[hsl(var(--navy)/0.4)]">{t("request_label")}</span> <span className="navy">{[selectedOrder.car_brand, selectedOrder.car_model, selectedOrder.car_year].filter(Boolean).join(" ") || "—"}</span></div>
+                          <div><span className="text-[hsl(var(--navy)/0.4)]">{t("direction_label")}</span> <span className="navy">{ORIGIN_LABEL[lang][selectedOrder.origin] || selectedOrder.origin} · {selectedOrder.quantity} {t("pcs")}</span></div>
                         </div>
-                        {selectedOrder.comment && <div className="text-sm bg-[hsl(220_25%_97%)] rounded-sm p-3 mb-5"><span className="text-[hsl(var(--navy)/0.4)]">Комментарий клиента: </span><span className="navy">{selectedOrder.comment}</span></div>}
+                        {selectedOrder.comment && <div className="text-sm bg-[hsl(220_25%_97%)] rounded-sm p-3 mb-5"><span className="text-[hsl(var(--navy)/0.4)]">{t("client_comment")}</span><span className="navy">{selectedOrder.comment}</span></div>}
                         <div>
-                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">Статус заказа</label>
+                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("order_status")}</label>
                           <select value={selectedOrder.status} onChange={(e) => changeOrderStatus(selectedOrder.id, e.target.value)} className={inputCls + " max-w-xs"}>
-                            <option value="new">Новая</option>
-                            <option value="processing">В обработке</option>
-                            <option value="auction">На аукционе</option>
-                            <option value="shipped">Отправлен</option>
-                            <option value="customs">На таможне</option>
-                            <option value="delivered">Доставлен</option>
-                            <option value="done">Завершён</option>
+                            <option value="new">{t("st_new")}</option>
+                            <option value="processing">{t("st_processing")}</option>
+                            <option value="auction">{t("st_auction")}</option>
+                            <option value="shipped">{t("st_shipped")}</option>
+                            <option value="customs">{t("st_customs")}</option>
+                            <option value="delivered">{t("st_delivered")}</option>
+                            <option value="done">{t("st_done")}</option>
                           </select>
                         </div>
                       </div>
 
                       {/* Форма добавления авто */}
                       <form onSubmit={doAddCar} className="card-light rounded-sm p-6 mb-6 flex flex-col gap-4">
-                        <h3 className="font-['Montserrat'] font-bold text-lg navy">Добавить автомобиль клиенту</h3>
+                        <h3 className="font-['Montserrat'] font-bold text-lg navy">{t("add_car_title")}</h3>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                           <div>
-                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">Марка *</label>
+                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("brand")}</label>
                             <input required placeholder="Toyota" value={carForm.car_brand} onChange={(e) => setCarForm({ ...carForm, car_brand: e.target.value })} className={inputCls} />
                           </div>
                           <div>
-                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">Модель</label>
+                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("model")}</label>
                             <input placeholder="Camry" value={carForm.car_model} onChange={(e) => setCarForm({ ...carForm, car_model: e.target.value })} className={inputCls} />
                           </div>
                           <div>
-                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">Год</label>
+                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("year")}</label>
                             <input placeholder="2019" value={carForm.car_year} onChange={(e) => setCarForm({ ...carForm, car_year: e.target.value })} className={inputCls} />
                           </div>
                           <div>
-                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">Цена, ₽</label>
+                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("price_rub")}</label>
                             <input placeholder="850000" value={carForm.price} onChange={(e) => setCarForm({ ...carForm, price: e.target.value })} className={inputCls} />
                           </div>
                           <div>
-                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">Пробег, км</label>
+                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("mileage_km")}</label>
                             <input placeholder="65000" value={carForm.mileage} onChange={(e) => setCarForm({ ...carForm, mileage: e.target.value })} className={inputCls} />
                           </div>
                         </div>
                         <div>
-                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">Описание / комплектация</label>
-                          <textarea rows={3} placeholder="Состояние, оценка аукциона, комплектация, узлы..." value={carForm.description} onChange={(e) => setCarForm({ ...carForm, description: e.target.value })} className={inputCls} />
+                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("description_trim")}</label>
+                          <textarea rows={3} placeholder={t("description_ph")} value={carForm.description} onChange={(e) => setCarForm({ ...carForm, description: e.target.value })} className={inputCls} />
                         </div>
                         <div>
-                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">Фото автомобиля</label>
+                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("car_photos")}</label>
                           <div className="flex flex-wrap gap-3 items-center">
                             {carForm.photos.map((p, i) => (
                               <div key={i} className="relative w-20 h-20 rounded-sm overflow-hidden border border-[hsl(220_15%_85%)]">
@@ -1171,22 +1456,22 @@ export default function Index() {
                             ))}
                             <label className="w-20 h-20 rounded-sm border-2 border-dashed border-[hsl(220_15%_80%)] flex flex-col items-center justify-center cursor-pointer hover:border-[hsl(var(--navy))] transition-colors text-[hsl(var(--navy)/0.45)]">
                               <Icon name="Plus" size={18} />
-                              <span className="text-[10px] mt-1">Фото</span>
+                              <span className="text-[10px] mt-1">{t("photo")}</span>
                               <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => handlePhotoSelect(e.target.files)} />
                             </label>
                           </div>
                         </div>
                         <button type="submit" disabled={carSaving} className="self-start px-6 py-3 btn-navy rounded-sm disabled:opacity-60">
-                          {carSaving ? "Сохраняем..." : "Добавить автомобиль"}
+                          {carSaving ? t("saving") : t("add_car")}
                         </button>
                       </form>
 
                       {/* Список добавленных авто */}
-                      <h3 className="font-['Montserrat'] font-bold text-lg navy mb-4">Предложенные автомобили ({cars.length})</h3>
+                      <h3 className="font-['Montserrat'] font-bold text-lg navy mb-4">{t("proposed_cars")} ({cars.length})</h3>
                       {carsLoading ? (
-                        <div className="flex items-center gap-3 py-10 justify-center text-[hsl(var(--navy)/0.4)]"><Icon name="Loader" size={20} className="animate-spin" />Загрузка...</div>
+                        <div className="flex items-center gap-3 py-10 justify-center text-[hsl(var(--navy)/0.4)]"><Icon name="Loader" size={20} className="animate-spin" />{t("loading")}</div>
                       ) : cars.length === 0 ? (
-                        <p className="text-[hsl(var(--navy)/0.45)] text-sm py-6">Пока ничего не добавлено</p>
+                        <p className="text-[hsl(var(--navy)/0.45)] text-sm py-6">{t("nothing_added")}</p>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {cars.map((c) => (
@@ -1203,7 +1488,7 @@ export default function Index() {
                                 </div>
                                 <div className="flex gap-4 text-sm mt-1 text-[hsl(var(--navy)/0.6)]">
                                   {!!c.price && <span className="font-semibold text-[hsl(var(--gold))]">{c.price.toLocaleString()} ₽</span>}
-                                  {!!c.mileage && <span>{c.mileage.toLocaleString()} км</span>}
+                                  {!!c.mileage && <span>{c.mileage.toLocaleString()} {t("km")}</span>}
                                 </div>
                                 {c.description && <p className="text-[hsl(var(--navy)/0.55)] text-sm mt-2 leading-relaxed">{c.description}</p>}
                               </div>
@@ -1222,47 +1507,49 @@ export default function Index() {
                   {newOrderSent ? (
                     <div className="text-center py-12">
                       <div className="w-14 h-14 rounded-sm bg-[hsl(var(--gold)/0.1)] flex items-center justify-center mb-5 mx-auto"><Icon name="CheckCircle" size={30} className="text-[hsl(var(--gold))]" /></div>
-                      <h3 className="font-['Montserrat'] font-bold text-xl navy mb-2">Заявка создана!</h3>
-                      <p className="text-[hsl(var(--navy)/0.5)] text-sm">Переходим к списку заявок...</p>
+                      <h3 className="font-['Montserrat'] font-bold text-xl navy mb-2">{t("new_order_created")}</h3>
+                      <p className="text-[hsl(var(--navy)/0.5)] text-sm">{t("new_order_redirect")}</p>
                     </div>
                   ) : (
                     <form onSubmit={doNewOrder} className="card-light rounded-sm p-7 flex flex-col gap-5">
-                      <div><h2 className="font-['Montserrat'] font-bold text-xl navy mb-1">Новая заявка на подбор</h2><p className="text-[hsl(var(--navy)/0.45)] text-sm">Укажите параметры — менеджер подберёт варианты</p></div>
+                      <div><h2 className="font-['Montserrat'] font-bold text-xl navy mb-1">{t("new_order_title")}</h2><p className="text-[hsl(var(--navy)/0.45)] text-sm">{t("new_order_sub")}</p></div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">Марка *</label>
+                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("brand")}</label>
                           <input required placeholder="Toyota" value={newOrderForm.car_brand} onChange={(e) => setNewOrderForm({ ...newOrderForm, car_brand: e.target.value })} className={inputCls} />
                         </div>
                         <div>
-                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">Модель</label>
+                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("model")}</label>
                           <input placeholder="Camry" value={newOrderForm.car_model} onChange={(e) => setNewOrderForm({ ...newOrderForm, car_model: e.target.value })} className={inputCls} />
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">Год</label>
+                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("year")}</label>
                           <input placeholder="2018" value={newOrderForm.car_year} onChange={(e) => setNewOrderForm({ ...newOrderForm, car_year: e.target.value })} className={inputCls} />
                         </div>
                         <div>
-                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">Кол-во шт.</label>
+                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("qty")}</label>
                           <input type="number" min="1" value={newOrderForm.quantity} onChange={(e) => setNewOrderForm({ ...newOrderForm, quantity: e.target.value })} className={inputCls} />
                         </div>
                       </div>
                       <div>
-                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">Направление</label>
+                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("direction")}</label>
                         <select value={newOrderForm.origin} onChange={(e) => setNewOrderForm({ ...newOrderForm, origin: e.target.value })} className={inputCls}>
-                          <option>Япония</option><option>Корея</option><option>Гонконг</option>
+                          <option value="Япония">{ORIGIN_LABEL[lang]["Япония"]}</option>
+                          <option value="Корея">{ORIGIN_LABEL[lang]["Корея"]}</option>
+                          <option value="Гонконг">{ORIGIN_LABEL[lang]["Гонконг"]}</option>
                         </select>
                       </div>
                       <div>
-                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">Бюджет за ед., ₽</label>
+                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("budget_unit")}</label>
                         <input placeholder="300000" value={newOrderForm.budget} onChange={(e) => setNewOrderForm({ ...newOrderForm, budget: e.target.value })} className={inputCls} />
                       </div>
                       <div>
-                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">Комментарий</label>
-                        <textarea rows={3} placeholder="Доп. требования к комплектации, состоянию..." value={newOrderForm.comment} onChange={(e) => setNewOrderForm({ ...newOrderForm, comment: e.target.value })} className={inputCls + " resize-none"} />
+                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("comment")}</label>
+                        <textarea rows={3} placeholder={t("comment_req_ph")} value={newOrderForm.comment} onChange={(e) => setNewOrderForm({ ...newOrderForm, comment: e.target.value })} className={inputCls + " resize-none"} />
                       </div>
-                      <button type="submit" className="w-full py-3.5 btn-navy rounded-sm">Создать заявку</button>
+                      <button type="submit" className="w-full py-3.5 btn-navy rounded-sm">{t("create_order")}</button>
                     </form>
                   )}
                 </div>
@@ -1272,17 +1559,17 @@ export default function Index() {
               {cabinetTab === "auctions" && (
                 <div>
                   <div className="mb-6">
-                    <h2 className="font-['Montserrat'] font-black text-2xl navy mb-2">Японские аукционы</h2>
-                    <p className="text-[hsl(var(--navy)/0.5)] text-sm">Прямой доступ к крупнейшим аукционным площадкам Японии и Кореи</p>
+                    <h2 className="font-['Montserrat'] font-black text-2xl navy mb-2">{t("jp_auctions")}</h2>
+                    <p className="text-[hsl(var(--navy)/0.5)] text-sm">{t("jp_auctions_sub")}</p>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {[
-                      { name: "USS Auction", country: "🇯🇵", desc: "Крупнейший аукцион Японии. Более 20 000 лотов еженедельно.", url: "https://www.uss-auction.jp", tag: "Топ-1 Япония" },
-                      { name: "JU Auction", country: "🇯🇵", desc: "Японский аукцион с широким выбором битых и страховых авто.", url: "https://www.ju-auction.jp", tag: "Битые авто" },
-                      { name: "TAA Auction", country: "🇯🇵", desc: "Toyota Automobile Auction — официальная площадка Toyota.", url: "https://www.taa.gr.jp", tag: "Toyota Official" },
-                      { name: "HAA Auction", country: "🇯🇵", desc: "Honda Auto Auction — специализация на Honda и Acura.", url: "https://www.honda.co.jp", tag: "Honda Official" },
-                      { name: "Kcaa Auction", country: "🇰🇷", desc: "Крупнейший аукцион Кореи. Hyundai, Kia, Ssangyong.", url: "https://www.kcaa.or.kr", tag: "Топ-1 Корея" },
-                      { name: "Manheim Korea", country: "🇰🇷", desc: "Международная платформа с широкой базой корейских авто.", url: "https://korea.manheim.com", tag: "Международный" },
+                      { name: "USS Auction", country: "🇯🇵", desc: t("auc_uss"), url: "https://www.uss-auction.jp", tag: t("auc_tag_jp1") },
+                      { name: "JU Auction", country: "🇯🇵", desc: t("auc_ju"), url: "https://www.ju-auction.jp", tag: t("auc_tag_crash") },
+                      { name: "TAA Auction", country: "🇯🇵", desc: t("auc_taa"), url: "https://www.taa.gr.jp", tag: t("auc_tag_toyota") },
+                      { name: "HAA Auction", country: "🇯🇵", desc: t("auc_haa"), url: "https://www.honda.co.jp", tag: t("auc_tag_honda") },
+                      { name: "Kcaa Auction", country: "🇰🇷", desc: t("auc_kcaa"), url: "https://www.kcaa.or.kr", tag: t("auc_tag_kr1") },
+                      { name: "Manheim Korea", country: "🇰🇷", desc: t("auc_manheim"), url: "https://korea.manheim.com", tag: t("auc_tag_intl") },
                     ].map((a) => (
                       <a key={a.name} href={a.url} target="_blank" rel="noopener noreferrer"
                         className="card-light rounded-sm p-5 flex flex-col gap-3 group hover:shadow-md transition-all">
@@ -1295,14 +1582,14 @@ export default function Index() {
                         </div>
                         <p className="text-[hsl(var(--navy)/0.5)] text-sm leading-relaxed">{a.desc}</p>
                         <div className="flex items-center gap-1.5 text-[hsl(var(--gold))] text-xs font-['Montserrat'] font-semibold group-hover:gap-2.5 transition-all">
-                          Перейти на аукцион <Icon name="ExternalLink" size={13} />
+                          {t("go_to_auction")} <Icon name="ExternalLink" size={13} />
                         </div>
                       </a>
                     ))}
                   </div>
                   <div className="mt-6 p-4 bg-[hsl(220_25%_97%)] rounded-sm border border-[hsl(var(--gold)/0.3)] flex items-start gap-3">
                     <Icon name="Info" size={16} className="text-[hsl(var(--gold))] flex-shrink-0 mt-0.5" />
-                    <p className="text-[hsl(var(--navy)/0.6)] text-sm">Наши менеджеры могут участвовать в торгах от вашего имени. <button onClick={() => setCabinetTab("new_order")} className="text-[hsl(var(--gold))] font-semibold hover:underline">Создайте заявку</button> — мы найдём нужный лот.</p>
+                    <p className="text-[hsl(var(--navy)/0.6)] text-sm">{t("auction_info_pre")}<button onClick={() => setCabinetTab("new_order")} className="text-[hsl(var(--gold))] font-semibold hover:underline">{t("auction_info_link")}</button>{t("auction_info_post")}</p>
                   </div>
                 </div>
               )}
@@ -1310,17 +1597,17 @@ export default function Index() {
               {/* ── Документы ── */}
               {cabinetTab === "documents" && (
                 <div>
-                  <div className="mb-6"><h2 className="font-['Montserrat'] font-black text-2xl navy mb-2">Документы</h2><p className="text-[hsl(var(--navy)/0.5)] text-sm">Загрузите необходимые документы для оформления поставки</p></div>
+                  <div className="mb-6"><h2 className="font-['Montserrat'] font-black text-2xl navy mb-2">{t("documents")}</h2><p className="text-[hsl(var(--navy)/0.5)] text-sm">{t("documents_sub")}</p></div>
                   <div className="max-w-lg">
                     <div className="card-light rounded-sm p-8 border-2 border-dashed border-[hsl(220_15%_85%)] text-center mb-5">
                       <Icon name="Upload" size={32} className="mx-auto mb-3 text-[hsl(var(--navy)/0.25)]" />
-                      <p className="font-['Montserrat'] font-semibold navy mb-1">Загрузить документ</p>
-                      <p className="text-[hsl(var(--navy)/0.4)] text-xs mb-4">PDF, JPG, PNG — до 10 МБ</p>
-                      <button className="px-5 py-2.5 btn-navy rounded-sm text-xs">Выбрать файл</button>
+                      <p className="font-['Montserrat'] font-semibold navy mb-1">{t("upload_document")}</p>
+                      <p className="text-[hsl(var(--navy)/0.4)] text-xs mb-4">{t("upload_hint")}</p>
+                      <button className="px-5 py-2.5 btn-navy rounded-sm text-xs">{t("choose_file")}</button>
                     </div>
                     <div className="text-center py-8 text-[hsl(var(--navy)/0.35)]">
                       <Icon name="FileText" size={32} className="mx-auto mb-3 opacity-40" />
-                      <p className="text-sm">Документов пока нет</p>
+                      <p className="text-sm">{t("no_documents")}</p>
                     </div>
                   </div>
                 </div>
@@ -1330,20 +1617,20 @@ export default function Index() {
               {cabinetTab === "profile" && (
                 <div className="max-w-lg">
                   <form onSubmit={doSaveProfile} className="card-light rounded-sm p-7 flex flex-col gap-5">
-                    <div><h2 className="font-['Montserrat'] font-bold text-xl navy mb-1">Редактировать профиль</h2><p className="text-[hsl(var(--navy)/0.45)] text-sm">Email: {user.email}</p></div>
-                    {profileSaved && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-sm flex items-center gap-2"><Icon name="Check" size={15} />Профиль сохранён</div>}
+                    <div><h2 className="font-['Montserrat'] font-bold text-xl navy mb-1">{t("edit_profile")}</h2><p className="text-[hsl(var(--navy)/0.45)] text-sm">Email: {user.email}</p></div>
+                    {profileSaved && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-sm flex items-center gap-2"><Icon name="Check" size={15} />{t("profile_saved")}</div>}
                     {[
-                      { key: "full_name", label: "Полное имя", placeholder: "Иван Петров" },
-                      { key: "phone", label: "Телефон", placeholder: "+7 (___) ___-__-__" },
-                      { key: "company", label: "Компания / ИП", placeholder: "ООО «АвтоРазбор»" },
-                      { key: "inn", label: "ИНН", placeholder: "1234567890" },
+                      { key: "full_name", label: t("full_name"), placeholder: t("ph_name") },
+                      { key: "phone", label: t("phone"), placeholder: "+7 (___) ___-__-__" },
+                      { key: "company", label: t("company_ip"), placeholder: t("ph_company") },
+                      { key: "inn", label: t("inn"), placeholder: t("ph_inn") },
                     ].map((f) => (
                       <div key={f.key}>
                         <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{f.label}</label>
                         <input placeholder={f.placeholder} value={profileForm[f.key as keyof typeof profileForm]} onChange={(e) => setProfileForm({ ...profileForm, [f.key]: e.target.value })} className={inputCls} />
                       </div>
                     ))}
-                    <button type="submit" className="w-full py-3.5 btn-navy rounded-sm">Сохранить изменения</button>
+                    <button type="submit" className="w-full py-3.5 btn-navy rounded-sm">{t("save_changes")}</button>
                   </form>
                 </div>
               )}
@@ -1355,7 +1642,7 @@ export default function Index() {
         <footer className="border-t border-[hsl(220_15%_88%)] py-8 px-5 sm:px-8 mt-8 bg-white">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <button onClick={() => nav("home")}><img src={LOGO} alt="Partcore Logistics" className="h-10 w-36 object-cover object-left" style={{ objectPosition: "10% center", transform: "scale(1.15)", transformOrigin: "left center" }} /></button>
-            <div className="text-[hsl(var(--navy)/0.35)] text-xs text-center">© 2024 Partcore Logistics. Поставка авто под разборку.</div>
+            <div className="text-[hsl(var(--navy)/0.35)] text-xs text-center">{t("footer_copy")}</div>
             <div className="flex gap-5 flex-wrap justify-center">
               {navItems.map((item) => (
                 <button key={item.id} onClick={() => nav(item.id)} className="text-xs text-[hsl(var(--navy)/0.4)] hover:text-[hsl(var(--navy))] transition-colors font-['Montserrat'] font-medium">{item.label}</button>
