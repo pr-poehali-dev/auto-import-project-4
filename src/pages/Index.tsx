@@ -249,6 +249,11 @@ const I18N: Record<Lang, Record<string, string>> = {
     your_name: "Ваше имя *", phone_opt: "Телефон", pwd_min: "Пароль * (мин. 6 символов)",
     registering: "Регистрируем...", have_account: "Уже есть аккаунт?",
     err_login: "Ошибка входа", err_register: "Ошибка регистрации",
+    err_send_code: "Не удалось отправить код", err_pwd_min: "Пароль — минимум 6 символов",
+    get_code: "Получить код", sending_code: "Отправляем код...",
+    code_title: "Подтверждение телефона", code_sub: "Введите код из SMS, отправленный на номер",
+    sms_code: "Код из SMS", confirm: "Подтвердить", change_number: "Изменить номер",
+    resend_code: "Отправить код повторно",
     // cabinet
     auth_required: "Для доступа необходимо войти",
     staff_cabinet: "Кабинет сотрудника", personal_cabinet: "Личный кабинет", staff_badge: "Сотрудник",
@@ -364,6 +369,11 @@ const I18N: Record<Lang, Record<string, string>> = {
     your_name: "Your name *", phone_opt: "Phone", pwd_min: "Password * (min. 6 characters)",
     registering: "Signing up...", have_account: "Already have an account?",
     err_login: "Login error", err_register: "Registration error",
+    err_send_code: "Failed to send the code", err_pwd_min: "Password must be at least 6 characters",
+    get_code: "Get code", sending_code: "Sending code...",
+    code_title: "Phone verification", code_sub: "Enter the code from the SMS sent to",
+    sms_code: "SMS code", confirm: "Confirm", change_number: "Change number",
+    resend_code: "Resend code",
     // cabinet
     auth_required: "You need to log in to access this",
     staff_cabinet: "Staff dashboard", personal_cabinet: "Dashboard", staff_badge: "Staff",
@@ -442,7 +452,9 @@ export default function Index() {
   const [authError, setAuthError] = useState("");
   // forms
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
-  const [regForm, setRegForm] = useState({ email: "", password: "", full_name: "", phone: "", company: "" });
+  const [regForm, setRegForm] = useState({ email: "", password: "", full_name: "", phone: "", company: "", code: "" });
+  const [regStep, setRegStep] = useState<"form" | "code">("form");
+  const [codeSending, setCodeSending] = useState(false);
   const [contactForm, setContactForm] = useState({ name: "", company: "", phone: "", comment: "" });
   const [contactSent, setContactSent] = useState(false);
   // cabinet
@@ -575,6 +587,15 @@ export default function Index() {
     } else setAuthError(data.error || t("err_login"));
   };
 
+  const doSendCode = async (e: React.FormEvent) => {
+    e.preventDefault(); setCodeSending(true); setAuthError("");
+    if ((regForm.password || "").length < 6) { setAuthError(t("err_pwd_min")); setCodeSending(false); return; }
+    const data = await apiAuth("send_code", { phone: regForm.phone });
+    setCodeSending(false);
+    if (data.message) { setRegStep("code"); }
+    else setAuthError(data.error || t("err_send_code"));
+  };
+
   const doRegister = async (e: React.FormEvent) => {
     e.preventDefault(); setAuthLoading(true); setAuthError("");
     const data = await apiAuth("register", regForm);
@@ -583,9 +604,12 @@ export default function Index() {
       setToken(data.token); localStorage.setItem("pc_token", data.token);
       const me = await apiAuth("me", {}, data.token);
       if (me.user) setUser(me.user);
+      setRegStep("form");
       nav("cabinet");
     } else setAuthError(data.error || t("err_register"));
   };
+
+  const resetRegStep = () => { setRegStep("form"); setRegForm({ ...regForm, code: "" }); setAuthError(""); };
 
   const doLogout = async () => {
     await apiAuth("logout", {}, token);
@@ -1112,31 +1136,50 @@ export default function Index() {
             <div className="w-full max-w-md">
               <div className="text-center mb-8">
                 <img src={LOGO} alt="Partcore" className="h-12 mx-auto mb-6 object-contain" />
-                <h1 className="font-['Montserrat'] font-black text-3xl navy mb-2">{t("register_title")}</h1>
-                <p className="text-[hsl(var(--navy)/0.5)] text-sm">{t("register_sub")}</p>
+                <h1 className="font-['Montserrat'] font-black text-3xl navy mb-2">{regStep === "code" ? t("code_title") : t("register_title")}</h1>
+                <p className="text-[hsl(var(--navy)/0.5)] text-sm">{regStep === "code" ? `${t("code_sub")} ${regForm.phone}` : t("register_sub")}</p>
               </div>
               <div className="card-light rounded-sm p-8">
-                <form onSubmit={doRegister} className="flex flex-col gap-4">
-                  {authError && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-sm">{authError}</div>}
-                  {[
-                    { key: "full_name", label: t("your_name"), placeholder: t("ph_name"), type: "text", required: true },
-                    { key: "email", label: "Email *", placeholder: "you@example.com", type: "email", required: true },
-                    { key: "phone", label: t("phone_opt"), placeholder: "+7 (___) ___-__-__", type: "tel", required: false },
-                    { key: "company", label: t("company_ip"), placeholder: t("ph_company"), type: "text", required: false },
-                    { key: "password", label: t("pwd_min"), placeholder: "••••••••", type: "password", required: true },
-                  ].map((f) => (
-                    <div key={f.key}>
-                      <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{f.label}</label>
-                      <input required={f.required} type={f.type} placeholder={f.placeholder} value={regForm[f.key as keyof typeof regForm]} onChange={(e) => setRegForm({ ...regForm, [f.key]: e.target.value })} className={inputCls} />
+                {regStep === "form" ? (
+                  <form onSubmit={doSendCode} className="flex flex-col gap-4">
+                    {authError && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-sm">{authError}</div>}
+                    {[
+                      { key: "full_name", label: t("your_name"), placeholder: t("ph_name"), type: "text", required: true },
+                      { key: "email", label: "Email *", placeholder: "you@example.com", type: "email", required: true },
+                      { key: "phone", label: t("phone_req"), placeholder: "+7 (___) ___-__-__", type: "tel", required: true },
+                      { key: "company", label: t("company_ip"), placeholder: t("ph_company"), type: "text", required: false },
+                      { key: "password", label: t("pwd_min"), placeholder: "••••••••", type: "password", required: true },
+                    ].map((f) => (
+                      <div key={f.key}>
+                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{f.label}</label>
+                        <input required={f.required} type={f.type} placeholder={f.placeholder} value={regForm[f.key as keyof typeof regForm]} onChange={(e) => setRegForm({ ...regForm, [f.key]: e.target.value })} className={inputCls} />
+                      </div>
+                    ))}
+                    <button type="submit" disabled={codeSending} className="w-full py-3.5 btn-navy rounded-sm disabled:opacity-60 mt-1">
+                      {codeSending ? t("sending_code") : t("get_code")}
+                    </button>
+                  </form>
+                ) : (
+                  <form onSubmit={doRegister} className="flex flex-col gap-4">
+                    {authError && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-sm">{authError}</div>}
+                    <div>
+                      <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("sms_code")}</label>
+                      <input required type="text" inputMode="numeric" maxLength={6} placeholder="0000" value={regForm.code}
+                        onChange={(e) => setRegForm({ ...regForm, code: e.target.value.replace(/\D/g, "") })}
+                        className={inputCls + " text-center tracking-[0.5em] text-lg font-bold"} />
                     </div>
-                  ))}
-                  <button type="submit" disabled={authLoading} className="w-full py-3.5 btn-navy rounded-sm disabled:opacity-60 mt-1">
-                    {authLoading ? t("registering") : t("do_register")}
-                  </button>
-                </form>
+                    <button type="submit" disabled={authLoading} className="w-full py-3.5 btn-navy rounded-sm disabled:opacity-60">
+                      {authLoading ? t("registering") : t("confirm")}
+                    </button>
+                    <div className="flex items-center justify-between text-sm">
+                      <button type="button" onClick={resetRegStep} className="text-[hsl(var(--navy)/0.5)] hover:text-[hsl(var(--navy))] font-medium">{t("change_number")}</button>
+                      <button type="button" onClick={(e) => doSendCode(e as unknown as React.FormEvent)} disabled={codeSending} className="text-[hsl(var(--gold))] font-semibold hover:underline disabled:opacity-50">{t("resend_code")}</button>
+                    </div>
+                  </form>
+                )}
                 <div className="text-center mt-5 text-sm text-[hsl(var(--navy)/0.5)]">
                   {t("have_account")}{" "}
-                  <button onClick={() => nav("login")} className="text-[hsl(var(--gold))] font-semibold hover:underline">{t("login")}</button>
+                  <button onClick={() => { resetRegStep(); nav("login"); }} className="text-[hsl(var(--gold))] font-semibold hover:underline">{t("login")}</button>
                 </div>
               </div>
             </div>

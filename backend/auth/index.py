@@ -1,15 +1,44 @@
 """
-Аутентификация: регистрация, вход, выход, профиль.
-action в теле запроса: register | login | logout | me | update_profile
+Аутентификация: регистрация, вход, выход, профиль, подтверждение телефона.
+action в теле запроса: send_code | register | login | logout | me | update_profile
 """
 import json
 import os
+import re
+import random
 import hashlib
 import secrets
+import urllib.request
+import urllib.parse
 import psycopg2
 
 DB = os.environ["DATABASE_URL"]
 SCHEMA = "t_p64303579_auto_import_project_"
+SMSC_LOGIN = os.environ.get("SMSC_LOGIN", "")
+SMSC_PASSWORD = os.environ.get("SMSC_PASSWORD", "")
+
+
+def normalize_phone(phone: str) -> str:
+    digits = re.sub(r"\D", "", phone or "")
+    if digits.startswith("8") and len(digits) == 11:
+        digits = "7" + digits[1:]
+    return digits
+
+
+def send_sms(phone: str, text: str) -> bool:
+    if not SMSC_LOGIN or not SMSC_PASSWORD:
+        return False
+    params = urllib.parse.urlencode({
+        "login": SMSC_LOGIN, "psw": SMSC_PASSWORD,
+        "phones": phone, "mes": text, "fmt": 3, "charset": "utf-8",
+    })
+    url = "https://smsc.ru/sys/send.php?" + params
+    try:
+        with urllib.request.urlopen(url, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return "error" not in data
+    except Exception:
+        return False
 
 CORS = {
     "Access-Control-Allow-Origin": "*",
@@ -72,28 +101,72 @@ def handler(event: dict, context) -> dict:
     try:
         cur = conn.cursor()
 
+        if action == "send_code":
+            phone = normalize_phone(body.get("phone", ""))
+            if len(phone) < 11:
+                return err("Укажите корректный номер телефона")
+            cur.execute(
+                f"SELECT id FROM {SCHEMA}.users WHERE phone = %s AND phone_verified = TRUE",
+                (phone,)
+            )
+            if cur.fetchone():
+                return err("Этот телефон уже зарегистрирован")
+            code = f"{random.randint(1000, 9999)}"
+            cur.execute(f"DELETE FROM {SCHEMA}.phone_codes WHERE phone = %s", (phone,))
+            cur.execute(
+                f"INSERT INTO {SCHEMA}.phone_codes (phone, code) VALUES (%s, %s)",
+                (phone, code)
+            )
+            conn.commit()
+            sent = send_sms(phone, f"Partcore: код подтверждения {code}")
+            if not sent:
+                return err("Не удалось отправить SMS. Попробуйте позже", 502)
+            return ok({"message": "Код отправлен", "phone": phone})
+
         if action == "register":
             email = body.get("email", "").strip().lower()
             password = body.get("password", "")
             full_name = body.get("full_name", "").strip()
-            phone = body.get("phone", "").strip()
+            phone = normalize_phone(body.get("phone", ""))
             company = body.get("company", "").strip()
+            code = body.get("code", "").strip()
 
             if not email or not password:
                 return err("Email и пароль обязательны")
             if len(password) < 6:
                 return err("Пароль — минимум 6 символов")
+            if len(phone) < 11:
+                return err("Укажите корректный номер телефона")
+            if not code:
+                return err("Введите код из SMS")
+
+            cur.execute(
+                f"SELECT id, code, attempts FROM {SCHEMA}.phone_codes "
+                f"WHERE phone = %s AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1",
+                (phone,)
+            )
+            row = cur.fetchone()
+            if not row:
+                return err("Код истёк или не запрашивался")
+            code_id, real_code, attempts = row
+            if attempts >= 5:
+                return err("Слишком много попыток. Запросите новый код")
+            if code != real_code:
+                cur.execute(f"UPDATE {SCHEMA}.phone_codes SET attempts = attempts + 1 WHERE id = %s", (code_id,))
+                conn.commit()
+                return err("Неверный код из SMS")
 
             cur.execute(f"SELECT id FROM {SCHEMA}.users WHERE email = %s", (email,))
             if cur.fetchone():
                 return err("Пользователь с таким email уже существует")
 
             cur.execute(
-                f"INSERT INTO {SCHEMA}.users (email, phone, password_hash, full_name, company) "
-                f"VALUES (%s, %s, %s, %s, %s) RETURNING id",
+                f"INSERT INTO {SCHEMA}.users (email, phone, password_hash, full_name, company, phone_verified) "
+                f"VALUES (%s, %s, %s, %s, %s, TRUE) RETURNING id",
                 (email, phone, hash_pw(password), full_name, company)
             )
             user_id = cur.fetchone()[0]
+            cur.execute(f"DELETE FROM {SCHEMA}.phone_codes WHERE phone = %s", (phone,))
             tk = make_token()
             cur.execute(
                 f"INSERT INTO {SCHEMA}.sessions (user_id, token) VALUES (%s, %s)",
