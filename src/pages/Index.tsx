@@ -644,7 +644,7 @@ export default function Index() {
                 <div className="card-light rounded-sm p-6">
                   <h3 className="font-['Montserrat'] font-bold text-base mb-5 navy uppercase tracking-wider">Контакты</h3>
                   <div className="flex flex-col gap-5">
-                    {[{ icon: "Phone", label: "Телефон", val: "+7 (800) 000-00-00", sub: "Бесплатно по России" }, { icon: "Mail", label: "Email", val: "info@partcore.ru", sub: "Для коммерческих запросов" }, { icon: "MessageCircle", label: "Telegram / WhatsApp", val: ", sub: "Ответим в течение 15 мин" }, { icon: "MapPin", label: "Офис", val: "Москва, ., ", sub: "Пн–Пт 9:00–18:00" }].map((c) => (
+                    {[{ icon: "Phone", label: "Телефон", val: "+7 (800) 000-00-00", sub: "Бесплатно по России" }, { icon: "Mail", label: "Email", val: "info@partcore.ru", sub: "Для коммерческих запросов" }, { icon: "MessageCircle", label: "Telegram / WhatsApp", val: "+7 (900) 000-00-00", sub: "Ответим в течение 15 мин" }, { icon: "MapPin", label: "Офис", val: "Москва", sub: "Пн–Пт 9:00–18:00" }].map((c) => (
                       <div key={c.label} className="flex items-start gap-4">
                         <div className="w-9 h-9 bg-[hsl(var(--navy)/0.07)] flex items-center justify-center flex-shrink-0 rounded-sm"><Icon name={c.icon} size={16} className="text-[hsl(var(--navy))]" /></div>
                         <div><div className="text-[hsl(var(--navy)/0.4)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase">{c.label}</div><div className="text-[hsl(var(--navy))] font-medium text-sm mt-0.5">{c.val}</div><div className="text-[hsl(var(--navy)/0.35)] text-xs">{c.sub}</div></div>
