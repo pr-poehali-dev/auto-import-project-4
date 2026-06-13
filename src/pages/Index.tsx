@@ -78,7 +78,7 @@ const ORIGINS = [
     auctions: ["Прямые контракты с дилерами", "Закрытые торги"],
     facts: [
       { icon: "Clock", title: "Срок доставки", val: "45–55 дней" },
-      { icon: "Anchor", title: "Порт прибытия", val: "Новороссийск / СПб" },
+      { icon: "Anchor", title: "Порт прибытия", val: "Владивосток" },
       { icon: "Package", title: "Объём", val: "от 20 ед./мес." },
       { icon: "Gem", title: "Сегмент", val: "Премиум" },
     ],
