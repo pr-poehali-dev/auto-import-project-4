@@ -4,6 +4,9 @@ import Icon from "@/components/ui/icon";
 const LOGO = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/bucket/892f391f-a7d5-48a5-92ab-0fda67f800fc.jpg";
 const HERO_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/69b82125-e3a5-4f1b-9b5d-3f6a6b2bd5c4.jpg";
 const DIRECTIONS_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/b696b668-4aa3-4ccc-a176-579a2d4c20d3.jpg";
+const SERVICES_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/ed33512a-90ea-4788-91d5-d6f6d85ab1a9.jpg";
+const HOW_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/067252f1-3722-40e7-a2f0-455cac91a6d1.jpg";
+const CONTACTS_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/255e2ab3-7629-4890-a262-8c85f859b0df.jpg";
 
 const AUTH_URL = "https://functions.poehali.dev/ddb4a7f6-82c2-4cca-8d4c-ed685f8a3c72";
 const ORDERS_URL = "https://functions.poehali.dev/d57608b2-729a-4006-a5c2-598ca59a8239";
@@ -823,8 +826,17 @@ export default function Index() {
 
         {/* ════ SERVICES ════ */}
         {page === "services" && (
-          <section className="min-h-screen py-14 px-5 sm:px-8 max-w-7xl mx-auto">
-            <div className="mb-12"><div className="section-tag mb-3">{t("what_we_do")}</div><h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl">{t("services_title")}</h1><div className="divider-navy mt-4" /></div>
+          <section className="min-h-screen">
+            <div className="relative overflow-hidden mb-12">
+              <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${SERVICES_IMG})` }} />
+              <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--navy))] via-[hsl(var(--navy)/0.85)] to-[hsl(var(--navy)/0.55)]" />
+              <div className="relative max-w-7xl mx-auto px-5 sm:px-8 py-20 sm:py-24">
+                <div className="section-tag mb-3 border-[hsl(var(--gold)/0.5)] text-[hsl(var(--gold))]">{t("what_we_do")}</div>
+                <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl text-white">{t("services_title")}</h1>
+                <div className="h-1 w-16 bg-[hsl(var(--gold))] mt-4" />
+              </div>
+            </div>
+            <div className="px-5 sm:px-8 max-w-7xl mx-auto pb-14">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-16">
               {SERVICES.map((s, i) => (
                 <div key={i} className="card-light rounded-sm p-7 group flex gap-5">
@@ -840,13 +852,23 @@ export default function Index() {
               <p className="text-[hsl(var(--navy)/0.5)] mb-6 text-sm">{t("custom_service_sub")}</p>
               <button onClick={() => nav("contacts")} className="px-8 py-3.5 btn-navy rounded-sm">{t("discuss_task")}</button>
             </div>
+            </div>
           </section>
         )}
 
         {/* ════ HOW ════ */}
         {page === "how" && (
-          <section className="min-h-screen py-14 px-5 sm:px-8 max-w-7xl mx-auto">
-            <div className="mb-14"><div className="section-tag mb-3">{t("process_tag")}</div><h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl">{t("how_we_work_title")}</h1><div className="divider-navy mt-4" /></div>
+          <section className="min-h-screen">
+            <div className="relative overflow-hidden mb-12">
+              <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${HOW_IMG})` }} />
+              <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--navy))] via-[hsl(var(--navy)/0.85)] to-[hsl(var(--navy)/0.55)]" />
+              <div className="relative max-w-7xl mx-auto px-5 sm:px-8 py-20 sm:py-24">
+                <div className="section-tag mb-3 border-[hsl(var(--gold)/0.5)] text-[hsl(var(--gold))]">{t("process_tag")}</div>
+                <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl text-white">{t("how_we_work_title")}</h1>
+                <div className="h-1 w-16 bg-[hsl(var(--gold))] mt-4" />
+              </div>
+            </div>
+            <div className="px-5 sm:px-8 max-w-7xl mx-auto pb-14">
             <div className="relative max-w-2xl">
               <div className="absolute left-6 top-0 bottom-10 w-px bg-[hsl(var(--navy)/0.12)]" />
               <div className="flex flex-col gap-5">
@@ -864,6 +886,7 @@ export default function Index() {
               </div>
             </div>
             <div className="mt-14"><button onClick={() => nav("contacts")} className="px-10 py-4 btn-navy rounded-sm">{t("start_coop")}</button></div>
+            </div>
           </section>
         )}
 
@@ -1073,8 +1096,17 @@ export default function Index() {
 
         {/* ════ CONTACTS ════ */}
         {page === "contacts" && (
-          <section className="min-h-screen py-14 px-5 sm:px-8 max-w-7xl mx-auto">
-            <div className="mb-12"><div className="section-tag mb-3">{t("contact_tag")}</div><h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl">{t("leave_request_title")}</h1><div className="divider-navy mt-4" /></div>
+          <section className="min-h-screen">
+            <div className="relative overflow-hidden mb-12">
+              <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${CONTACTS_IMG})` }} />
+              <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--navy))] via-[hsl(var(--navy)/0.85)] to-[hsl(var(--navy)/0.55)]" />
+              <div className="relative max-w-7xl mx-auto px-5 sm:px-8 py-20 sm:py-24">
+                <div className="section-tag mb-3 border-[hsl(var(--gold)/0.5)] text-[hsl(var(--gold))]">{t("contact_tag")}</div>
+                <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl text-white">{t("leave_request_title")}</h1>
+                <div className="h-1 w-16 bg-[hsl(var(--gold))] mt-4" />
+              </div>
+            </div>
+            <div className="px-5 sm:px-8 max-w-7xl mx-auto pb-14">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="card-light rounded-sm p-8">
                 {contactSent ? (
@@ -1118,6 +1150,7 @@ export default function Index() {
                   </div>
                 </div>
               </div>
+            </div>
             </div>
           </section>
         )}
