@@ -80,7 +80,7 @@ export default function Index() {
       <header className="fixed top-0 inset-x-0 z-50 bg-white border-b border-[hsl(220_15%_88%)] shadow-sm">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 flex items-center justify-between h-20">
           <button onClick={() => nav("home")}>
-            <img src={LOGO} alt="Partcore Logistics" className="h-14 w-auto object-contain" />
+            <img src={LOGO} alt="Partcore Logistics" className="h-16 w-48 object-cover object-left" style={{ objectPosition: "10% center", transform: "scale(1.15)", transformOrigin: "left center" }} />
           </button>
 
           <nav className="hidden md:flex items-center gap-0.5">
@@ -558,7 +558,7 @@ export default function Index() {
         <footer className="border-t border-[hsl(220_15%_88%)] py-8 px-5 sm:px-8 mt-8 bg-white">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <button onClick={() => nav("home")}>
-              <img src={LOGO} alt="Partcore Logistics" className="h-8 w-auto object-contain" />
+              <img src={LOGO} alt="Partcore Logistics" className="h-10 w-36 object-cover object-left" style={{ objectPosition: "10% center", transform: "scale(1.15)", transformOrigin: "left center" }} />
             </button>
             <div className="text-[hsl(var(--navy)/0.35)] text-xs text-center">
               © 2024 Partcore Logistics. Поставка авто под разборку.
