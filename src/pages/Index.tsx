@@ -257,13 +257,13 @@ export default function Index() {
               </div>
               <div className="absolute left-0 top-0 bottom-0 w-1 bg-[hsl(var(--navy))]" />
               <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 py-20">
-                <div className="max-w-xl">
+                <div className="max-w-xl flex flex-col items-center text-center">
                   <div className="section-tag mb-6 anim-up"><span className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--gold))] inline-block" />B2B поставки · Япония · Корея · Гонконг</div>
-                  <h1 className="font-['Montserrat'] font-black leading-[0.95] mb-5 anim-up d1 navy whitespace-nowrap inline-block text-center" style={{ fontSize: "clamp(1.7rem, 4vw, 3.4rem)" }}>
+                  <h1 className="font-['Montserrat'] font-black leading-[0.95] mb-5 anim-up d1 navy whitespace-nowrap text-center" style={{ fontSize: "clamp(1.7rem, 4vw, 3.4rem)" }}>
                     ПОСТАВКА<br /><span className="text-[hsl(var(--red))]">МАШИНОКОМПЛЕКТОВ</span>
                   </h1>
                   <p className="text-[hsl(var(--navy)/0.55)] text-base leading-relaxed mb-9 anim-up d2">Partcore Logistics поставляет автомобили с азиатских аукционов для разборщиков и автомагазинов. Опт от 3 авто, полное таможенное сопровождение.</p>
-                  <div className="flex flex-col sm:flex-row gap-3 anim-up d3">
+                  <div className="flex flex-col sm:flex-row gap-3 anim-up d3 justify-center">
                     <button onClick={() => nav("contacts")} className="px-8 py-3.5 btn-navy rounded-sm">Отправить заявку</button>
                     <button onClick={() => nav("how")} className="px-8 py-3.5 btn-outline rounded-sm">Как мы работаем</button>
                   </div>
