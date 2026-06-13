@@ -338,8 +338,7 @@ export default function Index() {
                 {ORIGINS.map((o) => (
                   <button key={o.name} onClick={() => openOrigin(o.id)} className="text-left card-light rounded-sm p-7 group relative overflow-hidden hover:shadow-lg transition-all cursor-pointer">
                     <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[hsl(var(--gold))] group-hover:w-full transition-all duration-500" />
-                    <div className="text-4xl mb-4">{o.flag}</div>
-                    <h3 className="font-['Montserrat'] font-bold text-xl mb-2 navy">{o.name}</h3>
+                    <h3 className="font-['Montserrat'] font-bold text-xl mb-2 navy flex items-center gap-2"><span className="text-4xl">{o.flag}</span>{o.name}</h3>
                     <p className="text-[hsl(var(--navy)/0.5)] text-sm leading-relaxed mb-4">{o.desc}</p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-xs font-['Montserrat'] font-semibold gold"><Icon name="Package" size={13} />{o.volume}</div>
