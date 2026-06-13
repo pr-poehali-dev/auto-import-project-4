@@ -6,6 +6,7 @@ const HERO_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d92
 
 const AUTH_URL = "https://functions.poehali.dev/ddb4a7f6-82c2-4cca-8d4c-ed685f8a3c72";
 const ORDERS_URL = "https://functions.poehali.dev/d57608b2-729a-4006-a5c2-598ca59a8239";
+const CARS_URL = "https://functions.poehali.dev/8f3531c8-943d-46dc-acd0-b9a6618054db";
 
 // ── API helpers ──────────────────────────────────────────────
 async function apiAuth(action: string, payload: object = {}, token?: string) {
@@ -19,7 +20,7 @@ async function apiAuth(action: string, payload: object = {}, token?: string) {
   return res.json();
 }
 
-async function apiOrders(method: "GET" | "POST", token: string, body?: object) {
+async function apiOrders(method: "GET" | "POST" | "PUT", token: string, body?: object) {
   const headers: Record<string, string> = { "X-Session-Token": token };
   if (body) headers["Content-Type"] = "application/json";
   const res = await fetch(ORDERS_URL, {
@@ -30,9 +31,22 @@ async function apiOrders(method: "GET" | "POST", token: string, body?: object) {
   return res.json();
 }
 
+async function apiCars(method: "GET" | "POST" | "DELETE", token: string, opts: { body?: object; query?: string } = {}) {
+  const headers: Record<string, string> = { "X-Session-Token": token };
+  if (opts.body) headers["Content-Type"] = "application/json";
+  const url = opts.query ? `${CARS_URL}?${opts.query}` : CARS_URL;
+  const res = await fetch(url, {
+    method,
+    headers,
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  return res.json();
+}
+
 // ── Types ────────────────────────────────────────────────────
-interface User { id: number; email: string; phone: string; full_name: string; company: string; inn: string; created_at: string; }
-interface Order { id: number; order_number: string; car_brand: string; car_model: string; car_year: number; quantity: number; budget: number; status: string; status_label: string; origin: string; created_at: string; }
+interface User { id: number; email: string; phone: string; full_name: string; company: string; inn: string; created_at: string; role?: string; }
+interface Order { id: number; order_number: string; car_brand: string; car_model: string; car_year: number; quantity: number; budget: number; status: string; status_label: string; origin: string; created_at: string; comment?: string; client_name?: string; client_email?: string; client_phone?: string; client_company?: string; cars_count?: number; }
+interface Car { id: number; car_brand: string; car_model: string; car_year: number; price: number; mileage: number; description: string; photos: string[]; created_at: string; }
 
 const ORIGINS = [
   {
@@ -140,7 +154,7 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 type Page = "home" | "directions" | "services" | "how" | "contacts" | "login" | "register" | "cabinet" | "origin";
-type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile";
+type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile" | "clients";
 
 // ════════════════════════════════════════════════════════════
 export default function Index() {
@@ -166,6 +180,12 @@ export default function Index() {
   const [profileSaved, setProfileSaved] = useState(false);
   const [newOrderForm, setNewOrderForm] = useState({ car_brand: "", car_model: "", car_year: "", quantity: "1", budget: "", origin: "Япония", comment: "" });
   const [newOrderSent, setNewOrderSent] = useState(false);
+  // staff: работа с заявкой клиента
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [cars, setCars] = useState<Car[]>([]);
+  const [carsLoading, setCarsLoading] = useState(false);
+  const [carForm, setCarForm] = useState({ car_brand: "", car_model: "", car_year: "", price: "", mileage: "", description: "", photos: [] as string[] });
+  const [carSaving, setCarSaving] = useState(false);
 
   // ── load user on mount ──
   useEffect(() => {
@@ -179,7 +199,8 @@ export default function Index() {
 
   // ── load orders when cabinet opens ──
   useEffect(() => {
-    if (page === "cabinet" && cabinetTab === "orders" && token) {
+    const needOrders = page === "cabinet" && token && ["orders", "active_orders", "clients"].includes(cabinetTab);
+    if (needOrders) {
       setOrdersLoading(true);
       apiOrders("GET", token).then((d) => {
         setOrders(d.orders || []);
@@ -188,9 +209,82 @@ export default function Index() {
     }
   }, [page, cabinetTab, token]);
 
+  const isStaff = user?.role === "staff";
+
+  const loadCars = async (orderId: number) => {
+    setCarsLoading(true);
+    const d = await apiCars("GET", token, { query: `order_id=${orderId}` });
+    setCars(d.cars || []);
+    setCarsLoading(false);
+  };
+
+  const openOrderCars = (o: Order) => {
+    setSelectedOrder(o);
+    setCarForm({ car_brand: "", car_model: "", car_year: "", price: "", mileage: "", description: "", photos: [] });
+    loadCars(o.id);
+  };
+
+  const changeOrderStatus = async (orderId: number, status: string) => {
+    await apiOrders("PUT", token, { order_id: orderId, status });
+    const d = await apiOrders("GET", token);
+    setOrders(d.orders || []);
+    if (selectedOrder?.id === orderId) {
+      const upd = (d.orders || []).find((x: Order) => x.id === orderId);
+      if (upd) setSelectedOrder(upd);
+    }
+  };
+
+  const handlePhotoSelect = (files: FileList | null) => {
+    if (!files) return;
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => setCarForm((f) => ({ ...f, photos: [...f.photos, reader.result as string] }));
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const doAddCar = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedOrder) return;
+    setCarSaving(true);
+    await apiCars("POST", token, { body: {
+      order_id: selectedOrder.id,
+      car_brand: carForm.car_brand, car_model: carForm.car_model,
+      car_year: carForm.car_year ? parseInt(carForm.car_year) : null,
+      price: carForm.price ? parseInt(carForm.price) : null,
+      mileage: carForm.mileage ? parseInt(carForm.mileage) : null,
+      description: carForm.description, photos: carForm.photos,
+    } });
+    setCarSaving(false);
+    setCarForm({ car_brand: "", car_model: "", car_year: "", price: "", mileage: "", description: "", photos: [] });
+    loadCars(selectedOrder.id);
+    const d = await apiOrders("GET", token);
+    setOrders(d.orders || []);
+  };
+
+  const doDeleteCar = async (carId: number) => {
+    await apiCars("DELETE", token, { query: `car_id=${carId}` });
+    if (selectedOrder) loadCars(selectedOrder.id);
+  };
+
+  // клиент: раскрытие авто по заявке
+  const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
+  const [orderCars, setOrderCars] = useState<Record<number, Car[]>>({});
+  const toggleOrderCars = async (orderId: number) => {
+    if (expandedOrder === orderId) { setExpandedOrder(null); return; }
+    setExpandedOrder(orderId);
+    if (!orderCars[orderId]) {
+      const d = await apiCars("GET", token, { query: `order_id=${orderId}` });
+      setOrderCars((prev) => ({ ...prev, [orderId]: d.cars || [] }));
+    }
+  };
+
   // ── fill profile form from user ──
   useEffect(() => {
-    if (user) setProfileForm({ full_name: user.full_name, phone: user.phone, company: user.company, inn: user.inn });
+    if (user) {
+      setProfileForm({ full_name: user.full_name, phone: user.phone, company: user.company, inn: user.inn });
+      setCabinetTab(user.role === "staff" ? "clients" : "orders");
+    }
   }, [user]);
 
   const nav = (p: Page) => { setPage(p); setMenuOpen(false); setAuthError(""); window.scrollTo({ top: 0, behavior: "smooth" }); };
@@ -779,9 +873,10 @@ export default function Index() {
               {/* Cabinet header */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
-                  <div className="section-tag mb-2">Личный кабинет</div>
-                  <h1 className="font-['Montserrat'] font-black text-3xl navy">
+                  <div className="section-tag mb-2">{isStaff ? "Кабинет сотрудника" : "Личный кабинет"}</div>
+                  <h1 className="font-['Montserrat'] font-black text-3xl navy flex items-center gap-3">
                     {user.full_name || user.email}
+                    {isStaff && <span className="text-xs px-2.5 py-1 bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))] rounded-full font-['Montserrat'] font-bold uppercase tracking-wide">Сотрудник</span>}
                   </h1>
                   {user.company && <p className="text-[hsl(var(--navy)/0.45)] text-sm mt-0.5">{user.company}</p>}
                 </div>
@@ -792,15 +887,18 @@ export default function Index() {
 
               {/* Tabs */}
               <div className="flex gap-1 flex-wrap mb-8 border-b border-[hsl(220_15%_88%)]">
-                {([
+                {((isStaff ? [
+                  { id: "clients", label: "Заявки клиентов", icon: "Users" },
+                  { id: "profile", label: "Профиль", icon: "User" },
+                ] : [
                   { id: "orders", label: "Мои заявки", icon: "ClipboardList" },
                   { id: "active_orders", label: "Заказы", icon: "Package" },
                   { id: "new_order", label: "Новая заявка", icon: "Plus" },
                   { id: "auctions", label: "Аукционы", icon: "Globe" },
                   { id: "documents", label: "Документы", icon: "FileText" },
                   { id: "profile", label: "Профиль", icon: "User" },
-                ] as { id: CabinetTab; label: string; icon: string }[]).map((t) => (
-                  <button key={t.id} onClick={() => setCabinetTab(t.id)}
+                ]) as { id: CabinetTab; label: string; icon: string }[]).map((t) => (
+                  <button key={t.id} onClick={() => { setCabinetTab(t.id); setSelectedOrder(null); }}
                     className={`flex items-center gap-2 px-4 py-3 text-sm font-['Montserrat'] font-semibold border-b-2 transition-all ${cabinetTab === t.id ? "border-[hsl(var(--navy))] text-[hsl(var(--navy))]" : "border-transparent text-[hsl(var(--navy)/0.45)] hover:text-[hsl(var(--navy))]"}`}>
                     <Icon name={t.icon} size={15} />{t.label}
                   </button>
@@ -918,6 +1016,35 @@ export default function Index() {
                               );
                             })}
                           </div>
+                          {!!o.cars_count && (
+                            <div className="pt-4 mt-4 border-t border-[hsl(220_15%_90%)]">
+                              <button onClick={() => toggleOrderCars(o.id)} className="flex items-center gap-2 text-sm font-['Montserrat'] font-semibold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors">
+                                <Icon name="Car" size={15} />Подобранные автомобили ({o.cars_count})
+                                <Icon name={expandedOrder === o.id ? "ChevronUp" : "ChevronDown"} size={15} />
+                              </button>
+                              {expandedOrder === o.id && (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                  {(orderCars[o.id] || []).map((c) => (
+                                    <div key={c.id} className="border border-[hsl(220_15%_88%)] rounded-sm overflow-hidden">
+                                      {c.photos.length > 0 && (
+                                        <div className="flex gap-1 overflow-x-auto bg-[hsl(220_25%_97%)]">
+                                          {c.photos.map((p, i) => (<img key={i} src={p} alt="" className="h-40 w-auto object-cover flex-shrink-0" />))}
+                                        </div>
+                                      )}
+                                      <div className="p-4">
+                                        <div className="font-['Montserrat'] font-bold navy">{[c.car_brand, c.car_model, c.car_year].filter(Boolean).join(" ")}</div>
+                                        <div className="flex gap-4 text-sm mt-1 text-[hsl(var(--navy)/0.6)]">
+                                          {!!c.price && <span className="font-semibold text-[hsl(var(--gold))]">{c.price.toLocaleString()} ₽</span>}
+                                          {!!c.mileage && <span>{c.mileage.toLocaleString()} км</span>}
+                                        </div>
+                                        {c.description && <p className="text-[hsl(var(--navy)/0.55)] text-sm mt-2 leading-relaxed">{c.description}</p>}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                         );
                       })}
@@ -926,6 +1053,168 @@ export default function Index() {
                 </div>
                 );
               })()}
+
+              {/* ── Заявки клиентов (сотрудник) ── */}
+              {cabinetTab === "clients" && (
+                <div>
+                  {!selectedOrder ? (
+                    ordersLoading ? (
+                      <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.4)]">
+                        <Icon name="Loader" size={20} className="animate-spin" />Загружаем заявки клиентов...
+                      </div>
+                    ) : orders.length === 0 ? (
+                      <div className="text-center py-16">
+                        <Icon name="Users" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.2)]" />
+                        <p className="font-['Montserrat'] font-bold navy mb-2">Заявок пока нет</p>
+                        <p className="text-[hsl(var(--navy)/0.45)] text-sm">Здесь появятся заявки от клиентов</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-3">
+                        {orders.map((o) => (
+                          <div key={o.id} onClick={() => openOrderCars(o)}
+                            className="card-light rounded-sm p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:shadow-md transition-all">
+                            <div className="flex items-start gap-4">
+                              <div className="w-10 h-10 bg-[hsl(var(--navy)/0.06)] rounded-sm flex items-center justify-center flex-shrink-0">
+                                <Icon name="User" size={18} className="text-[hsl(var(--navy))]" />
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-['Montserrat'] font-bold text-sm navy">{o.order_number}</span>
+                                  <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${STATUS_COLOR[o.status] || "bg-gray-100 text-gray-600"}`}>{o.status_label}</span>
+                                  {!!o.cars_count && <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))]">{o.cars_count} авто</span>}
+                                </div>
+                                <div className="text-[hsl(var(--navy))] text-sm font-semibold mt-1">{o.client_name || o.client_email}{o.client_company ? ` · ${o.client_company}` : ""}</div>
+                                <div className="text-[hsl(var(--navy)/0.55)] text-sm mt-0.5">
+                                  Запрос: {[o.car_brand, o.car_model, o.car_year].filter(Boolean).join(" ")} · {o.origin} · {o.quantity} шт.
+                                </div>
+                                <div className="text-[hsl(var(--navy)/0.35)] text-xs mt-1">{o.client_phone} · {new Date(o.created_at).toLocaleDateString("ru")}</div>
+                              </div>
+                            </div>
+                            <Icon name="ChevronRight" size={20} className="text-[hsl(var(--navy)/0.3)]" />
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  ) : (
+                    <div>
+                      <button onClick={() => setSelectedOrder(null)} className="flex items-center gap-2 text-[hsl(var(--navy)/0.5)] text-sm font-['Montserrat'] font-semibold mb-6 hover:text-[hsl(var(--navy))] transition-colors">
+                        <Icon name="ArrowLeft" size={15} />Все заявки клиентов
+                      </button>
+
+                      {/* Карточка заявки + смена статуса */}
+                      <div className="card-light rounded-sm p-6 mb-6">
+                        <div className="flex items-center gap-2 flex-wrap mb-3">
+                          <span className="font-['Montserrat'] font-black text-xl navy">{selectedOrder.order_number}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${STATUS_COLOR[selectedOrder.status] || "bg-gray-100 text-gray-600"}`}>{selectedOrder.status_label}</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm mb-5">
+                          <div><span className="text-[hsl(var(--navy)/0.4)]">Клиент:</span> <span className="navy font-semibold">{selectedOrder.client_name || "—"}</span></div>
+                          <div><span className="text-[hsl(var(--navy)/0.4)]">Компания:</span> <span className="navy">{selectedOrder.client_company || "—"}</span></div>
+                          <div><span className="text-[hsl(var(--navy)/0.4)]">Email:</span> <span className="navy">{selectedOrder.client_email || "—"}</span></div>
+                          <div><span className="text-[hsl(var(--navy)/0.4)]">Телефон:</span> <span className="navy">{selectedOrder.client_phone || "—"}</span></div>
+                          <div><span className="text-[hsl(var(--navy)/0.4)]">Запрос:</span> <span className="navy">{[selectedOrder.car_brand, selectedOrder.car_model, selectedOrder.car_year].filter(Boolean).join(" ") || "—"}</span></div>
+                          <div><span className="text-[hsl(var(--navy)/0.4)]">Направление:</span> <span className="navy">{selectedOrder.origin} · {selectedOrder.quantity} шт.</span></div>
+                        </div>
+                        {selectedOrder.comment && <div className="text-sm bg-[hsl(220_25%_97%)] rounded-sm p-3 mb-5"><span className="text-[hsl(var(--navy)/0.4)]">Комментарий клиента: </span><span className="navy">{selectedOrder.comment}</span></div>}
+                        <div>
+                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">Статус заказа</label>
+                          <select value={selectedOrder.status} onChange={(e) => changeOrderStatus(selectedOrder.id, e.target.value)} className={inputCls + " max-w-xs"}>
+                            <option value="new">Новая</option>
+                            <option value="processing">В обработке</option>
+                            <option value="auction">На аукционе</option>
+                            <option value="shipped">Отправлен</option>
+                            <option value="customs">На таможне</option>
+                            <option value="delivered">Доставлен</option>
+                            <option value="done">Завершён</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Форма добавления авто */}
+                      <form onSubmit={doAddCar} className="card-light rounded-sm p-6 mb-6 flex flex-col gap-4">
+                        <h3 className="font-['Montserrat'] font-bold text-lg navy">Добавить автомобиль клиенту</h3>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">Марка *</label>
+                            <input required placeholder="Toyota" value={carForm.car_brand} onChange={(e) => setCarForm({ ...carForm, car_brand: e.target.value })} className={inputCls} />
+                          </div>
+                          <div>
+                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">Модель</label>
+                            <input placeholder="Camry" value={carForm.car_model} onChange={(e) => setCarForm({ ...carForm, car_model: e.target.value })} className={inputCls} />
+                          </div>
+                          <div>
+                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">Год</label>
+                            <input placeholder="2019" value={carForm.car_year} onChange={(e) => setCarForm({ ...carForm, car_year: e.target.value })} className={inputCls} />
+                          </div>
+                          <div>
+                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">Цена, ₽</label>
+                            <input placeholder="850000" value={carForm.price} onChange={(e) => setCarForm({ ...carForm, price: e.target.value })} className={inputCls} />
+                          </div>
+                          <div>
+                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">Пробег, км</label>
+                            <input placeholder="65000" value={carForm.mileage} onChange={(e) => setCarForm({ ...carForm, mileage: e.target.value })} className={inputCls} />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">Описание / комплектация</label>
+                          <textarea rows={3} placeholder="Состояние, оценка аукциона, комплектация, узлы..." value={carForm.description} onChange={(e) => setCarForm({ ...carForm, description: e.target.value })} className={inputCls} />
+                        </div>
+                        <div>
+                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">Фото автомобиля</label>
+                          <div className="flex flex-wrap gap-3 items-center">
+                            {carForm.photos.map((p, i) => (
+                              <div key={i} className="relative w-20 h-20 rounded-sm overflow-hidden border border-[hsl(220_15%_85%)]">
+                                <img src={p} alt="" className="w-full h-full object-cover" />
+                                <button type="button" onClick={() => setCarForm({ ...carForm, photos: carForm.photos.filter((_, j) => j !== i) })}
+                                  className="absolute top-0.5 right-0.5 w-5 h-5 bg-black/60 text-white rounded-full flex items-center justify-center"><Icon name="X" size={11} /></button>
+                              </div>
+                            ))}
+                            <label className="w-20 h-20 rounded-sm border-2 border-dashed border-[hsl(220_15%_80%)] flex flex-col items-center justify-center cursor-pointer hover:border-[hsl(var(--navy))] transition-colors text-[hsl(var(--navy)/0.45)]">
+                              <Icon name="Plus" size={18} />
+                              <span className="text-[10px] mt-1">Фото</span>
+                              <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => handlePhotoSelect(e.target.files)} />
+                            </label>
+                          </div>
+                        </div>
+                        <button type="submit" disabled={carSaving} className="self-start px-6 py-3 btn-navy rounded-sm disabled:opacity-60">
+                          {carSaving ? "Сохраняем..." : "Добавить автомобиль"}
+                        </button>
+                      </form>
+
+                      {/* Список добавленных авто */}
+                      <h3 className="font-['Montserrat'] font-bold text-lg navy mb-4">Предложенные автомобили ({cars.length})</h3>
+                      {carsLoading ? (
+                        <div className="flex items-center gap-3 py-10 justify-center text-[hsl(var(--navy)/0.4)]"><Icon name="Loader" size={20} className="animate-spin" />Загрузка...</div>
+                      ) : cars.length === 0 ? (
+                        <p className="text-[hsl(var(--navy)/0.45)] text-sm py-6">Пока ничего не добавлено</p>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {cars.map((c) => (
+                            <div key={c.id} className="card-light rounded-sm overflow-hidden">
+                              {c.photos.length > 0 && (
+                                <div className="flex gap-1 overflow-x-auto bg-[hsl(220_25%_97%)]">
+                                  {c.photos.map((p, i) => (<img key={i} src={p} alt="" className="h-40 w-auto object-cover flex-shrink-0" />))}
+                                </div>
+                              )}
+                              <div className="p-5">
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="font-['Montserrat'] font-bold navy">{[c.car_brand, c.car_model, c.car_year].filter(Boolean).join(" ")}</div>
+                                  <button onClick={() => doDeleteCar(c.id)} className="text-[hsl(var(--navy)/0.35)] hover:text-red-600"><Icon name="Trash2" size={16} /></button>
+                                </div>
+                                <div className="flex gap-4 text-sm mt-1 text-[hsl(var(--navy)/0.6)]">
+                                  {!!c.price && <span className="font-semibold text-[hsl(var(--gold))]">{c.price.toLocaleString()} ₽</span>}
+                                  {!!c.mileage && <span>{c.mileage.toLocaleString()} км</span>}
+                                </div>
+                                {c.description && <p className="text-[hsl(var(--navy)/0.55)] text-sm mt-2 leading-relaxed">{c.description}</p>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* ── Новая заявка ── */}
               {cabinetTab === "new_order" && (

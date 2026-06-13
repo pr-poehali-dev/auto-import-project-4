@@ -32,7 +32,7 @@ def make_token() -> str:
 
 def get_user_by_token(cur, token: str):
     cur.execute(
-        f"SELECT u.id, u.email, u.phone, u.full_name, u.company, u.inn, u.created_at "
+        f"SELECT u.id, u.email, u.phone, u.full_name, u.company, u.inn, u.created_at, u.role "
         f"FROM {SCHEMA}.sessions s JOIN {SCHEMA}.users u ON u.id = s.user_id "
         f"WHERE s.token = %s AND s.expires_at > NOW()",
         (token,)
@@ -42,7 +42,8 @@ def get_user_by_token(cur, token: str):
         return None
     return {"id": row[0], "email": row[1], "phone": row[2] or "",
             "full_name": row[3] or "", "company": row[4] or "",
-            "inn": row[5] or "", "created_at": str(row[6])}
+            "inn": row[5] or "", "created_at": str(row[6]),
+            "role": row[7] or "client"}
 
 
 def ok(data, status=200):

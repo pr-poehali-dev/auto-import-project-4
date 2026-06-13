@@ -1,0 +1,18 @@
+{
+  "tests": [
+    {
+      "name": "Без авторизации — 401",
+      "method": "GET",
+      "path": "/?order_id=1",
+      "expectedStatus": 401,
+      "expectedBody": {"error": "string"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "OPTIONS CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    }
+  ]
+}
