@@ -285,14 +285,6 @@ export default function Index() {
               </div>
             </section>
 
-            <div className="bg-[hsl(var(--navy))] py-3 overflow-hidden">
-              <div className="flex marquee whitespace-nowrap">
-                {[...BRANDS, ...BRANDS].map((b, i) => (
-                  <span key={i} className="text-white font-['Montserrat'] font-bold text-xs tracking-[0.18em] uppercase px-5">{b} <span className="opacity-30 mx-1">◆</span></span>
-                ))}
-              </div>
-            </div>
-
             <section className="py-20 px-5 sm:px-8 max-w-7xl mx-auto">
               <div className="mb-12"><div className="section-tag mb-3">Направления</div><h2 className="font-['Montserrat'] font-black text-4xl sm:text-5xl">ОТКУДА ВЕЗЁМ</h2><div className="divider-navy mt-4" /></div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
