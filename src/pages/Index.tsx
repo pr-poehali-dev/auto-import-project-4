@@ -937,10 +937,17 @@ export default function Index() {
               </div>
               <div className="absolute left-0 top-0 bottom-0 w-1 bg-[hsl(var(--navy))]" />
               <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 py-20">
-                <div className="max-w-xl flex flex-col items-center text-center">
-                  <h1 className="font-['Montserrat'] font-black leading-[0.95] mb-5 anim-up d1 navy whitespace-nowrap text-center" style={{ fontSize: "clamp(1.7rem, 4vw, 3.4rem)" }}>
-                    {t("hero_title_1")}<br /><span className="text-[hsl(var(--red))]">{t("hero_title_2")}</span>
-                  </h1>
+                <div className="max-w-3xl flex flex-col items-center text-center">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-9 anim-up d1 w-full">
+                    {ORIGINS.map((o) => (
+                      <button key={o.id} onClick={() => openOrigin(o.id)} className="text-left card-light rounded-sm p-5 group relative overflow-hidden hover:shadow-lg transition-all cursor-pointer">
+                        <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[hsl(var(--gold))] group-hover:w-full transition-all duration-500" />
+                        <h3 className="font-['Montserrat'] font-bold text-lg mb-1 navy flex items-center gap-2"><span className="text-3xl">{o.flag}</span>{o.name[lang]}</h3>
+                        <p className="text-[hsl(var(--navy)/0.5)] text-xs leading-relaxed mb-3">{o.desc[lang]}</p>
+                        <div className="flex items-center gap-1 text-xs font-['Montserrat'] font-semibold text-[hsl(var(--navy))] group-hover:gap-2 transition-all">{t("more")} <Icon name="ArrowRight" size={13} /></div>
+                      </button>
+                    ))}
+                  </div>
                   <p className="text-[hsl(var(--navy)/0.55)] text-base leading-relaxed mb-9 anim-up d2">{t("hero_subtitle")}</p>
                   <div className="flex flex-col sm:flex-row gap-3 anim-up d3 justify-center">
                     <button onClick={() => nav("contacts")} className="px-8 py-3.5 btn-navy rounded-sm">{t("send_request")}</button>
