@@ -812,97 +812,91 @@ export default function Index() {
       <div className="fixed inset-0 -z-10 bg-cover bg-center" style={{ backgroundImage: `url(${PAGE_BG})` }} />
       <div className="fixed inset-0 -z-10 bg-[hsl(220_52%_10%/0.55)]" />
 
-      {/* ── HEADER ── */}
-      <header className="fixed top-0 inset-x-0 z-50 bg-[hsl(220_52%_12%/0.35)] backdrop-blur-md border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-5 sm:px-8 flex items-center justify-between h-20">
-          <div className="relative group/logo">
-            <button onClick={() => nav("home")}>
-              <img src={LOGO} alt="Partcore Logistics" className="h-16 w-48 object-cover object-left" style={{ objectPosition: "10% center", transform: "scale(1.15)", transformOrigin: "left center" }} />
+      {/* ── ПЛАВАЮЩИЙ ЛОГОТИП С МЕНЮ (десктоп) ── */}
+      <div className="hidden md:block fixed top-4 left-5 z-50 group/logo">
+        <button onClick={() => nav("home")} className="block rounded-sm overflow-hidden bg-[hsl(220_52%_12%/0.45)] backdrop-blur-md border border-white/10 shadow-lg">
+          <img src={LOGO} alt="Partcore Logistics" className="h-14 w-44 object-cover object-left" style={{ objectPosition: "10% center", transform: "scale(1.15)", transformOrigin: "left center" }} />
+        </button>
+
+        {/* вертикальное меню-иконки при наведении на логотип */}
+        <div className="flex absolute left-2 top-full flex-col gap-2 pt-3 opacity-0 -translate-y-2 pointer-events-none group-hover/logo:opacity-100 group-hover/logo:translate-y-0 group-hover/logo:pointer-events-auto transition-all duration-300 z-50">
+          {navItems.map((item, i) => (
+            <button key={item.id} onClick={() => nav(item.id)} title={item.label}
+              style={{ transitionDelay: `${i * 40}ms` }}
+              className={`relative w-11 h-11 flex items-center justify-center rounded-sm backdrop-blur-md border transition-colors group/ic ${page === item.id ? "bg-[hsl(var(--gold))] border-[hsl(var(--gold))] text-white" : "bg-[hsl(220_52%_12%/0.55)] border-white/15 text-white/80 hover:bg-[hsl(var(--gold))] hover:border-[hsl(var(--gold))] hover:text-white"}`}>
+              <Icon name={item.icon} size={19} />
+              <span className="absolute left-full ml-2 px-2.5 py-1 rounded-sm bg-[hsl(220_52%_12%/0.9)] text-white text-xs font-['Montserrat'] font-semibold whitespace-nowrap opacity-0 group-hover/ic:opacity-100 transition-opacity pointer-events-none">{item.label}</span>
             </button>
+          ))}
 
-            {/* вертикальное меню-иконки при наведении на логотип */}
-            <div className="hidden md:flex absolute left-2 top-full flex-col gap-2 pt-3 opacity-0 -translate-y-2 pointer-events-none group-hover/logo:opacity-100 group-hover/logo:translate-y-0 group-hover/logo:pointer-events-auto transition-all duration-300 z-50">
-              {navItems.map((item, i) => (
-                <button key={item.id} onClick={() => nav(item.id)} title={item.label}
-                  style={{ transitionDelay: `${i * 40}ms` }}
-                  className={`relative w-11 h-11 flex items-center justify-center rounded-sm backdrop-blur-md border transition-colors group/ic ${page === item.id ? "bg-[hsl(var(--gold))] border-[hsl(var(--gold))] text-white" : "bg-[hsl(220_52%_12%/0.55)] border-white/15 text-white/80 hover:bg-[hsl(var(--gold))] hover:border-[hsl(var(--gold))] hover:text-white"}`}>
-                  <Icon name={item.icon} size={19} />
-                  <span className="absolute left-full ml-2 px-2.5 py-1 rounded-sm bg-[hsl(220_52%_12%/0.9)] text-white text-xs font-['Montserrat'] font-semibold whitespace-nowrap opacity-0 group-hover/ic:opacity-100 transition-opacity pointer-events-none">{item.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <nav className="hidden md:flex items-center gap-0.5">
-            {navItems.map((item) => (
-              <button key={item.id} onClick={() => nav(item.id)}
-                className={`px-4 py-2 text-sm font-['Montserrat'] font-semibold transition-all rounded-sm ${page === item.id ? "text-[hsl(var(--gold))] bg-white/10" : "text-white/75 hover:text-white hover:bg-white/10"}`}>
-                {item.label}
-              </button>
-            ))}
-          </nav>
-
-          <div className="hidden md:flex items-center gap-3">
-            <div className="flex items-center gap-0.5 mr-1">
-              <button onClick={() => changeLang("ru")}
-                className={`px-2 py-1.5 text-base rounded-sm transition-all ${lang === "ru" ? "bg-[hsl(36_85%_50%/0.12)] opacity-100" : "opacity-45 hover:opacity-80"}`} title="Русский" aria-label="Русский">🇷🇺</button>
-              <button onClick={() => changeLang("en")}
-                className={`px-2 py-1.5 text-base rounded-sm transition-all ${lang === "en" ? "bg-[hsl(36_85%_50%/0.12)] opacity-100" : "opacity-45 hover:opacity-80"}`} title="English" aria-label="English">🇬🇧</button>
-            </div>
+          {/* язык */}
+          <div className="flex flex-col gap-2 mt-1 pt-2 border-t border-white/10" style={{ transitionDelay: "240ms" }}>
+            <button onClick={() => changeLang(lang === "ru" ? "en" : "ru")} title={lang === "ru" ? "English" : "Русский"}
+              className="w-11 h-11 flex items-center justify-center rounded-sm backdrop-blur-md border border-white/15 bg-[hsl(220_52%_12%/0.55)] text-base hover:border-[hsl(var(--gold))] transition-colors">
+              {lang === "ru" ? "🇷🇺" : "🇬🇧"}
+            </button>
             {user ? (
-              <button onClick={() => nav("cabinet")}
-                className="flex items-center gap-2 px-4 py-2 btn-navy rounded-sm">
-                <Icon name="User" size={15} />
-                <span className="max-w-[120px] truncate">{user.full_name || user.email}</span>
+              <button onClick={() => nav("cabinet")} title={user.full_name || t("cabinet")}
+                className="relative w-11 h-11 flex items-center justify-center rounded-sm backdrop-blur-md border border-white/15 bg-[hsl(220_52%_12%/0.55)] text-white/80 hover:bg-[hsl(var(--gold))] hover:border-[hsl(var(--gold))] hover:text-white transition-colors group/ic">
+                <Icon name="User" size={19} />
+                <span className="absolute left-full ml-2 px-2.5 py-1 rounded-sm bg-[hsl(220_52%_12%/0.9)] text-white text-xs font-['Montserrat'] font-semibold whitespace-nowrap opacity-0 group-hover/ic:opacity-100 transition-opacity pointer-events-none">{t("cabinet")}</span>
               </button>
             ) : (
               <>
-                <button onClick={() => nav("login")}
-                  className="px-4 py-2 rounded-sm text-xs font-['Montserrat'] font-bold uppercase tracking-wide text-white border-2 border-white/40 hover:bg-white/10 transition-colors">
-                  {t("login")}
+                <button onClick={() => nav("login")} title={t("login")}
+                  className="relative w-11 h-11 flex items-center justify-center rounded-sm backdrop-blur-md border border-white/15 bg-[hsl(220_52%_12%/0.55)] text-white/80 hover:bg-[hsl(var(--gold))] hover:border-[hsl(var(--gold))] hover:text-white transition-colors group/ic">
+                  <Icon name="LogIn" size={19} />
+                  <span className="absolute left-full ml-2 px-2.5 py-1 rounded-sm bg-[hsl(220_52%_12%/0.9)] text-white text-xs font-['Montserrat'] font-semibold whitespace-nowrap opacity-0 group-hover/ic:opacity-100 transition-opacity pointer-events-none">{t("login")}</span>
                 </button>
-                <button onClick={() => nav("register")}
-                  className="px-4 py-2 btn-gold rounded-sm text-xs">
-                  {t("register")}
+                <button onClick={() => nav("register")} title={t("register")}
+                  className="relative w-11 h-11 flex items-center justify-center rounded-sm backdrop-blur-md border border-[hsl(var(--gold))] bg-[hsl(var(--gold))] text-white hover:opacity-90 transition-opacity group/ic">
+                  <Icon name="UserPlus" size={19} />
+                  <span className="absolute left-full ml-2 px-2.5 py-1 rounded-sm bg-[hsl(220_52%_12%/0.9)] text-white text-xs font-['Montserrat'] font-semibold whitespace-nowrap opacity-0 group-hover/ic:opacity-100 transition-opacity pointer-events-none">{t("register")}</span>
                 </button>
               </>
             )}
           </div>
-
-          <button className="md:hidden text-white" onClick={() => setMenuOpen(!menuOpen)}>
-            <Icon name={menuOpen ? "X" : "Menu"} size={22} />
-          </button>
         </div>
+      </div>
 
-        {menuOpen && (
-          <div className="md:hidden bg-[hsl(220_52%_12%/0.7)] backdrop-blur-md border-t border-white/10 px-5 py-4 flex flex-col gap-1">
-            {navItems.map((item) => (
-              <button key={item.id} onClick={() => nav(item.id)}
-                className={`text-left px-4 py-3 text-sm font-['Montserrat'] font-semibold rounded-sm ${page === item.id ? "text-[hsl(var(--gold))]" : "text-white/75"}`}>
-                {item.label}
-              </button>
-            ))}
-            <div className="flex items-center gap-2 mt-2 mb-1">
-              <button onClick={() => changeLang("ru")}
-                className={`flex-1 py-2.5 text-base rounded-sm transition-all border border-[hsl(220_15%_88%)] ${lang === "ru" ? "bg-[hsl(36_85%_50%/0.12)] border-[hsl(var(--gold))] opacity-100" : "opacity-50"}`} aria-label="Русский">🇷🇺</button>
-              <button onClick={() => changeLang("en")}
-                className={`flex-1 py-2.5 text-base rounded-sm transition-all border border-[hsl(220_15%_88%)] ${lang === "en" ? "bg-[hsl(36_85%_50%/0.12)] border-[hsl(var(--gold))] opacity-100" : "opacity-50"}`} aria-label="English">🇬🇧</button>
-            </div>
-            {user ? (
-              <button onClick={() => nav("cabinet")} className="mt-2 py-3 btn-navy rounded-sm flex items-center justify-center gap-2">
-                <Icon name="User" size={15} />{user.full_name || t("cabinet")}
-              </button>
-            ) : (
-              <div className="flex gap-2 mt-2">
-                <button onClick={() => nav("login")} className="flex-1 py-3 rounded-sm text-xs font-['Montserrat'] font-bold uppercase tracking-wide text-white border-2 border-white/40 hover:bg-white/10 transition-colors">{t("login")}</button>
-                <button onClick={() => nav("register")} className="flex-1 py-3 btn-gold rounded-sm text-xs">{t("register")}</button>
-              </div>
-            )}
+      {/* ── МОБИЛЬНАЯ КНОПКА-МЕНЮ ── */}
+      <div className="md:hidden fixed top-4 left-4 right-4 z-50 flex items-center justify-between">
+        <button onClick={() => nav("home")} className="rounded-sm overflow-hidden bg-[hsl(220_52%_12%/0.5)] backdrop-blur-md border border-white/10">
+          <img src={LOGO} alt="Partcore Logistics" className="h-11 w-32 object-cover object-left" style={{ objectPosition: "10% center", transform: "scale(1.15)", transformOrigin: "left center" }} />
+        </button>
+        <button className="w-11 h-11 flex items-center justify-center rounded-sm bg-[hsl(220_52%_12%/0.5)] backdrop-blur-md border border-white/10 text-white" onClick={() => setMenuOpen(!menuOpen)}>
+          <Icon name={menuOpen ? "X" : "Menu"} size={22} />
+        </button>
+      </div>
+
+      {menuOpen && (
+        <div className="md:hidden fixed top-[68px] left-4 right-4 z-50 bg-[hsl(220_52%_12%/0.85)] backdrop-blur-md border border-white/10 rounded-sm px-5 py-4 flex flex-col gap-1 shadow-xl">
+          {navItems.map((item) => (
+            <button key={item.id} onClick={() => { nav(item.id); setMenuOpen(false); }}
+              className={`flex items-center gap-3 text-left px-4 py-3 text-sm font-['Montserrat'] font-semibold rounded-sm ${page === item.id ? "text-[hsl(var(--gold))]" : "text-white/75"}`}>
+              <Icon name={item.icon} size={17} />{item.label}
+            </button>
+          ))}
+          <div className="flex items-center gap-2 mt-2 mb-1">
+            <button onClick={() => changeLang("ru")}
+              className={`flex-1 py-2.5 text-base rounded-sm transition-all border border-white/20 ${lang === "ru" ? "bg-[hsl(36_85%_50%/0.18)] border-[hsl(var(--gold))] opacity-100" : "opacity-50"}`} aria-label="Русский">🇷🇺</button>
+            <button onClick={() => changeLang("en")}
+              className={`flex-1 py-2.5 text-base rounded-sm transition-all border border-white/20 ${lang === "en" ? "bg-[hsl(36_85%_50%/0.18)] border-[hsl(var(--gold))] opacity-100" : "opacity-50"}`} aria-label="English">🇬🇧</button>
           </div>
-        )}
-      </header>
+          {user ? (
+            <button onClick={() => { nav("cabinet"); setMenuOpen(false); }} className="mt-2 py-3 btn-gold rounded-sm flex items-center justify-center gap-2">
+              <Icon name="User" size={15} />{user.full_name || t("cabinet")}
+            </button>
+          ) : (
+            <div className="flex gap-2 mt-2">
+              <button onClick={() => { nav("login"); setMenuOpen(false); }} className="flex-1 py-3 rounded-sm text-xs font-['Montserrat'] font-bold uppercase tracking-wide text-white border-2 border-white/40 hover:bg-white/10 transition-colors">{t("login")}</button>
+              <button onClick={() => { nav("register"); setMenuOpen(false); }} className="flex-1 py-3 btn-gold rounded-sm text-xs">{t("register")}</button>
+            </div>
+          )}
+        </div>
+      )}
 
-      <div className="pt-20">
+      <div className="pt-4">
 
         {/* ════ HOME ════ */}
         {page === "home" && (
