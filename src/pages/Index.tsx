@@ -938,7 +938,6 @@ export default function Index() {
               <div className="absolute left-0 top-0 bottom-0 w-1 bg-[hsl(var(--navy))]" />
               <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 py-20">
                 <div className="max-w-xl flex flex-col items-center text-center">
-                  <div className="section-tag mb-6 anim-up"><span className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--gold))] inline-block" />{t("hero_tag")}</div>
                   <h1 className="font-['Montserrat'] font-black leading-[0.95] mb-5 anim-up d1 navy whitespace-nowrap text-center" style={{ fontSize: "clamp(1.7rem, 4vw, 3.4rem)" }}>
                     {t("hero_title_1")}<br /><span className="text-[hsl(var(--red))]">{t("hero_title_2")}</span>
                   </h1>
