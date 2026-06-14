@@ -7,6 +7,7 @@ const DIRECTIONS_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64
 const SERVICES_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/ed33512a-90ea-4788-91d5-d6f6d85ab1a9.jpg";
 const HOW_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/067252f1-3722-40e7-a2f0-455cac91a6d1.jpg";
 const CONTACTS_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/255e2ab3-7629-4890-a262-8c85f859b0df.jpg";
+const PAGE_BG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/99f57650-e15d-441d-a58e-1ae5e323cbce.jpg";
 
 const AUTH_URL = "https://functions.poehali.dev/ddb4a7f6-82c2-4cca-8d4c-ed685f8a3c72";
 const ORDERS_URL = "https://functions.poehali.dev/d57608b2-729a-4006-a5c2-598ca59a8239";
@@ -805,10 +806,14 @@ export default function Index() {
   const inputCls = "w-full bg-[hsl(220_25%_97%)] border border-[hsl(220_15%_88%)] px-4 py-3 text-sm text-[hsl(var(--navy))] placeholder-[hsl(var(--navy)/0.3)] focus:outline-none focus:border-[hsl(var(--navy)/0.5)] transition-colors rounded-sm";
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+    <div className="min-h-screen text-foreground overflow-x-hidden relative">
+
+      {/* ── FULL-PAGE BACKGROUND ── */}
+      <div className="fixed inset-0 -z-10 bg-cover bg-center" style={{ backgroundImage: `url(${PAGE_BG})` }} />
+      <div className="fixed inset-0 -z-10 bg-[hsl(220_52%_10%/0.55)]" />
 
       {/* ── HEADER ── */}
-      <header className="fixed top-0 inset-x-0 z-50 bg-white border-b border-[hsl(220_15%_88%)] shadow-sm">
+      <header className="fixed top-0 inset-x-0 z-50 bg-[hsl(220_52%_12%/0.35)] backdrop-blur-md border-b border-white/10">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 flex items-center justify-between h-20">
           <button onClick={() => nav("home")}>
             <img src={LOGO} alt="Partcore Logistics" className="h-16 w-48 object-cover object-left" style={{ objectPosition: "10% center", transform: "scale(1.15)", transformOrigin: "left center" }} />
@@ -817,7 +822,7 @@ export default function Index() {
           <nav className="hidden md:flex items-center gap-0.5">
             {navItems.map((item) => (
               <button key={item.id} onClick={() => nav(item.id)}
-                className={`px-4 py-2 text-sm font-['Montserrat'] font-semibold transition-all rounded-sm ${page === item.id ? "text-[hsl(var(--gold))] bg-[hsl(36_85%_50%/0.07)]" : "text-[hsl(var(--navy)/0.6)] hover:text-[hsl(var(--navy))] hover:bg-[hsl(220_52%_18%/0.05)]"}`}>
+                className={`px-4 py-2 text-sm font-['Montserrat'] font-semibold transition-all rounded-sm ${page === item.id ? "text-[hsl(var(--gold))] bg-white/10" : "text-white/75 hover:text-white hover:bg-white/10"}`}>
                 {item.label}
               </button>
             ))}
@@ -839,27 +844,27 @@ export default function Index() {
             ) : (
               <>
                 <button onClick={() => nav("login")}
-                  className="px-4 py-2 btn-outline rounded-sm text-xs">
+                  className="px-4 py-2 rounded-sm text-xs font-['Montserrat'] font-bold uppercase tracking-wide text-white border-2 border-white/40 hover:bg-white/10 transition-colors">
                   {t("login")}
                 </button>
                 <button onClick={() => nav("register")}
-                  className="px-4 py-2 btn-navy rounded-sm text-xs">
+                  className="px-4 py-2 btn-gold rounded-sm text-xs">
                   {t("register")}
                 </button>
               </>
             )}
           </div>
 
-          <button className="md:hidden text-[hsl(var(--navy))]" onClick={() => setMenuOpen(!menuOpen)}>
+          <button className="md:hidden text-white" onClick={() => setMenuOpen(!menuOpen)}>
             <Icon name={menuOpen ? "X" : "Menu"} size={22} />
           </button>
         </div>
 
         {menuOpen && (
-          <div className="md:hidden bg-white border-t border-[hsl(220_15%_90%)] px-5 py-4 flex flex-col gap-1">
+          <div className="md:hidden bg-[hsl(220_52%_12%/0.7)] backdrop-blur-md border-t border-white/10 px-5 py-4 flex flex-col gap-1">
             {navItems.map((item) => (
               <button key={item.id} onClick={() => nav(item.id)}
-                className={`text-left px-4 py-3 text-sm font-['Montserrat'] font-semibold rounded-sm ${page === item.id ? "text-[hsl(var(--gold))]" : "text-[hsl(var(--navy)/0.65)]"}`}>
+                className={`text-left px-4 py-3 text-sm font-['Montserrat'] font-semibold rounded-sm ${page === item.id ? "text-[hsl(var(--gold))]" : "text-white/75"}`}>
                 {item.label}
               </button>
             ))}
@@ -875,8 +880,8 @@ export default function Index() {
               </button>
             ) : (
               <div className="flex gap-2 mt-2">
-                <button onClick={() => nav("login")} className="flex-1 py-3 btn-outline rounded-sm text-xs">{t("login")}</button>
-                <button onClick={() => nav("register")} className="flex-1 py-3 btn-navy rounded-sm text-xs">{t("register")}</button>
+                <button onClick={() => nav("login")} className="flex-1 py-3 rounded-sm text-xs font-['Montserrat'] font-bold uppercase tracking-wide text-white border-2 border-white/40 hover:bg-white/10 transition-colors">{t("login")}</button>
+                <button onClick={() => nav("register")} className="flex-1 py-3 btn-gold rounded-sm text-xs">{t("register")}</button>
               </div>
             )}
           </div>
