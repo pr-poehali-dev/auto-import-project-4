@@ -25,6 +25,24 @@
       "expectedStatus": 401,
       "expectedBody": {"error": "string"},
       "bodyMatcher": "partial"
+    },
+    {
+      "name": "Forgot password no email",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "forgot_password"},
+      "expectedStatus": 400,
+      "expectedBody": {"error": "string"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Reset password short",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "reset_password", "email": "a@b.ru", "code": "123456", "password": "123"},
+      "expectedStatus": 400,
+      "expectedBody": {"error": "string"},
+      "bodyMatcher": "partial"
     }
   ]
 }

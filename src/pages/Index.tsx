@@ -276,6 +276,8 @@ const I18N: Record<Lang, Record<string, string>> = {
     // login / register
     login_title: "Вход в кабинет", login_sub: "Введите email и пароль для входа",
     pwd: "Пароль *", logging_in: "Входим...", no_account: "Нет аккаунта?", do_register: "Зарегистрироваться",
+    forgot_pwd: "Забыли пароль?", forgot_title: "Восстановление пароля", forgot_sub: "Укажите email — мы пришлём код для сброса пароля", forgot_sub2: "Введите код из письма и новый пароль",
+    send_code: "Отправить код", sending: "Отправляем...", code_from_email: "Код из письма", new_pwd: "Новый пароль *", change_pwd: "Изменить пароль", saving: "Сохраняем...", resend_code: "Отправить код заново", back_to_login: "Вернуться ко входу",
     register_title: "Регистрация", register_sub: "Создайте аккаунт для доступа к личному кабинету",
     your_name: "Ваше имя *", phone_opt: "Телефон", pwd_min: "Пароль * (мин. 6 символов)",
     registering: "Регистрируем...", have_account: "Уже есть аккаунт?",
@@ -420,6 +422,8 @@ const I18N: Record<Lang, Record<string, string>> = {
     // login / register
     login_title: "Log in to your dashboard", login_sub: "Enter your email and password to log in",
     pwd: "Password *", logging_in: "Logging in...", no_account: "No account?", do_register: "Sign up",
+    forgot_pwd: "Forgot password?", forgot_title: "Reset password", forgot_sub: "Enter your email — we'll send a reset code", forgot_sub2: "Enter the code from the email and a new password",
+    send_code: "Send code", sending: "Sending...", code_from_email: "Code from email", new_pwd: "New password *", change_pwd: "Change password", saving: "Saving...", resend_code: "Resend code", back_to_login: "Back to login",
     register_title: "Sign up", register_sub: "Create an account to access your dashboard",
     your_name: "Your name *", phone_opt: "Phone", pwd_min: "Password * (min. 6 characters)",
     registering: "Signing up...", have_account: "Already have an account?",
@@ -501,7 +505,7 @@ const I18N: Record<Lang, Record<string, string>> = {
   },
 };
 
-type Page = "home" | "directions" | "services" | "how" | "contacts" | "login" | "register" | "cabinet" | "origin" | "staff_login";
+type Page = "home" | "directions" | "services" | "how" | "contacts" | "login" | "register" | "cabinet" | "origin" | "staff_login" | "forgot";
 type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile" | "clients" | "staff_users" | "hot_deals";
 
 // ════════════════════════════════════════════════════════════
@@ -520,6 +524,9 @@ export default function Index() {
   const [authError, setAuthError] = useState("");
   // forms
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
+  const [forgotForm, setForgotForm] = useState({ email: "", code: "", password: "" });
+  const [forgotStep, setForgotStep] = useState<"email" | "reset">("email");
+  const [forgotMsg, setForgotMsg] = useState("");
   const [regForm, setRegForm] = useState({ email: "", password: "", full_name: "", phone: "", company: "", code: "" });
   const [regStep, setRegStep] = useState<"form" | "code">("form");
   const [codeSending, setCodeSending] = useState(false);
@@ -731,6 +738,29 @@ export default function Index() {
       if (me.user) setUser(me.user);
       nav("cabinet");
     } else setAuthError(data.error || t("err_login"));
+  };
+
+  const doForgot = async (e: React.FormEvent) => {
+    e.preventDefault(); setAuthLoading(true); setAuthError(""); setForgotMsg("");
+    const data = await apiAuth("forgot_password", { email: forgotForm.email });
+    setAuthLoading(false);
+    if (data.error) { setAuthError(data.error); return; }
+    setForgotStep("reset");
+    setForgotMsg(data.message || "");
+  };
+
+  const doReset = async (e: React.FormEvent) => {
+    e.preventDefault(); setAuthLoading(true); setAuthError(""); setForgotMsg("");
+    const data = await apiAuth("reset_password", forgotForm);
+    setAuthLoading(false);
+    if (data.error) { setAuthError(data.error); return; }
+    setForgotStep("email");
+    setForgotForm({ email: "", code: "", password: "" });
+    setLoginForm({ email: "", password: "" });
+    nav("login");
+    setAuthError("");
+    setForgotMsg("");
+    alert(data.message || "Пароль изменён");
   };
 
   const doStaffLogin = async (e: React.FormEvent) => {
@@ -1426,9 +1456,59 @@ export default function Index() {
                     {authLoading ? t("logging_in") : t("login")}
                   </button>
                 </form>
-                <div className="text-center mt-5 text-sm text-[hsl(var(--navy)/0.5)]">
+                <div className="text-center mt-4">
+                  <button onClick={() => { setForgotStep("email"); setForgotMsg(""); setForgotForm({ email: loginForm.email, code: "", password: "" }); nav("forgot"); }} className="text-sm text-[hsl(var(--navy)/0.5)] hover:text-[hsl(var(--gold))] hover:underline">{t("forgot_pwd")}</button>
+                </div>
+                <div className="text-center mt-2 text-sm text-[hsl(var(--navy)/0.5)]">
                   {t("no_account")}{" "}
                   <button onClick={() => nav("register")} className="text-[hsl(var(--gold))] font-semibold hover:underline">{t("do_register")}</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ════ FORGOT PASSWORD ════ */}
+        {page === "forgot" && (
+          <section className="min-h-screen flex items-center justify-center py-14 px-5">
+            <div className="w-full max-w-md">
+              <div className="text-center mb-8">
+                <img src={LOGO} alt="Partcore" className="h-12 mx-auto mb-6 object-contain" />
+                <h1 className="font-['Montserrat'] font-black text-3xl navy mb-2">{t("forgot_title")}</h1>
+                <p className="text-[hsl(var(--navy)/0.5)] text-sm">{forgotStep === "email" ? t("forgot_sub") : t("forgot_sub2")}</p>
+              </div>
+              <div className="card-light rounded-sm p-8">
+                {forgotStep === "email" ? (
+                  <form onSubmit={doForgot} className="flex flex-col gap-5">
+                    {authError && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-sm">{authError}</div>}
+                    <div>
+                      <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">Email *</label>
+                      <input required type="email" placeholder="you@example.com" value={forgotForm.email} onChange={(e) => setForgotForm({ ...forgotForm, email: e.target.value })} className={inputCls} />
+                    </div>
+                    <button type="submit" disabled={authLoading} className="w-full py-3.5 btn-navy rounded-sm disabled:opacity-60">
+                      {authLoading ? t("sending") : t("send_code")}
+                    </button>
+                  </form>
+                ) : (
+                  <form onSubmit={doReset} className="flex flex-col gap-5">
+                    {forgotMsg && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-sm">{forgotMsg}</div>}
+                    {authError && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-sm">{authError}</div>}
+                    <div>
+                      <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("code_from_email")}</label>
+                      <input required type="text" inputMode="numeric" placeholder="000000" value={forgotForm.code} onChange={(e) => setForgotForm({ ...forgotForm, code: e.target.value })} className={inputCls} />
+                    </div>
+                    <div>
+                      <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("new_pwd")}</label>
+                      <input required type="password" placeholder="••••••••" value={forgotForm.password} onChange={(e) => setForgotForm({ ...forgotForm, password: e.target.value })} className={inputCls} />
+                    </div>
+                    <button type="submit" disabled={authLoading} className="w-full py-3.5 btn-navy rounded-sm disabled:opacity-60">
+                      {authLoading ? t("saving") : t("change_pwd")}
+                    </button>
+                    <button type="button" onClick={() => { setForgotStep("email"); setAuthError(""); setForgotMsg(""); }} className="text-sm text-[hsl(var(--navy)/0.5)] hover:text-[hsl(var(--gold))] hover:underline">{t("resend_code")}</button>
+                  </form>
+                )}
+                <div className="text-center mt-5 text-sm text-[hsl(var(--navy)/0.5)]">
+                  <button onClick={() => nav("login")} className="text-[hsl(var(--gold))] font-semibold hover:underline">{t("back_to_login")}</button>
                 </div>
               </div>
             </div>

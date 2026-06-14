@@ -10,12 +10,41 @@ import hashlib
 import secrets
 import urllib.request
 import urllib.parse
+import smtplib
+from email.mime.text import MIMEText
+from email.utils import formataddr
 import psycopg2
 
 DB = os.environ["DATABASE_URL"]
 SCHEMA = "t_p64303579_auto_import_project_"
 SMSC_LOGIN = os.environ.get("SMSC_LOGIN", "")
 SMSC_PASSWORD = os.environ.get("SMSC_PASSWORD", "")
+SMTP_HOST = os.environ.get("SMTP_HOST", "")
+SMTP_PORT = int(os.environ.get("SMTP_PORT", "465") or "465")
+SMTP_USER = os.environ.get("SMTP_USER", "")
+SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "")
+
+
+def send_email(to_email: str, subject: str, text: str) -> bool:
+    if not SMTP_HOST or not SMTP_USER or not SMTP_PASSWORD:
+        return False
+    msg = MIMEText(text, "plain", "utf-8")
+    msg["Subject"] = subject
+    msg["From"] = formataddr(("Partcore Logistics", SMTP_USER))
+    msg["To"] = to_email
+    try:
+        if SMTP_PORT == 465:
+            with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT, timeout=15) as srv:
+                srv.login(SMTP_USER, SMTP_PASSWORD)
+                srv.sendmail(SMTP_USER, [to_email], msg.as_string())
+        else:
+            with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=15) as srv:
+                srv.starttls()
+                srv.login(SMTP_USER, SMTP_PASSWORD)
+                srv.sendmail(SMTP_USER, [to_email], msg.as_string())
+        return True
+    except Exception:
+        return False
 
 
 def normalize_phone(phone: str) -> str:
@@ -192,6 +221,61 @@ def handler(event: dict, context) -> dict:
             )
             conn.commit()
             return ok({"token": tk, "message": "Вход выполнен"})
+
+        if action == "forgot_password":
+            email = body.get("email", "").strip().lower()
+            if not email:
+                return err("Укажите email")
+            cur.execute(f"SELECT id FROM {SCHEMA}.users WHERE email = %s", (email,))
+            user_row = cur.fetchone()
+            if user_row:
+                code = f"{random.randint(100000, 999999)}"
+                cur.execute(f"DELETE FROM {SCHEMA}.password_resets WHERE email = %s", (email,))
+                cur.execute(
+                    f"INSERT INTO {SCHEMA}.password_resets (email, code) VALUES (%s, %s)",
+                    (email, code)
+                )
+                conn.commit()
+                sent = send_email(
+                    email,
+                    "Partcore: восстановление пароля",
+                    f"Ваш код для восстановления пароля: {code}\n\n"
+                    f"Код действует 15 минут. Если вы не запрашивали восстановление — проигнорируйте письмо."
+                )
+                if not sent:
+                    return err("Не удалось отправить письмо. Попробуйте позже", 502)
+            return ok({"message": "Если такой email зарегистрирован, мы отправили на него код"})
+
+        if action == "reset_password":
+            email = body.get("email", "").strip().lower()
+            code = body.get("code", "").strip()
+            new_password = body.get("password", "")
+            if not email or not code:
+                return err("Укажите email и код")
+            if len(new_password) < 6:
+                return err("Пароль — минимум 6 символов")
+            cur.execute(
+                f"SELECT id, code, attempts FROM {SCHEMA}.password_resets "
+                f"WHERE email = %s AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1",
+                (email,)
+            )
+            row = cur.fetchone()
+            if not row:
+                return err("Код истёк или не запрашивался")
+            reset_id, real_code, attempts = row
+            if attempts >= 5:
+                return err("Слишком много попыток. Запросите новый код")
+            if code != real_code:
+                cur.execute(f"UPDATE {SCHEMA}.password_resets SET attempts = attempts + 1 WHERE id = %s", (reset_id,))
+                conn.commit()
+                return err("Неверный код")
+            cur.execute(
+                f"UPDATE {SCHEMA}.users SET password_hash = %s, updated_at = NOW() WHERE email = %s",
+                (hash_pw(new_password), email)
+            )
+            cur.execute(f"DELETE FROM {SCHEMA}.password_resets WHERE email = %s", (email,))
+            conn.commit()
+            return ok({"message": "Пароль изменён. Теперь войдите с новым паролем"})
 
         if action == "me":
             if not token:
