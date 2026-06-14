@@ -796,11 +796,11 @@ export default function Index() {
   };
 
   const navItems = [
-    { id: "home" as Page, label: t("nav_home") },
-    { id: "directions" as Page, label: t("nav_directions") },
-    { id: "services" as Page, label: t("nav_services") },
-    { id: "how" as Page, label: t("nav_how") },
-    { id: "contacts" as Page, label: t("nav_contacts") },
+    { id: "home" as Page, label: t("nav_home"), icon: "Home" },
+    { id: "directions" as Page, label: t("nav_directions"), icon: "Globe" },
+    { id: "services" as Page, label: t("nav_services"), icon: "Wrench" },
+    { id: "how" as Page, label: t("nav_how"), icon: "Workflow" },
+    { id: "contacts" as Page, label: t("nav_contacts"), icon: "Mail" },
   ];
 
   const inputCls = "w-full bg-[hsl(220_25%_97%)] border border-[hsl(220_15%_88%)] px-4 py-3 text-sm text-[hsl(var(--navy))] placeholder-[hsl(var(--navy)/0.3)] focus:outline-none focus:border-[hsl(var(--navy)/0.5)] transition-colors rounded-sm";
@@ -815,9 +815,23 @@ export default function Index() {
       {/* ── HEADER ── */}
       <header className="fixed top-0 inset-x-0 z-50 bg-[hsl(220_52%_12%/0.35)] backdrop-blur-md border-b border-white/10">
         <div className="max-w-7xl mx-auto px-5 sm:px-8 flex items-center justify-between h-20">
-          <button onClick={() => nav("home")}>
-            <img src={LOGO} alt="Partcore Logistics" className="h-16 w-48 object-cover object-left" style={{ objectPosition: "10% center", transform: "scale(1.15)", transformOrigin: "left center" }} />
-          </button>
+          <div className="relative group/logo">
+            <button onClick={() => nav("home")}>
+              <img src={LOGO} alt="Partcore Logistics" className="h-16 w-48 object-cover object-left" style={{ objectPosition: "10% center", transform: "scale(1.15)", transformOrigin: "left center" }} />
+            </button>
+
+            {/* вертикальное меню-иконки при наведении на логотип */}
+            <div className="hidden md:flex absolute left-2 top-full flex-col gap-2 pt-3 opacity-0 -translate-y-2 pointer-events-none group-hover/logo:opacity-100 group-hover/logo:translate-y-0 group-hover/logo:pointer-events-auto transition-all duration-300 z-50">
+              {navItems.map((item, i) => (
+                <button key={item.id} onClick={() => nav(item.id)} title={item.label}
+                  style={{ transitionDelay: `${i * 40}ms` }}
+                  className={`relative w-11 h-11 flex items-center justify-center rounded-sm backdrop-blur-md border transition-colors group/ic ${page === item.id ? "bg-[hsl(var(--gold))] border-[hsl(var(--gold))] text-white" : "bg-[hsl(220_52%_12%/0.55)] border-white/15 text-white/80 hover:bg-[hsl(var(--gold))] hover:border-[hsl(var(--gold))] hover:text-white"}`}>
+                  <Icon name={item.icon} size={19} />
+                  <span className="absolute left-full ml-2 px-2.5 py-1 rounded-sm bg-[hsl(220_52%_12%/0.9)] text-white text-xs font-['Montserrat'] font-semibold whitespace-nowrap opacity-0 group-hover/ic:opacity-100 transition-opacity pointer-events-none">{item.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
 
           <nav className="hidden md:flex items-center gap-0.5">
             {navItems.map((item) => (
