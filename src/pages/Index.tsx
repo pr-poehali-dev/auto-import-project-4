@@ -941,8 +941,8 @@ export default function Index() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-9 anim-up d1 w-full">
                     {ORIGINS.map((o) => (
                       <button key={o.id} onClick={() => openOrigin(o.id)} className="text-left card-light rounded-sm p-5 group relative overflow-hidden hover:shadow-lg transition-all cursor-pointer">
-                        <span className="absolute inset-0 flex items-center justify-center text-[10rem] leading-none opacity-20 group-hover:opacity-30 group-hover:scale-110 transition-all duration-500 pointer-events-none select-none">{o.flag}</span>
-                        <span className="absolute inset-0 bg-gradient-to-t from-white/90 via-white/70 to-white/50 pointer-events-none" />
+                        <span className="absolute inset-0 flex items-center justify-center text-[12rem] leading-none opacity-70 group-hover:opacity-90 group-hover:scale-110 transition-all duration-500 pointer-events-none select-none">{o.flag}</span>
+                        <span className="absolute inset-0 bg-gradient-to-t from-white/85 via-white/40 to-white/15 pointer-events-none" />
                         <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[hsl(var(--gold))] group-hover:w-full transition-all duration-500" />
                         <div className="relative z-10">
                           <h3 className="font-['Montserrat'] font-bold text-lg mb-1 navy flex items-center gap-2"><span className="text-3xl">{o.flag}</span>{o.name[lang]}</h3>
