@@ -73,7 +73,7 @@ type LS = { ru: string; en: string };
 
 const ORIGINS = [
   {
-    id: "hongkong", flag: "🇭🇰",
+    id: "hongkong", flag: "🇭🇰", cc: "hk",
     name: { ru: "Гонконг", en: "Hong Kong" },
     desc: { ru: "Европейские и американские марки по доступным ценам", en: "European and American brands at competitive prices" },
     volume: { ru: "от 20 ед./мес.", en: "from 20 units/month" },
@@ -102,7 +102,7 @@ const ORIGINS = [
     ],
   },
   {
-    id: "japan", flag: "🇯🇵",
+    id: "japan", flag: "🇯🇵", cc: "jp",
     name: { ru: "Япония", en: "Japan" },
     desc: { ru: "Праворульные авто с аукционов USS, JU, TAA", en: "Right-hand drive vehicles from USS, JU, TAA auctions" },
     volume: { ru: "от 50 ед./мес.", en: "from 50 units/month" },
@@ -134,7 +134,7 @@ const ORIGINS = [
     ],
   },
   {
-    id: "korea", flag: "🇰🇷",
+    id: "korea", flag: "🇰🇷", cc: "kr",
     name: { ru: "Корея", en: "Korea" },
     desc: { ru: "Hyundai, Kia, Ssangyong — высокий спрос на запчасти", en: "Hyundai, Kia, Ssangyong — high demand for parts" },
     volume: { ru: "от 30 ед./мес.", en: "from 30 units/month" },
@@ -941,11 +941,11 @@ export default function Index() {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-9 anim-up d1 w-full">
                     {ORIGINS.map((o) => (
                       <button key={o.id} onClick={() => openOrigin(o.id)} className="text-left card-light rounded-sm p-5 group relative overflow-hidden hover:shadow-lg transition-all cursor-pointer">
-                        <span className="absolute inset-0 flex items-center justify-center text-[12rem] leading-none opacity-70 group-hover:opacity-90 group-hover:scale-110 transition-all duration-500 pointer-events-none select-none">{o.flag}</span>
-                        <span className="absolute inset-0 bg-gradient-to-t from-white/85 via-white/40 to-white/15 pointer-events-none" />
+                        <img src={`https://flagcdn.com/w640/${o.cc}.png`} alt="" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500 pointer-events-none select-none" />
+                        <span className="absolute inset-0 bg-gradient-to-t from-white/90 via-white/55 to-white/25 pointer-events-none" />
                         <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[hsl(var(--gold))] group-hover:w-full transition-all duration-500" />
                         <div className="relative z-10">
-                          <h3 className="font-['Montserrat'] font-bold text-lg mb-1 navy flex items-center gap-2"><span className="text-3xl">{o.flag}</span>{o.name[lang]}</h3>
+                          <h3 className="font-['Montserrat'] font-bold text-lg mb-1 navy flex items-center gap-2"><img src={`https://flagcdn.com/w40/${o.cc}.png`} alt="" className="w-8 h-6 object-cover rounded-sm shadow-sm" />{o.name[lang]}</h3>
                           <p className="text-[hsl(var(--navy)/0.5)] text-xs leading-relaxed mb-3">{o.desc[lang]}</p>
                           <div className="flex items-center gap-1 text-xs font-['Montserrat'] font-semibold text-[hsl(var(--navy))] group-hover:gap-2 transition-all">{t("more")} <Icon name="ArrowRight" size={13} /></div>
                         </div>
