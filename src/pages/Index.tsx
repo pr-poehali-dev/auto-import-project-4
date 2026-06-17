@@ -37,7 +37,7 @@ async function apiOrders(method: "GET" | "POST" | "PUT", token: string, body?: o
   return res.json();
 }
 
-async function apiCars(method: "GET" | "POST" | "DELETE", token: string, opts: { body?: object; query?: string } = {}) {
+async function apiCars(method: "GET" | "POST" | "PATCH" | "DELETE", token: string, opts: { body?: object; query?: string } = {}) {
   const headers: Record<string, string> = { "X-Session-Token": token };
   if (opts.body) headers["Content-Type"] = "application/json";
   const url = opts.query ? `${CARS_URL}?${opts.query}` : CARS_URL;
@@ -65,7 +65,17 @@ async function apiHotDeals(method: "GET" | "POST" | "DELETE", opts: { token?: st
 // ── Types ────────────────────────────────────────────────────
 interface User { id: number; email: string; phone: string; full_name: string; company: string; inn: string; created_at: string; role?: string; }
 interface Order { id: number; order_number: string; car_brand: string; car_model: string; car_year: number; quantity: number; budget: number; status: string; status_label: string; origin: string; created_at: string; comment?: string; client_name?: string; client_email?: string; client_phone?: string; client_company?: string; cars_count?: number; }
-interface Car { id: number; car_brand: string; car_model: string; car_year: number; price: number; mileage: number; description: string; photos: string[]; created_at: string; }
+interface TeardownItem { name: string; needed: boolean; }
+interface Car { id: number; car_brand: string; car_model: string; car_year: number; price: number; mileage: number; description: string; photos: string[]; teardown: TeardownItem[]; created_at: string; }
+
+const TEARDOWN_PRESET = [
+  "Двигатель", "АКПП / МКПП", "Раздаточная коробка", "Редуктор",
+  "Передняя подвеска", "Задняя подвеска", "Рулевая рейка",
+  "Кузов (каркас)", "Капот", "Двери комплект", "Крылья", "Бамперы",
+  "Фары / фонари", "Салон (сиденья, торпедо)", "Электрика / проводка",
+  "Колёса / диски", "Радиатор / охлаждение", "Топливная система",
+  "Выхлопная система", "Тормозная система",
+];
 interface HotDeal { id: number; origin: string; brand: string; model: string; year: number | null; mileage: string; engine: string; price: string; badge: string; photo: string; sort_order: number; }
 
 type Lang = "ru" | "en";
@@ -330,6 +340,9 @@ const I18N: Record<Lang, Record<string, string>> = {
     car_photos: "Фото автомобиля", photo: "Фото",
     saving: "Сохраняем...", add_car: "Добавить автомобиль",
     proposed_cars: "Предложенные автомобили", loading: "Загрузка...", nothing_added: "Пока ничего не добавлено",
+    teardown_title: "Разборный лист", teardown_staff_hint: "Отметьте узлы и детали авто — клиент выберет нужные ему в личном кабинете",
+    teardown_add: "Добавить", teardown_add_ph: "Своя позиция (узел или деталь)",
+    teardown_client_hint: "Отметьте галочками узлы и детали, которые вам нужны", teardown_client_picked: "Клиент выбрал",
     new_order_created: "Заявка создана!", new_order_redirect: "Переходим к списку заявок...",
     new_order_title: "Новая заявка на подбор", new_order_sub: "Укажите параметры — менеджер подберёт варианты",
     qty: "Кол-во шт.", direction: "Направление", budget_unit: "Бюджет за ед., ₽",
@@ -476,6 +489,9 @@ const I18N: Record<Lang, Record<string, string>> = {
     car_photos: "Car photos", photo: "Photo",
     saving: "Saving...", add_car: "Add car",
     proposed_cars: "Proposed cars", loading: "Loading...", nothing_added: "Nothing added yet",
+    teardown_title: "Teardown list", teardown_staff_hint: "Mark the car's parts and components — the client will pick the ones they need in their dashboard",
+    teardown_add: "Add", teardown_add_ph: "Custom item (part or component)",
+    teardown_client_hint: "Tick the parts and components you need", teardown_client_picked: "Client picked",
     new_order_created: "Request created!", new_order_redirect: "Redirecting to the request list...",
     new_order_title: "New sourcing request", new_order_sub: "Specify the parameters — a manager will find options",
     qty: "Quantity", direction: "Destination", budget_unit: "Budget per unit, ₽",
@@ -544,8 +560,40 @@ export default function Index() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [cars, setCars] = useState<Car[]>([]);
   const [carsLoading, setCarsLoading] = useState(false);
-  const [carForm, setCarForm] = useState({ car_brand: "", car_model: "", car_year: "", price: "", mileage: "", description: "", photos: [] as string[] });
+  const [carForm, setCarForm] = useState({ car_brand: "", car_model: "", car_year: "", price: "", mileage: "", description: "", photos: [] as string[], teardown: [] as TeardownItem[] });
   const [carSaving, setCarSaving] = useState(false);
+  const [teardownInput, setTeardownInput] = useState("");
+  // клиент: сохранение отметок разборного листа
+  const [savingTeardown, setSavingTeardown] = useState<number | null>(null);
+
+  const toggleCarFormPart = (name: string) => {
+    setCarForm((f) => {
+      const exists = f.teardown.find((x) => x.name === name);
+      return exists
+        ? { ...f, teardown: f.teardown.filter((x) => x.name !== name) }
+        : { ...f, teardown: [...f.teardown, { name, needed: false }] };
+    });
+  };
+  const addCustomPart = () => {
+    const name = teardownInput.trim();
+    if (!name || carForm.teardown.some((x) => x.name === name)) { setTeardownInput(""); return; }
+    setCarForm((f) => ({ ...f, teardown: [...f.teardown, { name, needed: false }] }));
+    setTeardownInput("");
+  };
+
+  const toggleClientPart = async (car: Car, partName: string) => {
+    const updated = car.teardown.map((it) => it.name === partName ? { ...it, needed: !it.needed } : it);
+    setOrderCars((prev) => {
+      const next: Record<number, Car[]> = {};
+      for (const k of Object.keys(prev)) {
+        next[+k] = prev[+k].map((c) => c.id === car.id ? { ...c, teardown: updated } : c);
+      }
+      return next;
+    });
+    setSavingTeardown(car.id);
+    await apiCars("PATCH", token, { body: { car_id: car.id, teardown: updated } });
+    setSavingTeardown(null);
+  };
   // staff: управление сотрудниками
   interface ManagedUser { id: number; email: string; full_name: string; phone: string; company: string; role: string; created_at: string; }
   const [staffUsers, setStaffUsers] = useState<ManagedUser[]>([]);
@@ -658,7 +706,7 @@ export default function Index() {
 
   const openOrderCars = (o: Order) => {
     setSelectedOrder(o);
-    setCarForm({ car_brand: "", car_model: "", car_year: "", price: "", mileage: "", description: "", photos: [] });
+    setCarForm({ car_brand: "", car_model: "", car_year: "", price: "", mileage: "", description: "", photos: [], teardown: [] });
     loadCars(o.id);
   };
 
@@ -691,10 +739,10 @@ export default function Index() {
       car_year: carForm.car_year ? parseInt(carForm.car_year) : null,
       price: carForm.price ? parseInt(carForm.price) : null,
       mileage: carForm.mileage ? parseInt(carForm.mileage) : null,
-      description: carForm.description, photos: carForm.photos,
+      description: carForm.description, photos: carForm.photos, teardown: carForm.teardown,
     } });
     setCarSaving(false);
-    setCarForm({ car_brand: "", car_model: "", car_year: "", price: "", mileage: "", description: "", photos: [] });
+    setCarForm({ car_brand: "", car_model: "", car_year: "", price: "", mileage: "", description: "", photos: [], teardown: [] });
     loadCars(selectedOrder.id);
     const d = await apiOrders("GET", token);
     setOrders(d.orders || []);
@@ -1763,6 +1811,26 @@ export default function Index() {
                                           {!!c.mileage && <span>{c.mileage.toLocaleString()} {t("km")}</span>}
                                         </div>
                                         {c.description && <p className="text-[hsl(var(--navy)/0.55)] text-sm mt-2 leading-relaxed">{c.description}</p>}
+                                        {c.teardown && c.teardown.length > 0 && (
+                                          <div className="mt-3 pt-3 border-t border-[hsl(220_15%_90%)]">
+                                            <div className="flex items-center gap-2 mb-2">
+                                              <span className="text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{t("teardown_title")}</span>
+                                              {savingTeardown === c.id && <Icon name="Loader" size={12} className="animate-spin text-[hsl(var(--navy)/0.4)]" />}
+                                            </div>
+                                            <p className="text-[hsl(var(--navy)/0.4)] text-xs mb-2">{t("teardown_client_hint")}</p>
+                                            <div className="flex flex-col gap-1">
+                                              {c.teardown.map((it) => (
+                                                <label key={it.name} className="flex items-center gap-2.5 cursor-pointer group/part select-none py-0.5">
+                                                  <span className={`w-5 h-5 rounded-sm border flex items-center justify-center flex-shrink-0 transition-colors ${it.needed ? "bg-[hsl(var(--gold))] border-[hsl(var(--gold))]" : "bg-white border-[hsl(220_15%_80%)] group-hover/part:border-[hsl(var(--navy))]"}`}>
+                                                    {it.needed && <Icon name="Check" size={13} className="text-white" />}
+                                                  </span>
+                                                  <input type="checkbox" checked={it.needed} onChange={() => toggleClientPart(c, it.name)} className="hidden" />
+                                                  <span className={`text-sm ${it.needed ? "navy font-semibold" : "text-[hsl(var(--navy)/0.6)]"}`}>{it.name}</span>
+                                                </label>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        )}
                                       </div>
                                     </div>
                                   ))}
@@ -1901,6 +1969,38 @@ export default function Index() {
                             </label>
                           </div>
                         </div>
+                        <div>
+                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("teardown_title")}</label>
+                          <p className="text-[hsl(var(--navy)/0.4)] text-xs mb-3">{t("teardown_staff_hint")}</p>
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            {TEARDOWN_PRESET.map((name) => {
+                              const active = carForm.teardown.some((x) => x.name === name);
+                              return (
+                                <button type="button" key={name} onClick={() => toggleCarFormPart(name)}
+                                  className={`text-xs font-['Montserrat'] font-semibold px-3 py-1.5 rounded-full border transition-colors ${active ? "bg-[hsl(var(--navy))] text-white border-[hsl(var(--navy))]" : "bg-white text-[hsl(var(--navy)/0.6)] border-[hsl(220_15%_85%)] hover:border-[hsl(var(--navy))]"}`}>
+                                  {active && <Icon name="Check" size={12} className="inline mr-1 -mt-0.5" />}{name}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <div className="flex gap-2 mb-3">
+                            <input placeholder={t("teardown_add_ph")} value={teardownInput}
+                              onChange={(e) => setTeardownInput(e.target.value)}
+                              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomPart(); } }}
+                              className={inputCls} />
+                            <button type="button" onClick={addCustomPart} className="flex-shrink-0 px-4 btn-outline rounded-sm text-sm">{t("teardown_add")}</button>
+                          </div>
+                          {carForm.teardown.length > 0 && (
+                            <div className="flex flex-col gap-1.5">
+                              {carForm.teardown.map((it) => (
+                                <div key={it.name} className="flex items-center justify-between bg-[hsl(220_25%_97%)] rounded-sm px-3 py-2">
+                                  <span className="text-sm navy">{it.name}</span>
+                                  <button type="button" onClick={() => toggleCarFormPart(it.name)} className="text-[hsl(var(--navy)/0.35)] hover:text-red-600"><Icon name="X" size={14} /></button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                         <button type="submit" disabled={carSaving} className="self-start px-6 py-3 btn-navy rounded-sm disabled:opacity-60">
                           {carSaving ? t("saving") : t("add_car")}
                         </button>
@@ -1931,6 +2031,18 @@ export default function Index() {
                                   {!!c.mileage && <span>{c.mileage.toLocaleString()} {t("km")}</span>}
                                 </div>
                                 {c.description && <p className="text-[hsl(var(--navy)/0.55)] text-sm mt-2 leading-relaxed">{c.description}</p>}
+                                {c.teardown && c.teardown.length > 0 && (
+                                  <div className="mt-3 pt-3 border-t border-[hsl(220_15%_90%)]">
+                                    <div className="text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide mb-2">{t("teardown_title")} · {t("teardown_client_picked")}: {c.teardown.filter((x) => x.needed).length}/{c.teardown.length}</div>
+                                    <div className="flex flex-col gap-1">
+                                      {c.teardown.map((it) => (
+                                        <div key={it.name} className={`flex items-center gap-2 text-sm ${it.needed ? "navy font-semibold" : "text-[hsl(var(--navy)/0.4)]"}`}>
+                                          <Icon name={it.needed ? "CheckCircle2" : "Circle"} size={15} className={it.needed ? "text-[hsl(var(--gold))]" : "text-[hsl(var(--navy)/0.25)]"} />{it.name}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           ))}

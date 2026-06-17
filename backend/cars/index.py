@@ -1,7 +1,8 @@
 """
 Автомобили, прикреплённые к заявке клиента.
 GET /?order_id=N — список авто по заявке (клиент видит только свои, сотрудник — любые)
-POST / — сотрудник добавляет авто к заявке (с загрузкой фото в S3)
+POST / — сотрудник добавляет авто к заявке (с загрузкой фото в S3) + разборный лист
+PATCH / — клиент отмечает нужные узлы в разборном листе (по car_id)
 DELETE / — сотрудник удаляет авто (order_id не нужен, по car_id)
 """
 import json
@@ -16,7 +17,7 @@ SCHEMA = "t_p64303579_auto_import_project_"
 
 CORS = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, X-Session-Token",
 }
 
@@ -100,14 +101,16 @@ def handler(event: dict, context) -> dict:
             if not is_staff and row[0] != user_id:
                 return err("Нет доступа", 403)
             cur.execute(
-                f"SELECT id, car_brand, car_model, car_year, price, mileage, description, photos, created_at "
+                f"SELECT id, car_brand, car_model, car_year, price, mileage, description, photos, teardown, created_at "
                 f"FROM {SCHEMA}.cars WHERE order_id = %s ORDER BY created_at DESC",
                 (order_id,)
             )
             cars = [
                 {"id": r[0], "car_brand": r[1], "car_model": r[2], "car_year": r[3],
                  "price": r[4], "mileage": r[5], "description": r[6] or "",
-                 "photos": json.loads(r[7]) if r[7] else [], "created_at": str(r[8])}
+                 "photos": json.loads(r[7]) if r[7] else [],
+                 "teardown": r[8] if isinstance(r[8], list) else (json.loads(r[8]) if r[8] else []),
+                 "created_at": str(r[9])}
                 for r in cur.fetchall()
             ]
             return ok({"cars": cars})
@@ -131,17 +134,54 @@ def handler(event: dict, context) -> dict:
                 elif ph.startswith("http"):
                     photo_urls.append(ph)
 
+            teardown = []
+            for item in (body.get("teardown") or []):
+                name = (item.get("name") or "").strip() if isinstance(item, dict) else str(item).strip()
+                if name:
+                    teardown.append({"name": name, "needed": bool(item.get("needed")) if isinstance(item, dict) else False})
+
             cur.execute(
                 f"INSERT INTO {SCHEMA}.cars "
-                f"(order_id, car_brand, car_model, car_year, price, mileage, description, photos, created_by) "
-                f"VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+                f"(order_id, car_brand, car_model, car_year, price, mileage, description, photos, teardown, created_by) "
+                f"VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
                 (order_id, body.get("car_brand", "").strip(), body.get("car_model", "").strip(),
                  body.get("car_year") or None, body.get("price") or None, body.get("mileage") or None,
-                 body.get("description", "").strip(), json.dumps(photo_urls), user_id)
+                 body.get("description", "").strip(), json.dumps(photo_urls),
+                 json.dumps(teardown, ensure_ascii=False), user_id)
             )
             car_id = cur.fetchone()[0]
             conn.commit()
             return ok({"id": car_id, "photos": photo_urls, "message": "Автомобиль добавлен"})
+
+        if method == "PATCH":
+            body = json.loads(event.get("body") or "{}")
+            car_id = body.get("car_id")
+            if not car_id:
+                return err("Не указан автомобиль")
+            cur.execute(
+                f"SELECT c.teardown, o.user_id FROM {SCHEMA}.cars c "
+                f"JOIN {SCHEMA}.orders o ON o.id = c.order_id WHERE c.id = %s",
+                (car_id,)
+            )
+            row = cur.fetchone()
+            if not row:
+                return err("Автомобиль не найден", 404)
+            if not is_staff and row[1] != user_id:
+                return err("Нет доступа", 403)
+
+            current = row[0] if isinstance(row[0], list) else (json.loads(row[0]) if row[0] else [])
+            needed_map = {str(x.get("name", "")).strip(): bool(x.get("needed")) for x in (body.get("teardown") or []) if isinstance(x, dict)}
+            for item in current:
+                key = str(item.get("name", "")).strip()
+                if key in needed_map:
+                    item["needed"] = needed_map[key]
+
+            cur.execute(
+                f"UPDATE {SCHEMA}.cars SET teardown = %s WHERE id = %s",
+                (json.dumps(current, ensure_ascii=False), car_id)
+            )
+            conn.commit()
+            return ok({"teardown": current, "message": "Отметки сохранены"})
 
         if method == "DELETE":
             if not is_staff:
