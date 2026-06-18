@@ -174,6 +174,36 @@ const ORIGINS = [
       { ru: "Удобная логистика через порт Владивостока", en: "Convenient logistics via the port of Vladivostok" },
     ],
   },
+  {
+    id: "china", flag: "🇨🇳", cc: "cn",
+    name: { ru: "Китай", en: "China" },
+    desc: { ru: "Электромобили и новые марки — Geely, Chery, BYD, Haval", en: "EVs and new brands — Geely, Chery, BYD, Haval" },
+    volume: { ru: "от 40 ед./мес.", en: "from 40 units/month" },
+    intro: { ru: "Китай — быстрорастущее направление для современных автомобилей и электрокаров. Geely, Chery, BYD и Haval с растущим спросом на запчасти и выгодными ценами на машинокомплекты.", en: "China is a fast-growing destination for modern cars and EVs. Geely, Chery, BYD and Haval with rising demand for parts and attractive prices for vehicle assemblies." },
+    brands: ["Geely", "Chery", "BYD", "Haval", "Changan", "Great Wall", "Li Auto", "Zeekr"],
+    auctions: [
+      { ru: "Che300 Auction", en: "Che300 Auction" },
+      { ru: "Yongda Auction", en: "Yongda Auction" },
+      { ru: "Прямые контракты с дилерами", en: "Direct dealer contracts" },
+    ],
+    auctionLinks: [
+      { name: "Che300", url: "https://www.che300.com", desc: { ru: "Крупнейшая площадка авто с пробегом в Китае", en: "Largest used car marketplace in China" } },
+      { name: "Dongchedi", url: "https://www.dongchedi.com", desc: { ru: "Каталог новых и подержанных авто", en: "Catalog of new and used cars" } },
+      { name: "Guazi", url: "https://www.guazi.com", desc: { ru: "Популярный сервис продажи авто с пробегом", en: "Popular used car sales service" } },
+    ],
+    facts: [
+      { icon: "Clock", title: { ru: "Срок доставки", en: "Delivery time" }, val: { ru: "30–40 дней", en: "30–40 days" } },
+      { icon: "Anchor", title: { ru: "Порт прибытия", en: "Port of arrival" }, val: { ru: "Владивосток", en: "Vladivostok" } },
+      { icon: "Package", title: { ru: "Объём", en: "Volume" }, val: { ru: "от 40 ед./мес.", en: "from 40 units/month" } },
+      { icon: "Zap", title: { ru: "Сегмент", en: "Segment" }, val: { ru: "EV и новые марки", en: "EVs and new brands" } },
+    ],
+    advantages: [
+      { ru: "Электромобили и гибриды с актуальными батареями и агрегатами", en: "EVs and hybrids with up-to-date batteries and components" },
+      { ru: "Низкая цена машинокомплектов и быстрая логистика", en: "Low price for vehicle assemblies and fast logistics" },
+      { ru: "Растущий спрос на запчасти китайских марок в России", en: "Growing demand for Chinese brand parts in Russia" },
+      { ru: "Огромный выбор новых моделей каждый год", en: "A huge selection of new models every year" },
+    ],
+  },
 ];
 const SERVICES = [
   { icon: "Package", title: { ru: "Поставка авто под разборку", en: "Supply of cars for dismantling" }, desc: { ru: "Подбираем автомобили с аукционов и у дилеров под ваш запрос. Битые, с пробегом, снятые с учёта.", en: "We source cars from auctions and dealers to match your request. Damaged, used, deregistered." } },
@@ -185,7 +215,7 @@ const SERVICES = [
 ];
 const STATS = [
   { num: "1 200+", label: { ru: "Авто поставлено", en: "Cars supplied" } }, { num: "8 лет", label: { ru: "На рынке", en: "Years on the market" } },
-  { num: "3", label: { ru: "Страны отправки", en: "Source countries" } }, { num: "40–55", label: { ru: "Дней — срок доставки", en: "Days — delivery time" } },
+  { num: "4", label: { ru: "Страны отправки", en: "Source countries" } }, { num: "30–55", label: { ru: "Дней — срок доставки", en: "Days — delivery time" } },
 ];
 const WHY = [
   { icon: "Building2", title: { ru: "Прямые контракты", en: "Direct contracts" }, desc: { ru: "Работаем напрямую с аукционными домами без посредников — ниже цена, быстрее сделка.", en: "We work directly with auction houses without intermediaries — lower prices, faster deals." } },
@@ -215,8 +245,8 @@ const STATUS_LABEL: Record<Lang, Record<string, string>> = {
 
 // ── Origin name <-> code map (для перевода поля origin из заявок) ──
 const ORIGIN_LABEL: Record<Lang, Record<string, string>> = {
-  ru: { "Япония": "Япония", "Корея": "Корея", "Гонконг": "Гонконг" },
-  en: { "Япония": "Japan", "Корея": "Korea", "Гонконг": "Hong Kong" },
+  ru: { "Япония": "Япония", "Корея": "Корея", "Гонконг": "Гонконг", "Китай": "Китай" },
+  en: { "Япония": "Japan", "Корея": "Korea", "Гонконг": "Hong Kong", "Китай": "China" },
 };
 
 // ── i18n dictionary ──────────────────────────────────────────
@@ -226,7 +256,7 @@ const I18N: Record<Lang, Record<string, string>> = {
     nav_home: "Главная", nav_directions: "Направления", nav_services: "Услуги", nav_how: "Как работаем", nav_contacts: "Контакты",
     login: "Войти", register: "Регистрация", cabinet: "Личный кабинет", logout: "Выйти",
     // home hero
-    hero_tag: "B2B поставки · Япония · Корея · Гонконг",
+    hero_tag: "B2B поставки · Япония · Корея · Гонконг · Китай",
     hero_title_1: "ПОСТАВКА", hero_title_2: "МАШИНОКОМПЛЕКТОВ",
     hero_subtitle: "Partcore Logistics поставляет автомобили с азиатских аукционов для разборщиков и автомагазинов. Опт от 3 авто, полное таможенное сопровождение.",
     send_request: "Отправить заявку", how_we_work: "Как мы работаем",
@@ -375,7 +405,7 @@ const I18N: Record<Lang, Record<string, string>> = {
     nav_home: "Home", nav_directions: "Destinations", nav_services: "Services", nav_how: "How we work", nav_contacts: "Contacts",
     login: "Log in", register: "Sign up", cabinet: "Dashboard", logout: "Log out",
     // home hero
-    hero_tag: "B2B supply · Japan · Korea · Hong Kong",
+    hero_tag: "B2B supply · Japan · Korea · Hong Kong · China",
     hero_title_1: "VEHICLE ASSEMBLY", hero_title_2: "SUPPLY",
     hero_subtitle: "Partcore Logistics supplies cars from Asian auctions for dismantlers and auto shops. Wholesale from 3 cars, full customs support.",
     send_request: "Send request", how_we_work: "How we work",
@@ -2091,6 +2121,7 @@ export default function Index() {
                           <option value="Япония">{ORIGIN_LABEL[lang]["Япония"]}</option>
                           <option value="Корея">{ORIGIN_LABEL[lang]["Корея"]}</option>
                           <option value="Гонконг">{ORIGIN_LABEL[lang]["Гонконг"]}</option>
+                          <option value="Китай">{ORIGIN_LABEL[lang]["Китай"]}</option>
                         </select>
                       </div>
                       <div>
