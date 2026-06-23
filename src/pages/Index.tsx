@@ -911,7 +911,7 @@ export default function Index() {
     { id: "contacts" as Page, label: t("nav_contacts"), icon: "Mail" },
   ];
 
-  const inputCls = "w-full bg-[hsl(220_25%_97%)] border border-[hsl(220_15%_88%)] px-4 py-3 text-sm text-[hsl(var(--navy))] placeholder-[hsl(var(--navy)/0.3)] focus:outline-none focus:border-[hsl(var(--navy)/0.5)] transition-colors rounded-sm";
+  const inputCls = "w-full bg-[hsl(220_25%_97%)] border border-[hsl(220_15%_88%)] px-4 py-3 text-sm text-[hsl(var(--navy))] placeholder-[hsl(var(--navy)/0.5)] focus:outline-none focus:border-[hsl(var(--navy)/0.5)] transition-colors rounded-sm";
 
   return (
     <div className="min-h-screen text-foreground overflow-x-hidden relative">
@@ -1024,7 +1024,7 @@ export default function Index() {
                         <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[hsl(var(--gold))] group-hover:w-full transition-all duration-500" />
                         <div className="relative z-10">
                           <h3 className="font-['Montserrat'] font-bold text-lg mb-1 navy flex items-center gap-2"><img src={`https://flagcdn.com/w40/${o.cc}.png`} alt="" className="w-8 h-6 object-cover rounded-sm shadow-sm" />{o.name[lang]}</h3>
-                          <p className="text-[hsl(var(--navy)/0.5)] text-xs leading-relaxed mb-3">{o.desc[lang]}</p>
+                          <p className="text-[hsl(var(--navy)/0.68)] text-xs leading-relaxed mb-3">{o.desc[lang]}</p>
                           <div className="flex items-center gap-1 text-xs font-['Montserrat'] font-semibold text-[hsl(var(--navy))] group-hover:gap-2 transition-all">{t("more")} <Icon name="ArrowRight" size={13} /></div>
                         </div>
                       </button>
@@ -1039,7 +1039,7 @@ export default function Index() {
                     {STATS.map(({ num, label }) => (
                       <div key={label.ru} className="border-l-2 border-[hsl(var(--gold))] pl-4">
                         <div className="font-['Montserrat'] font-black text-2xl text-[hsl(var(--navy))] leading-none">{num}</div>
-                        <div className="text-[hsl(var(--navy)/0.45)] text-xs mt-1 leading-tight">{label[lang]}</div>
+                        <div className="text-[hsl(var(--navy)/0.65)] text-xs mt-1 leading-tight">{label[lang]}</div>
                       </div>
                     ))}
                   </div>
@@ -1054,7 +1054,7 @@ export default function Index() {
                   <button key={o.id} onClick={() => openOrigin(o.id)} className="text-left card-light rounded-sm p-7 group relative overflow-hidden hover:shadow-lg transition-all cursor-pointer">
                     <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[hsl(var(--gold))] group-hover:w-full transition-all duration-500" />
                     <h3 className="font-['Montserrat'] font-bold text-xl mb-2 navy flex items-center gap-2"><span className="text-4xl">{o.flag}</span>{o.name[lang]}</h3>
-                    <p className="text-[hsl(var(--navy)/0.5)] text-sm leading-relaxed mb-4">{o.desc[lang]}</p>
+                    <p className="text-[hsl(var(--navy)/0.68)] text-sm leading-relaxed mb-4">{o.desc[lang]}</p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-xs font-['Montserrat'] font-semibold gold"><Icon name="Package" size={13} />{o.volume[lang]}</div>
                       <div className="flex items-center gap-1 text-xs font-['Montserrat'] font-semibold text-[hsl(var(--navy))] group-hover:gap-2 transition-all">{t("more")} <Icon name="ArrowRight" size={13} /></div>
@@ -1076,7 +1076,7 @@ export default function Index() {
                       <div className="w-10 h-10 rounded-sm bg-[hsl(var(--navy)/0.06)] flex items-center justify-center flex-shrink-0 group-hover:bg-[hsl(var(--navy)/0.12)] transition-colors">
                         <Icon name={s.icon} size={18} className="text-[hsl(var(--navy))]" />
                       </div>
-                      <div><h3 className="font-['Montserrat'] font-bold text-sm mb-1.5 navy leading-snug">{s.title[lang]}</h3><p className="text-[hsl(var(--navy)/0.48)] text-xs leading-relaxed">{s.desc[lang]}</p></div>
+                      <div><h3 className="font-['Montserrat'] font-bold text-sm mb-1.5 navy leading-snug">{s.title[lang]}</h3><p className="text-[hsl(var(--navy)/0.68)] text-xs leading-relaxed">{s.desc[lang]}</p></div>
                     </div>
                   ))}
                 </div>
@@ -1091,7 +1091,7 @@ export default function Index() {
                     <div className="w-11 h-11 rounded-sm bg-[hsl(var(--gold)/0.1)] flex items-center justify-center flex-shrink-0 group-hover:bg-[hsl(var(--gold)/0.18)] transition-colors">
                       <Icon name={w.icon} size={20} className="text-[hsl(var(--gold))]" />
                     </div>
-                    <div><h3 className="font-['Montserrat'] font-bold text-base mb-1.5 navy">{w.title[lang]}</h3><p className="text-[hsl(var(--navy)/0.5)] text-sm leading-relaxed">{w.desc[lang]}</p></div>
+                    <div><h3 className="font-['Montserrat'] font-bold text-base mb-1.5 navy">{w.title[lang]}</h3><p className="text-[hsl(var(--navy)/0.68)] text-sm leading-relaxed">{w.desc[lang]}</p></div>
                   </div>
                 ))}
               </div>
@@ -1102,7 +1102,7 @@ export default function Index() {
               <div className="relative max-w-3xl mx-auto px-5 sm:px-8 text-center">
                 <div className="section-tag mb-5 justify-center border-[hsl(var(--gold)/0.5)] text-[hsl(var(--gold))]">{t("start_coop_tag")}</div>
                 <h2 className="font-['Montserrat'] font-black text-4xl sm:text-5xl text-white mb-4">{t("cta_need_1")}<br /><span className="text-[hsl(var(--gold))]">{t("cta_need_2")}</span></h2>
-                <p className="text-white/55 mb-8">{t("cta_subtitle")}</p>
+                <p className="text-white/80 mb-8">{t("cta_subtitle")}</p>
                 <button onClick={() => nav("contacts")} className="px-10 py-4 btn-gold rounded-sm">{t("send_request")}</button>
               </div>
             </section>
@@ -1128,13 +1128,13 @@ export default function Index() {
                   <div className="w-12 h-12 rounded-sm bg-[hsl(var(--navy)/0.06)] flex items-center justify-center flex-shrink-0 group-hover:bg-[hsl(var(--navy)/0.12)] transition-colors">
                     <Icon name={s.icon} size={22} className="text-[hsl(var(--navy))]" />
                   </div>
-                  <div><h3 className="font-['Montserrat'] font-bold text-lg mb-2 navy">{s.title[lang]}</h3><p className="text-[hsl(var(--navy)/0.5)] text-sm leading-relaxed">{s.desc[lang]}</p></div>
+                  <div><h3 className="font-['Montserrat'] font-bold text-lg mb-2 navy">{s.title[lang]}</h3><p className="text-[hsl(var(--navy)/0.68)] text-sm leading-relaxed">{s.desc[lang]}</p></div>
                 </div>
               ))}
             </div>
             <div className="bg-[hsl(220_25%_97%)] rounded-sm p-8 border border-[hsl(var(--gold)/0.3)] text-center">
               <h3 className="font-['Montserrat'] font-bold text-2xl mb-3 navy">{t("custom_service_title")}</h3>
-              <p className="text-[hsl(var(--navy)/0.5)] mb-6 text-sm">{t("custom_service_sub")}</p>
+              <p className="text-[hsl(var(--navy)/0.68)] mb-6 text-sm">{t("custom_service_sub")}</p>
               <button onClick={() => nav("contacts")} className="px-8 py-3.5 btn-navy rounded-sm">{t("discuss_task")}</button>
             </div>
             </div>
@@ -1164,7 +1164,7 @@ export default function Index() {
                     </div>
                     <div className="flex-1 card-light rounded-sm px-6 py-5 mb-2">
                       <h3 className="font-['Montserrat'] font-bold text-lg mb-1.5 navy">{s.title[lang]}</h3>
-                      <p className="text-[hsl(var(--navy)/0.5)] text-sm leading-relaxed">{s.desc[lang]}</p>
+                      <p className="text-[hsl(var(--navy)/0.68)] text-sm leading-relaxed">{s.desc[lang]}</p>
                     </div>
                   </div>
                 ))}
@@ -1185,7 +1185,7 @@ export default function Index() {
                 <div className="section-tag mb-3 border-[hsl(var(--gold)/0.5)] text-[hsl(var(--gold))]">{t("directions_tag")}</div>
                 <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl text-white">{t("source_countries")}</h1>
                 <div className="h-1 w-16 bg-[hsl(var(--gold))] mt-4" />
-                <p className="text-white/70 text-lg leading-relaxed max-w-3xl mt-6">{t("directions_intro")}</p>
+                <p className="text-white/85 text-lg leading-relaxed max-w-3xl mt-6">{t("directions_intro")}</p>
               </div>
             </div>
 
@@ -1195,7 +1195,7 @@ export default function Index() {
                   className="card-light rounded-sm p-7 text-left flex flex-col transition-all hover:shadow-lg hover:-translate-y-1 group cursor-pointer">
                   <div className="flex items-center justify-between mb-5">
                     <div className="text-5xl">{o.flag}</div>
-                    <Icon name="ArrowRight" size={20} className="text-[hsl(var(--navy)/0.3)] group-hover:text-[hsl(var(--gold))] transition-colors" />
+                    <Icon name="ArrowRight" size={20} className="text-[hsl(var(--navy)/0.55)] group-hover:text-[hsl(var(--gold))] transition-colors" />
                   </div>
                   <h2 className="font-['Montserrat'] font-black text-2xl navy mb-2">{o.name[lang]}</h2>
                   <p className="text-[hsl(var(--navy)/0.55)] text-sm leading-relaxed mb-5 flex-1">{o.desc[lang]}</p>
@@ -1204,7 +1204,7 @@ export default function Index() {
                       <span key={b} className="px-2.5 py-1 bg-[hsl(220_25%_97%)] border border-[hsl(220_15%_88%)] rounded-sm text-xs font-['Montserrat'] font-semibold navy">{b}</span>
                     ))}
                   </div>
-                  <div className="flex items-center gap-2 text-[hsl(var(--navy)/0.45)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide pt-4 border-t border-[hsl(220_15%_90%)] mb-4">
+                  <div className="flex items-center gap-2 text-[hsl(var(--navy)/0.65)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide pt-4 border-t border-[hsl(220_15%_90%)] mb-4">
                     <Icon name="Package" size={14} />{o.volume[lang]}
                   </div>
                   <button onClick={(e) => { e.stopPropagation(); nav("contacts"); }}
@@ -1220,7 +1220,7 @@ export default function Index() {
           const o = ORIGINS.find((x) => x.id === originId) || ORIGINS[0];
           return (
             <section className="min-h-screen py-14 px-5 sm:px-8 max-w-7xl mx-auto">
-              <button onClick={() => nav("home")} className="flex items-center gap-2 text-[hsl(var(--navy)/0.5)] text-sm font-['Montserrat'] font-semibold mb-8 hover:text-[hsl(var(--navy))] transition-colors">
+              <button onClick={() => nav("home")} className="flex items-center gap-2 text-[hsl(var(--navy)/0.68)] text-sm font-['Montserrat'] font-semibold mb-8 hover:text-[hsl(var(--navy))] transition-colors">
                 <Icon name="ArrowLeft" size={15} />{t("all_directions")}
               </button>
 
@@ -1240,7 +1240,7 @@ export default function Index() {
                     <div className="w-10 h-10 bg-[hsl(var(--navy)/0.06)] rounded-sm flex items-center justify-center mb-3">
                       <Icon name={f.icon} size={18} className="text-[hsl(var(--navy))]" />
                     </div>
-                    <div className="text-[hsl(var(--navy)/0.4)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{f.title[lang]}</div>
+                    <div className="text-[hsl(var(--navy)/0.62)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{f.title[lang]}</div>
                     <div className="font-['Montserrat'] font-bold text-base navy mt-0.5">{f.val[lang]}</div>
                   </div>
                 ))}
@@ -1252,7 +1252,7 @@ export default function Index() {
                     <Icon name="Flame" size={24} className="text-[hsl(var(--gold))]" />
                     <h2 className="font-['Montserrat'] font-black text-2xl navy">{t("hot_deals_title")}</h2>
                   </div>
-                  <p className="text-[hsl(var(--navy)/0.5)] text-sm mb-6 max-w-2xl">{t("hot_deals_sub")}</p>
+                  <p className="text-[hsl(var(--navy)/0.68)] text-sm mb-6 max-w-2xl">{t("hot_deals_sub")}</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     {hotDeals.map((d) => (
                       <div key={d.id} className="card-light rounded-sm overflow-hidden flex flex-col group">
@@ -1269,15 +1269,15 @@ export default function Index() {
                           <h3 className="font-['Montserrat'] font-bold text-lg navy leading-tight mb-3">{d.model}</h3>
                           <div className="grid grid-cols-3 gap-2 mb-4 text-center">
                             <div>
-                              <div className="text-[hsl(var(--navy)/0.4)] text-[10px] font-['Montserrat'] font-semibold uppercase tracking-wide">{t("hd_year")}</div>
+                              <div className="text-[hsl(var(--navy)/0.62)] text-[10px] font-['Montserrat'] font-semibold uppercase tracking-wide">{t("hd_year")}</div>
                               <div className="font-['Montserrat'] font-bold text-sm navy">{d.year || "—"}</div>
                             </div>
                             <div>
-                              <div className="text-[hsl(var(--navy)/0.4)] text-[10px] font-['Montserrat'] font-semibold uppercase tracking-wide">{t("hd_mileage")}</div>
+                              <div className="text-[hsl(var(--navy)/0.62)] text-[10px] font-['Montserrat'] font-semibold uppercase tracking-wide">{t("hd_mileage")}</div>
                               <div className="font-['Montserrat'] font-bold text-sm navy">{d.mileage || "—"}</div>
                             </div>
                             <div>
-                              <div className="text-[hsl(var(--navy)/0.4)] text-[10px] font-['Montserrat'] font-semibold uppercase tracking-wide">{t("hd_engine")}</div>
+                              <div className="text-[hsl(var(--navy)/0.62)] text-[10px] font-['Montserrat'] font-semibold uppercase tracking-wide">{t("hd_engine")}</div>
                               <div className="font-['Montserrat'] font-bold text-sm navy">{d.engine || "—"}</div>
                             </div>
                           </div>
@@ -1298,15 +1298,15 @@ export default function Index() {
                     <h2 className="font-['Montserrat'] font-black text-2xl navy">{t("auction_access")}</h2>
                     <span className="text-[10px] font-['Montserrat'] font-bold px-2 py-0.5 bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))] rounded-full uppercase tracking-wide">Live</span>
                   </div>
-                  <p className="text-[hsl(var(--navy)/0.5)] text-sm mb-6 max-w-2xl">{t("auction_access_sub")}</p>
+                  <p className="text-[hsl(var(--navy)/0.68)] text-sm mb-6 max-w-2xl">{t("auction_access_sub")}</p>
 
                   {!user ? (
                     <div className="card-light rounded-sm p-10 text-center flex flex-col items-center">
                       <div className="w-14 h-14 rounded-full bg-[hsl(var(--navy)/0.06)] flex items-center justify-center mb-4">
-                        <Icon name="Lock" size={26} className="text-[hsl(var(--navy)/0.5)]" />
+                        <Icon name="Lock" size={26} className="text-[hsl(var(--navy)/0.68)]" />
                       </div>
                       <h3 className="font-['Montserrat'] font-bold text-lg navy mb-2">{t("auction_locked_title")}</h3>
-                      <p className="text-[hsl(var(--navy)/0.5)] text-sm mb-6 max-w-md">{t("auction_locked_sub")}</p>
+                      <p className="text-[hsl(var(--navy)/0.68)] text-sm mb-6 max-w-md">{t("auction_locked_sub")}</p>
                       <div className="flex flex-col sm:flex-row gap-3">
                         <button onClick={() => nav("login")} className="px-6 py-3 btn-navy rounded-sm">{t("login")}</button>
                         <button onClick={() => nav("register")} className="px-6 py-3 btn-outline rounded-sm">{t("register")}</button>
@@ -1321,7 +1321,7 @@ export default function Index() {
                           <Icon name="Gavel" size={16} className="text-[hsl(var(--navy))] mt-0.5 flex-shrink-0" />
                           <div>
                             <div className="font-['Montserrat'] font-bold text-sm navy leading-tight">{a.name}</div>
-                            <div className="text-[hsl(var(--navy)/0.45)] text-xs mt-1 leading-snug">{a.desc[lang]}</div>
+                            <div className="text-[hsl(var(--navy)/0.65)] text-xs mt-1 leading-snug">{a.desc[lang]}</div>
                           </div>
                         </div>
                         <div className="flex gap-2 mt-auto">
@@ -1350,7 +1350,7 @@ export default function Index() {
                             className="flex items-center gap-1 text-xs font-['Montserrat'] font-semibold text-[hsl(var(--gold))] hover:underline">
                             {t("in_new_tab")} <Icon name="ExternalLink" size={12} />
                           </a>
-                          <button onClick={() => setActiveAuction(null)} className="text-[hsl(var(--navy)/0.4)] hover:text-[hsl(var(--navy))]">
+                          <button onClick={() => setActiveAuction(null)} className="text-[hsl(var(--navy)/0.62)] hover:text-[hsl(var(--navy))]">
                             <Icon name="X" size={16} />
                           </button>
                         </div>
@@ -1414,7 +1414,7 @@ export default function Index() {
                 <div className="absolute inset-0 light-grid opacity-10" />
                 <div className="relative">
                   <h3 className="font-['Montserrat'] font-black text-2xl sm:text-3xl text-white mb-3">{t("origin_cta_title_pre")}{o.name[lang]}{t("origin_cta_title_post")}</h3>
-                  <p className="text-white/55 mb-7 text-sm">{t("origin_cta_sub")}</p>
+                  <p className="text-white/80 mb-7 text-sm">{t("origin_cta_sub")}</p>
                   <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <button onClick={() => nav("contacts")} className="px-8 py-3.5 btn-gold rounded-sm">{t("send_request")}</button>
                     <button onClick={() => nav("how")} className="px-8 py-3.5 border border-white/30 text-white rounded-sm font-['Montserrat'] font-semibold hover:bg-white/10 transition-colors">{t("how_we_work")}</button>
@@ -1444,24 +1444,24 @@ export default function Index() {
                   <div className="flex flex-col items-center justify-center py-16 text-center">
                     <div className="w-14 h-14 rounded-sm bg-[hsl(var(--gold)/0.1)] flex items-center justify-center mb-5"><Icon name="CheckCircle" size={30} className="text-[hsl(var(--gold))]" /></div>
                     <h3 className="font-['Montserrat'] font-bold text-2xl mb-2 navy">{t("request_accepted")}</h3>
-                    <p className="text-[hsl(var(--navy)/0.5)] text-sm">{t("request_accepted_sub")}</p>
+                    <p className="text-[hsl(var(--navy)/0.68)] text-sm">{t("request_accepted_sub")}</p>
                     <button onClick={() => setContactSent(false)} className="mt-6 text-[hsl(var(--gold))] text-sm hover:underline font-['Montserrat'] font-semibold">{t("send_another")}</button>
                   </div>
                 ) : (
                   <form onSubmit={(e) => { e.preventDefault(); setContactSent(true); }} className="flex flex-col gap-5">
-                    <div><h2 className="font-['Montserrat'] font-bold text-xl mb-1 navy">{t("supply_request")}</h2><p className="text-[hsl(var(--navy)/0.45)] text-sm">{t("supply_request_sub")}</p></div>
+                    <div><h2 className="font-['Montserrat'] font-bold text-xl mb-1 navy">{t("supply_request")}</h2><p className="text-[hsl(var(--navy)/0.65)] text-sm">{t("supply_request_sub")}</p></div>
                     {[
                       { key: "name", label: t("contact_person"), placeholder: t("ph_name"), type: "text", required: true },
                       { key: "company", label: t("company_ip"), placeholder: t("ph_company"), type: "text", required: false },
                       { key: "phone", label: t("phone_req"), placeholder: "+7 (___) ___-__-__", type: "tel", required: true },
                     ].map((f) => (
                       <div key={f.key}>
-                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{f.label}</label>
+                        <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{f.label}</label>
                         <input required={f.required} type={f.type} placeholder={f.placeholder} value={contactForm[f.key as keyof typeof contactForm]} onChange={(e) => setContactForm({ ...contactForm, [f.key]: e.target.value })} className={inputCls} />
                       </div>
                     ))}
                     <div>
-                      <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("comment")}</label>
+                      <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("comment")}</label>
                       <textarea rows={3} value={contactForm.comment} onChange={(e) => setContactForm({ ...contactForm, comment: e.target.value })} placeholder={t("comment_ph")} className={inputCls + " resize-none"} />
                     </div>
                     <button type="submit" className="w-full py-4 btn-navy rounded-sm">{t("send_request")}</button>
@@ -1475,7 +1475,7 @@ export default function Index() {
                     {[{ icon: "Phone", label: t("phone"), val: "+7 (800) 000-00-00", sub: t("phone_sub") }, { icon: "Mail", label: "Email", val: "info@partcore.ru", sub: t("email_sub") }, { icon: "MessageCircle", label: "Telegram / WhatsApp", val: "+7 (900) 000-00-00", sub: t("messenger_sub") }, { icon: "MapPin", label: t("office"), val: t("office_city"), sub: t("office_hours") }].map((c) => (
                       <div key={c.label} className="flex items-start gap-4">
                         <div className="w-9 h-9 bg-[hsl(var(--navy)/0.07)] flex items-center justify-center flex-shrink-0 rounded-sm"><Icon name={c.icon} size={16} className="text-[hsl(var(--navy))]" /></div>
-                        <div><div className="text-[hsl(var(--navy)/0.4)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase">{c.label}</div><div className="text-[hsl(var(--navy))] font-medium text-sm mt-0.5">{c.val}</div><div className="text-[hsl(var(--navy)/0.35)] text-xs">{c.sub}</div></div>
+                        <div><div className="text-[hsl(var(--navy)/0.62)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase">{c.label}</div><div className="text-[hsl(var(--navy))] font-medium text-sm mt-0.5">{c.val}</div><div className="text-[hsl(var(--navy)/0.6)] text-xs">{c.sub}</div></div>
                       </div>
                     ))}
                   </div>
@@ -1495,17 +1495,17 @@ export default function Index() {
                   <Icon name="ShieldCheck" size={28} className="text-[hsl(var(--gold))]" />
                 </div>
                 <h1 className="font-['Montserrat'] font-black text-3xl text-white mb-2">{t("staff_login_title")}</h1>
-                <p className="text-white/55 text-sm">{t("staff_login_sub")}</p>
+                <p className="text-white/80 text-sm">{t("staff_login_sub")}</p>
               </div>
               <div className="bg-white rounded-sm p-8 shadow-xl">
                 <form onSubmit={doStaffLogin} className="flex flex-col gap-5">
                   {authError && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-sm">{authError}</div>}
                   <div>
-                    <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">Email *</label>
+                    <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">Email *</label>
                     <input required type="email" placeholder="staff@partcore.ru" value={loginForm.email} onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })} className={inputCls} />
                   </div>
                   <div>
-                    <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("pwd")}</label>
+                    <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("pwd")}</label>
                     <input required type="password" placeholder="••••••••" value={loginForm.password} onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })} className={inputCls} />
                   </div>
                   <button type="submit" disabled={authLoading} className="w-full py-3.5 btn-navy rounded-sm disabled:opacity-60">
@@ -1513,7 +1513,7 @@ export default function Index() {
                   </button>
                 </form>
                 <div className="text-center mt-5">
-                  <button onClick={() => { window.location.hash = ""; nav("home"); }} className="text-[hsl(var(--navy)/0.4)] text-sm hover:text-[hsl(var(--navy))] font-medium">← {t("nav_home")}</button>
+                  <button onClick={() => { window.location.hash = ""; nav("home"); }} className="text-[hsl(var(--navy)/0.62)] text-sm hover:text-[hsl(var(--navy))] font-medium">← {t("nav_home")}</button>
                 </div>
               </div>
             </div>
@@ -1527,17 +1527,17 @@ export default function Index() {
               <div className="text-center mb-8">
                 <img src={LOGO} alt="Partcore" className="h-12 mx-auto mb-6 object-contain" />
                 <h1 className="font-['Montserrat'] font-black text-3xl navy mb-2">{t("login_title")}</h1>
-                <p className="text-[hsl(var(--navy)/0.5)] text-sm">{t("login_sub")}</p>
+                <p className="text-[hsl(var(--navy)/0.68)] text-sm">{t("login_sub")}</p>
               </div>
               <div className="card-light rounded-sm p-8">
                 <form onSubmit={doLogin} className="flex flex-col gap-5">
                   {authError && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-sm">{authError}</div>}
                   <div>
-                    <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">Email *</label>
+                    <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">Email *</label>
                     <input required type="email" placeholder="you@example.com" value={loginForm.email} onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })} className={inputCls} />
                   </div>
                   <div>
-                    <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("pwd")}</label>
+                    <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("pwd")}</label>
                     <input required type="password" placeholder="••••••••" value={loginForm.password} onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })} className={inputCls} />
                   </div>
                   <button type="submit" disabled={authLoading} className="w-full py-3.5 btn-navy rounded-sm disabled:opacity-60">
@@ -1545,9 +1545,9 @@ export default function Index() {
                   </button>
                 </form>
                 <div className="text-center mt-4">
-                  <button onClick={() => { setForgotStep("email"); setForgotMsg(""); setForgotForm({ email: loginForm.email, code: "", password: "" }); nav("forgot"); }} className="text-sm text-[hsl(var(--navy)/0.5)] hover:text-[hsl(var(--gold))] hover:underline">{t("forgot_pwd")}</button>
+                  <button onClick={() => { setForgotStep("email"); setForgotMsg(""); setForgotForm({ email: loginForm.email, code: "", password: "" }); nav("forgot"); }} className="text-sm text-[hsl(var(--navy)/0.68)] hover:text-[hsl(var(--gold))] hover:underline">{t("forgot_pwd")}</button>
                 </div>
-                <div className="text-center mt-2 text-sm text-[hsl(var(--navy)/0.5)]">
+                <div className="text-center mt-2 text-sm text-[hsl(var(--navy)/0.68)]">
                   {t("no_account")}{" "}
                   <button onClick={() => nav("register")} className="text-[hsl(var(--gold))] font-semibold hover:underline">{t("do_register")}</button>
                 </div>
@@ -1563,14 +1563,14 @@ export default function Index() {
               <div className="text-center mb-8">
                 <img src={LOGO} alt="Partcore" className="h-12 mx-auto mb-6 object-contain" />
                 <h1 className="font-['Montserrat'] font-black text-3xl navy mb-2">{t("forgot_title")}</h1>
-                <p className="text-[hsl(var(--navy)/0.5)] text-sm">{forgotStep === "email" ? t("forgot_sub") : t("forgot_sub2")}</p>
+                <p className="text-[hsl(var(--navy)/0.68)] text-sm">{forgotStep === "email" ? t("forgot_sub") : t("forgot_sub2")}</p>
               </div>
               <div className="card-light rounded-sm p-8">
                 {forgotStep === "email" ? (
                   <form onSubmit={doForgot} className="flex flex-col gap-5">
                     {authError && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-sm">{authError}</div>}
                     <div>
-                      <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">Email *</label>
+                      <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">Email *</label>
                       <input required type="email" placeholder="you@example.com" value={forgotForm.email} onChange={(e) => setForgotForm({ ...forgotForm, email: e.target.value })} className={inputCls} />
                     </div>
                     <button type="submit" disabled={authLoading} className="w-full py-3.5 btn-navy rounded-sm disabled:opacity-60">
@@ -1582,20 +1582,20 @@ export default function Index() {
                     {forgotMsg && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-sm">{forgotMsg}</div>}
                     {authError && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-sm">{authError}</div>}
                     <div>
-                      <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("code_from_email")}</label>
+                      <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("code_from_email")}</label>
                       <input required type="text" inputMode="numeric" placeholder="000000" value={forgotForm.code} onChange={(e) => setForgotForm({ ...forgotForm, code: e.target.value })} className={inputCls} />
                     </div>
                     <div>
-                      <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("new_pwd")}</label>
+                      <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("new_pwd")}</label>
                       <input required type="password" placeholder="••••••••" value={forgotForm.password} onChange={(e) => setForgotForm({ ...forgotForm, password: e.target.value })} className={inputCls} />
                     </div>
                     <button type="submit" disabled={authLoading} className="w-full py-3.5 btn-navy rounded-sm disabled:opacity-60">
                       {authLoading ? t("saving") : t("change_pwd")}
                     </button>
-                    <button type="button" onClick={() => { setForgotStep("email"); setAuthError(""); setForgotMsg(""); }} className="text-sm text-[hsl(var(--navy)/0.5)] hover:text-[hsl(var(--gold))] hover:underline">{t("resend_code")}</button>
+                    <button type="button" onClick={() => { setForgotStep("email"); setAuthError(""); setForgotMsg(""); }} className="text-sm text-[hsl(var(--navy)/0.68)] hover:text-[hsl(var(--gold))] hover:underline">{t("resend_code")}</button>
                   </form>
                 )}
-                <div className="text-center mt-5 text-sm text-[hsl(var(--navy)/0.5)]">
+                <div className="text-center mt-5 text-sm text-[hsl(var(--navy)/0.68)]">
                   <button onClick={() => nav("login")} className="text-[hsl(var(--gold))] font-semibold hover:underline">{t("back_to_login")}</button>
                 </div>
               </div>
@@ -1610,7 +1610,7 @@ export default function Index() {
               <div className="text-center mb-8">
                 <img src={LOGO} alt="Partcore" className="h-12 mx-auto mb-6 object-contain" />
                 <h1 className="font-['Montserrat'] font-black text-3xl navy mb-2">{regStep === "code" ? t("code_title") : t("register_title")}</h1>
-                <p className="text-[hsl(var(--navy)/0.5)] text-sm">{regStep === "code" ? `${t("code_sub")} ${regForm.phone}` : t("register_sub")}</p>
+                <p className="text-[hsl(var(--navy)/0.68)] text-sm">{regStep === "code" ? `${t("code_sub")} ${regForm.phone}` : t("register_sub")}</p>
               </div>
               <div className="card-light rounded-sm p-8">
                 {regStep === "form" ? (
@@ -1624,7 +1624,7 @@ export default function Index() {
                       { key: "password", label: t("pwd_min"), placeholder: "••••••••", type: "password", required: true },
                     ].map((f) => (
                       <div key={f.key}>
-                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{f.label}</label>
+                        <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{f.label}</label>
                         <input required={f.required} type={f.type} placeholder={f.placeholder} value={regForm[f.key as keyof typeof regForm]} onChange={(e) => setRegForm({ ...regForm, [f.key]: e.target.value })} className={inputCls} />
                       </div>
                     ))}
@@ -1636,7 +1636,7 @@ export default function Index() {
                   <form onSubmit={doRegister} className="flex flex-col gap-4">
                     {authError && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-sm">{authError}</div>}
                     <div>
-                      <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("sms_code")}</label>
+                      <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("sms_code")}</label>
                       <input required type="text" inputMode="numeric" maxLength={6} placeholder="0000" value={regForm.code}
                         onChange={(e) => setRegForm({ ...regForm, code: e.target.value.replace(/\D/g, "") })}
                         className={inputCls + " text-center tracking-[0.5em] text-lg font-bold"} />
@@ -1645,12 +1645,12 @@ export default function Index() {
                       {authLoading ? t("registering") : t("confirm")}
                     </button>
                     <div className="flex items-center justify-between text-sm">
-                      <button type="button" onClick={resetRegStep} className="text-[hsl(var(--navy)/0.5)] hover:text-[hsl(var(--navy))] font-medium">{t("change_number")}</button>
+                      <button type="button" onClick={resetRegStep} className="text-[hsl(var(--navy)/0.68)] hover:text-[hsl(var(--navy))] font-medium">{t("change_number")}</button>
                       <button type="button" onClick={(e) => doSendCode(e as unknown as React.FormEvent)} disabled={codeSending} className="text-[hsl(var(--gold))] font-semibold hover:underline disabled:opacity-50">{t("resend_code")}</button>
                     </div>
                   </form>
                 )}
-                <div className="text-center mt-5 text-sm text-[hsl(var(--navy)/0.5)]">
+                <div className="text-center mt-5 text-sm text-[hsl(var(--navy)/0.68)]">
                   {t("have_account")}{" "}
                   <button onClick={() => { resetRegStep(); nav("login"); }} className="text-[hsl(var(--gold))] font-semibold hover:underline">{t("login")}</button>
                 </div>
@@ -1664,7 +1664,7 @@ export default function Index() {
           !user ? (
             <div className="min-h-screen flex items-center justify-center">
               <div className="text-center">
-                <Icon name="Lock" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.3)]" />
+                <Icon name="Lock" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.55)]" />
                 <p className="font-['Montserrat'] font-bold navy mb-4">{t("auth_required")}</p>
                 <button onClick={() => nav("login")} className="px-6 py-3 btn-navy rounded-sm">{t("login")}</button>
               </div>
@@ -1679,9 +1679,9 @@ export default function Index() {
                     {user.full_name || user.email}
                     {isStaff && <span className="text-xs px-2.5 py-1 bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))] rounded-full font-['Montserrat'] font-bold uppercase tracking-wide">{t("staff_badge")}</span>}
                   </h1>
-                  {user.company && <p className="text-[hsl(var(--navy)/0.45)] text-sm mt-0.5">{user.company}</p>}
+                  {user.company && <p className="text-[hsl(var(--navy)/0.65)] text-sm mt-0.5">{user.company}</p>}
                 </div>
-                <button onClick={doLogout} className="flex items-center gap-2 px-4 py-2 border border-[hsl(220_15%_88%)] text-[hsl(var(--navy)/0.5)] text-sm font-['Montserrat'] font-semibold hover:text-red-600 hover:border-red-200 transition-all rounded-sm">
+                <button onClick={doLogout} className="flex items-center gap-2 px-4 py-2 border border-[hsl(220_15%_88%)] text-[hsl(var(--navy)/0.68)] text-sm font-['Montserrat'] font-semibold hover:text-red-600 hover:border-red-200 transition-all rounded-sm">
                   <Icon name="LogOut" size={15} />{t("logout")}
                 </button>
               </div>
@@ -1702,7 +1702,7 @@ export default function Index() {
                   { id: "profile", label: t("tab_profile"), icon: "User" },
                 ]) as { id: CabinetTab; label: string; icon: string }[]).map((tab) => (
                   <button key={tab.id} onClick={() => { setCabinetTab(tab.id); setSelectedOrder(null); }}
-                    className={`flex items-center gap-2 px-4 py-3 text-sm font-['Montserrat'] font-semibold border-b-2 transition-all ${cabinetTab === tab.id ? "border-[hsl(var(--navy))] text-[hsl(var(--navy))]" : "border-transparent text-[hsl(var(--navy)/0.45)] hover:text-[hsl(var(--navy))]"}`}>
+                    className={`flex items-center gap-2 px-4 py-3 text-sm font-['Montserrat'] font-semibold border-b-2 transition-all ${cabinetTab === tab.id ? "border-[hsl(var(--navy))] text-[hsl(var(--navy))]" : "border-transparent text-[hsl(var(--navy)/0.65)] hover:text-[hsl(var(--navy))]"}`}>
                     <Icon name={tab.icon} size={15} />{tab.label}
                   </button>
                 ))}
@@ -1714,14 +1714,14 @@ export default function Index() {
                 return (
                 <div>
                   {ordersLoading ? (
-                    <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.4)]">
+                    <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.62)]">
                       <Icon name="Loader" size={20} className="animate-spin" />{t("loading_orders")}
                     </div>
                   ) : list.length === 0 ? (
                     <div className="text-center py-16">
-                      <Icon name="ClipboardList" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.2)]" />
+                      <Icon name="ClipboardList" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.4)]" />
                       <p className="font-['Montserrat'] font-bold navy mb-2">{t("no_new_orders")}</p>
-                      <p className="text-[hsl(var(--navy)/0.45)] text-sm mb-6">{t("no_new_orders_sub")}</p>
+                      <p className="text-[hsl(var(--navy)/0.65)] text-sm mb-6">{t("no_new_orders_sub")}</p>
                       <button onClick={() => setCabinetTab("new_order")} className="px-6 py-3 btn-navy rounded-sm">{t("create_order")}</button>
                     </div>
                   ) : (
@@ -1740,7 +1740,7 @@ export default function Index() {
                               <div className="text-[hsl(var(--navy)/0.6)] text-sm mt-0.5">
                                 {[o.car_brand, o.car_model, o.car_year].filter(Boolean).join(" ")} · {ORIGIN_LABEL[lang][o.origin] || o.origin}
                               </div>
-                              <div className="text-[hsl(var(--navy)/0.35)] text-xs mt-1">
+                              <div className="text-[hsl(var(--navy)/0.6)] text-xs mt-1">
                                 {o.quantity} {t("pcs")}{o.budget ? ` · ${t("up_to")} ${o.budget.toLocaleString()} ₽` : ""} · {new Date(o.created_at).toLocaleDateString(lang === "ru" ? "ru" : "en")}
                               </div>
                             </div>
@@ -1759,14 +1759,14 @@ export default function Index() {
                 return (
                 <div>
                   {ordersLoading ? (
-                    <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.4)]">
+                    <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.62)]">
                       <Icon name="Loader" size={20} className="animate-spin" />{t("loading_active")}
                     </div>
                   ) : list.length === 0 ? (
                     <div className="text-center py-16">
-                      <Icon name="Package" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.2)]" />
+                      <Icon name="Package" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.4)]" />
                       <p className="font-['Montserrat'] font-bold navy mb-2">{t("no_active_orders")}</p>
-                      <p className="text-[hsl(var(--navy)/0.45)] text-sm">{t("no_active_orders_sub")}</p>
+                      <p className="text-[hsl(var(--navy)/0.65)] text-sm">{t("no_active_orders_sub")}</p>
                     </div>
                   ) : (
                     <div className="flex flex-col gap-3">
@@ -1796,7 +1796,7 @@ export default function Index() {
                                 <div className="text-[hsl(var(--navy)/0.6)] text-sm mt-0.5">
                                   {[o.car_brand, o.car_model, o.car_year].filter(Boolean).join(" ")} · {ORIGIN_LABEL[lang][o.origin] || o.origin}
                                 </div>
-                                <div className="text-[hsl(var(--navy)/0.35)] text-xs mt-1">
+                                <div className="text-[hsl(var(--navy)/0.6)] text-xs mt-1">
                                   {o.quantity} {t("pcs")}{o.budget ? ` · ${t("up_to")} ${o.budget.toLocaleString()} ₽` : ""} · {new Date(o.created_at).toLocaleDateString(lang)}
                                 </div>
                               </div>
@@ -1809,10 +1809,10 @@ export default function Index() {
                               return (
                                 <div key={s.key} className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                                   <div className="flex flex-col items-center gap-1.5">
-                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${reached ? "bg-[hsl(var(--gold))] text-white" : "bg-[hsl(220_25%_94%)] text-[hsl(var(--navy)/0.3)]"}`}>
+                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${reached ? "bg-[hsl(var(--gold))] text-white" : "bg-[hsl(220_25%_94%)] text-[hsl(var(--navy)/0.55)]"}`}>
                                       {reached ? <Icon name="Check" size={13} /> : <span className="text-[10px] font-bold">{i + 1}</span>}
                                     </div>
-                                    <span className={`text-[10px] font-['Montserrat'] font-semibold whitespace-nowrap ${isCurrent ? "text-[hsl(var(--gold))]" : reached ? "text-[hsl(var(--navy))]" : "text-[hsl(var(--navy)/0.35)]"}`}>{s.label}</span>
+                                    <span className={`text-[10px] font-['Montserrat'] font-semibold whitespace-nowrap ${isCurrent ? "text-[hsl(var(--gold))]" : reached ? "text-[hsl(var(--navy))]" : "text-[hsl(var(--navy)/0.6)]"}`}>{s.label}</span>
                                   </div>
                                   {i < steps.length - 1 && <div className={`w-4 sm:w-8 h-0.5 ${curIdx > i ? "bg-[hsl(var(--gold))]" : "bg-[hsl(220_25%_90%)]"}`} />}
                                 </div>
@@ -1844,10 +1844,10 @@ export default function Index() {
                                         {c.teardown && c.teardown.length > 0 && (
                                           <div className="mt-3 pt-3 border-t border-[hsl(220_15%_90%)]">
                                             <div className="flex items-center gap-2 mb-2">
-                                              <span className="text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{t("teardown_title")}</span>
-                                              {savingTeardown === c.id && <Icon name="Loader" size={12} className="animate-spin text-[hsl(var(--navy)/0.4)]" />}
+                                              <span className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{t("teardown_title")}</span>
+                                              {savingTeardown === c.id && <Icon name="Loader" size={12} className="animate-spin text-[hsl(var(--navy)/0.62)]" />}
                                             </div>
-                                            <p className="text-[hsl(var(--navy)/0.4)] text-xs mb-2">{t("teardown_client_hint")}</p>
+                                            <p className="text-[hsl(var(--navy)/0.62)] text-xs mb-2">{t("teardown_client_hint")}</p>
                                             <div className="flex flex-col gap-1">
                                               {c.teardown.map((it) => (
                                                 <label key={it.name} className="flex items-center gap-2.5 cursor-pointer group/part select-none py-0.5">
@@ -1882,14 +1882,14 @@ export default function Index() {
                 <div>
                   {!selectedOrder ? (
                     ordersLoading ? (
-                      <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.4)]">
+                      <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.62)]">
                         <Icon name="Loader" size={20} className="animate-spin" />{t("loading_clients")}
                       </div>
                     ) : orders.length === 0 ? (
                       <div className="text-center py-16">
-                        <Icon name="Users" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.2)]" />
+                        <Icon name="Users" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.4)]" />
                         <p className="font-['Montserrat'] font-bold navy mb-2">{t("no_client_orders")}</p>
-                        <p className="text-[hsl(var(--navy)/0.45)] text-sm">{t("no_client_orders_sub")}</p>
+                        <p className="text-[hsl(var(--navy)/0.65)] text-sm">{t("no_client_orders_sub")}</p>
                       </div>
                     ) : (
                       <div className="flex flex-col gap-3">
@@ -1910,17 +1910,17 @@ export default function Index() {
                                 <div className="text-[hsl(var(--navy)/0.55)] text-sm mt-0.5">
                                   {t("request_word")} {[o.car_brand, o.car_model, o.car_year].filter(Boolean).join(" ")} · {ORIGIN_LABEL[lang][o.origin] || o.origin} · {o.quantity} {t("pcs")}
                                 </div>
-                                <div className="text-[hsl(var(--navy)/0.35)] text-xs mt-1">{o.client_phone} · {new Date(o.created_at).toLocaleDateString(lang)}</div>
+                                <div className="text-[hsl(var(--navy)/0.6)] text-xs mt-1">{o.client_phone} · {new Date(o.created_at).toLocaleDateString(lang)}</div>
                               </div>
                             </div>
-                            <Icon name="ChevronRight" size={20} className="text-[hsl(var(--navy)/0.3)]" />
+                            <Icon name="ChevronRight" size={20} className="text-[hsl(var(--navy)/0.55)]" />
                           </div>
                         ))}
                       </div>
                     )
                   ) : (
                     <div>
-                      <button onClick={() => setSelectedOrder(null)} className="flex items-center gap-2 text-[hsl(var(--navy)/0.5)] text-sm font-['Montserrat'] font-semibold mb-6 hover:text-[hsl(var(--navy))] transition-colors">
+                      <button onClick={() => setSelectedOrder(null)} className="flex items-center gap-2 text-[hsl(var(--navy)/0.68)] text-sm font-['Montserrat'] font-semibold mb-6 hover:text-[hsl(var(--navy))] transition-colors">
                         <Icon name="ArrowLeft" size={15} />{t("all_client_orders")}
                       </button>
 
@@ -1931,16 +1931,16 @@ export default function Index() {
                           <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${STATUS_COLOR[selectedOrder.status] || "bg-gray-100 text-gray-600"}`}>{STATUS_LABEL[lang][selectedOrder.status] || selectedOrder.status_label}</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm mb-5">
-                          <div><span className="text-[hsl(var(--navy)/0.4)]">{t("client")}</span> <span className="navy font-semibold">{selectedOrder.client_name || "—"}</span></div>
-                          <div><span className="text-[hsl(var(--navy)/0.4)]">{t("company_label")}</span> <span className="navy">{selectedOrder.client_company || "—"}</span></div>
-                          <div><span className="text-[hsl(var(--navy)/0.4)]">{t("email_label")}</span> <span className="navy">{selectedOrder.client_email || "—"}</span></div>
-                          <div><span className="text-[hsl(var(--navy)/0.4)]">{t("phone_label")}</span> <span className="navy">{selectedOrder.client_phone || "—"}</span></div>
-                          <div><span className="text-[hsl(var(--navy)/0.4)]">{t("request_label")}</span> <span className="navy">{[selectedOrder.car_brand, selectedOrder.car_model, selectedOrder.car_year].filter(Boolean).join(" ") || "—"}</span></div>
-                          <div><span className="text-[hsl(var(--navy)/0.4)]">{t("direction_label")}</span> <span className="navy">{ORIGIN_LABEL[lang][selectedOrder.origin] || selectedOrder.origin} · {selectedOrder.quantity} {t("pcs")}</span></div>
+                          <div><span className="text-[hsl(var(--navy)/0.62)]">{t("client")}</span> <span className="navy font-semibold">{selectedOrder.client_name || "—"}</span></div>
+                          <div><span className="text-[hsl(var(--navy)/0.62)]">{t("company_label")}</span> <span className="navy">{selectedOrder.client_company || "—"}</span></div>
+                          <div><span className="text-[hsl(var(--navy)/0.62)]">{t("email_label")}</span> <span className="navy">{selectedOrder.client_email || "—"}</span></div>
+                          <div><span className="text-[hsl(var(--navy)/0.62)]">{t("phone_label")}</span> <span className="navy">{selectedOrder.client_phone || "—"}</span></div>
+                          <div><span className="text-[hsl(var(--navy)/0.62)]">{t("request_label")}</span> <span className="navy">{[selectedOrder.car_brand, selectedOrder.car_model, selectedOrder.car_year].filter(Boolean).join(" ") || "—"}</span></div>
+                          <div><span className="text-[hsl(var(--navy)/0.62)]">{t("direction_label")}</span> <span className="navy">{ORIGIN_LABEL[lang][selectedOrder.origin] || selectedOrder.origin} · {selectedOrder.quantity} {t("pcs")}</span></div>
                         </div>
-                        {selectedOrder.comment && <div className="text-sm bg-[hsl(220_25%_97%)] rounded-sm p-3 mb-5"><span className="text-[hsl(var(--navy)/0.4)]">{t("client_comment")}</span><span className="navy">{selectedOrder.comment}</span></div>}
+                        {selectedOrder.comment && <div className="text-sm bg-[hsl(220_25%_97%)] rounded-sm p-3 mb-5"><span className="text-[hsl(var(--navy)/0.62)]">{t("client_comment")}</span><span className="navy">{selectedOrder.comment}</span></div>}
                         <div>
-                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("order_status")}</label>
+                          <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("order_status")}</label>
                           <select value={selectedOrder.status} onChange={(e) => changeOrderStatus(selectedOrder.id, e.target.value)} className={inputCls + " max-w-xs"}>
                             <option value="new">{t("st_new")}</option>
                             <option value="processing">{t("st_processing")}</option>
@@ -1958,32 +1958,32 @@ export default function Index() {
                         <h3 className="font-['Montserrat'] font-bold text-lg navy">{t("add_car_title")}</h3>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                           <div>
-                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("brand")}</label>
+                            <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("brand")}</label>
                             <input required placeholder="Toyota" value={carForm.car_brand} onChange={(e) => setCarForm({ ...carForm, car_brand: e.target.value })} className={inputCls} />
                           </div>
                           <div>
-                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("model")}</label>
+                            <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("model")}</label>
                             <input placeholder="Camry" value={carForm.car_model} onChange={(e) => setCarForm({ ...carForm, car_model: e.target.value })} className={inputCls} />
                           </div>
                           <div>
-                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("year")}</label>
+                            <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("year")}</label>
                             <input placeholder="2019" value={carForm.car_year} onChange={(e) => setCarForm({ ...carForm, car_year: e.target.value })} className={inputCls} />
                           </div>
                           <div>
-                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("price_rub")}</label>
+                            <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("price_rub")}</label>
                             <input placeholder="850000" value={carForm.price} onChange={(e) => setCarForm({ ...carForm, price: e.target.value })} className={inputCls} />
                           </div>
                           <div>
-                            <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("mileage_km")}</label>
+                            <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("mileage_km")}</label>
                             <input placeholder="65000" value={carForm.mileage} onChange={(e) => setCarForm({ ...carForm, mileage: e.target.value })} className={inputCls} />
                           </div>
                         </div>
                         <div>
-                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("description_trim")}</label>
+                          <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("description_trim")}</label>
                           <textarea rows={3} placeholder={t("description_ph")} value={carForm.description} onChange={(e) => setCarForm({ ...carForm, description: e.target.value })} className={inputCls} />
                         </div>
                         <div>
-                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("car_photos")}</label>
+                          <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("car_photos")}</label>
                           <div className="flex flex-wrap gap-3 items-center">
                             {carForm.photos.map((p, i) => (
                               <div key={i} className="relative w-20 h-20 rounded-sm overflow-hidden border border-[hsl(220_15%_85%)]">
@@ -1992,7 +1992,7 @@ export default function Index() {
                                   className="absolute top-0.5 right-0.5 w-5 h-5 bg-black/60 text-white rounded-full flex items-center justify-center"><Icon name="X" size={11} /></button>
                               </div>
                             ))}
-                            <label className="w-20 h-20 rounded-sm border-2 border-dashed border-[hsl(220_15%_80%)] flex flex-col items-center justify-center cursor-pointer hover:border-[hsl(var(--navy))] transition-colors text-[hsl(var(--navy)/0.45)]">
+                            <label className="w-20 h-20 rounded-sm border-2 border-dashed border-[hsl(220_15%_80%)] flex flex-col items-center justify-center cursor-pointer hover:border-[hsl(var(--navy))] transition-colors text-[hsl(var(--navy)/0.65)]">
                               <Icon name="Plus" size={18} />
                               <span className="text-[10px] mt-1">{t("photo")}</span>
                               <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => handlePhotoSelect(e.target.files)} />
@@ -2000,8 +2000,8 @@ export default function Index() {
                           </div>
                         </div>
                         <div>
-                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("teardown_title")}</label>
-                          <p className="text-[hsl(var(--navy)/0.4)] text-xs mb-3">{t("teardown_staff_hint")}</p>
+                          <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("teardown_title")}</label>
+                          <p className="text-[hsl(var(--navy)/0.62)] text-xs mb-3">{t("teardown_staff_hint")}</p>
                           <div className="flex flex-wrap gap-2 mb-3">
                             {TEARDOWN_PRESET.map((name) => {
                               const active = carForm.teardown.some((x) => x.name === name);
@@ -2025,7 +2025,7 @@ export default function Index() {
                               {carForm.teardown.map((it) => (
                                 <div key={it.name} className="flex items-center justify-between bg-[hsl(220_25%_97%)] rounded-sm px-3 py-2">
                                   <span className="text-sm navy">{it.name}</span>
-                                  <button type="button" onClick={() => toggleCarFormPart(it.name)} className="text-[hsl(var(--navy)/0.35)] hover:text-red-600"><Icon name="X" size={14} /></button>
+                                  <button type="button" onClick={() => toggleCarFormPart(it.name)} className="text-[hsl(var(--navy)/0.6)] hover:text-red-600"><Icon name="X" size={14} /></button>
                                 </div>
                               ))}
                             </div>
@@ -2039,9 +2039,9 @@ export default function Index() {
                       {/* Список добавленных авто */}
                       <h3 className="font-['Montserrat'] font-bold text-lg navy mb-4">{t("proposed_cars")} ({cars.length})</h3>
                       {carsLoading ? (
-                        <div className="flex items-center gap-3 py-10 justify-center text-[hsl(var(--navy)/0.4)]"><Icon name="Loader" size={20} className="animate-spin" />{t("loading")}</div>
+                        <div className="flex items-center gap-3 py-10 justify-center text-[hsl(var(--navy)/0.62)]"><Icon name="Loader" size={20} className="animate-spin" />{t("loading")}</div>
                       ) : cars.length === 0 ? (
-                        <p className="text-[hsl(var(--navy)/0.45)] text-sm py-6">{t("nothing_added")}</p>
+                        <p className="text-[hsl(var(--navy)/0.65)] text-sm py-6">{t("nothing_added")}</p>
                       ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {cars.map((c) => (
@@ -2054,7 +2054,7 @@ export default function Index() {
                               <div className="p-5">
                                 <div className="flex items-start justify-between gap-3">
                                   <div className="font-['Montserrat'] font-bold navy">{[c.car_brand, c.car_model, c.car_year].filter(Boolean).join(" ")}</div>
-                                  <button onClick={() => doDeleteCar(c.id)} className="text-[hsl(var(--navy)/0.35)] hover:text-red-600"><Icon name="Trash2" size={16} /></button>
+                                  <button onClick={() => doDeleteCar(c.id)} className="text-[hsl(var(--navy)/0.6)] hover:text-red-600"><Icon name="Trash2" size={16} /></button>
                                 </div>
                                 <div className="flex gap-4 text-sm mt-1 text-[hsl(var(--navy)/0.6)]">
                                   {!!c.price && <span className="font-semibold text-[hsl(var(--gold))]">{c.price.toLocaleString()} ₽</span>}
@@ -2063,10 +2063,10 @@ export default function Index() {
                                 {c.description && <p className="text-[hsl(var(--navy)/0.55)] text-sm mt-2 leading-relaxed">{c.description}</p>}
                                 {c.teardown && c.teardown.length > 0 && (
                                   <div className="mt-3 pt-3 border-t border-[hsl(220_15%_90%)]">
-                                    <div className="text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide mb-2">{t("teardown_title")} · {t("teardown_client_picked")}: {c.teardown.filter((x) => x.needed).length}/{c.teardown.length}</div>
+                                    <div className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide mb-2">{t("teardown_title")} · {t("teardown_client_picked")}: {c.teardown.filter((x) => x.needed).length}/{c.teardown.length}</div>
                                     <div className="flex flex-col gap-1">
                                       {c.teardown.map((it) => (
-                                        <div key={it.name} className={`flex items-center gap-2 text-sm ${it.needed ? "navy font-semibold" : "text-[hsl(var(--navy)/0.4)]"}`}>
+                                        <div key={it.name} className={`flex items-center gap-2 text-sm ${it.needed ? "navy font-semibold" : "text-[hsl(var(--navy)/0.62)]"}`}>
                                           <Icon name={it.needed ? "CheckCircle2" : "Circle"} size={15} className={it.needed ? "text-[hsl(var(--gold))]" : "text-[hsl(var(--navy)/0.25)]"} />{it.name}
                                         </div>
                                       ))}
@@ -2090,33 +2090,33 @@ export default function Index() {
                     <div className="text-center py-12">
                       <div className="w-14 h-14 rounded-sm bg-[hsl(var(--gold)/0.1)] flex items-center justify-center mb-5 mx-auto"><Icon name="CheckCircle" size={30} className="text-[hsl(var(--gold))]" /></div>
                       <h3 className="font-['Montserrat'] font-bold text-xl navy mb-2">{t("new_order_created")}</h3>
-                      <p className="text-[hsl(var(--navy)/0.5)] text-sm">{t("new_order_redirect")}</p>
+                      <p className="text-[hsl(var(--navy)/0.68)] text-sm">{t("new_order_redirect")}</p>
                     </div>
                   ) : (
                     <form onSubmit={doNewOrder} className="card-light rounded-sm p-7 flex flex-col gap-5">
-                      <div><h2 className="font-['Montserrat'] font-bold text-xl navy mb-1">{t("new_order_title")}</h2><p className="text-[hsl(var(--navy)/0.45)] text-sm">{t("new_order_sub")}</p></div>
+                      <div><h2 className="font-['Montserrat'] font-bold text-xl navy mb-1">{t("new_order_title")}</h2><p className="text-[hsl(var(--navy)/0.65)] text-sm">{t("new_order_sub")}</p></div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("brand")}</label>
+                          <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("brand")}</label>
                           <input required placeholder="Toyota" value={newOrderForm.car_brand} onChange={(e) => setNewOrderForm({ ...newOrderForm, car_brand: e.target.value })} className={inputCls} />
                         </div>
                         <div>
-                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("model")}</label>
+                          <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("model")}</label>
                           <input placeholder="Camry" value={newOrderForm.car_model} onChange={(e) => setNewOrderForm({ ...newOrderForm, car_model: e.target.value })} className={inputCls} />
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("year")}</label>
+                          <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("year")}</label>
                           <input placeholder="2018" value={newOrderForm.car_year} onChange={(e) => setNewOrderForm({ ...newOrderForm, car_year: e.target.value })} className={inputCls} />
                         </div>
                         <div>
-                          <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("qty")}</label>
+                          <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("qty")}</label>
                           <input type="number" min="1" value={newOrderForm.quantity} onChange={(e) => setNewOrderForm({ ...newOrderForm, quantity: e.target.value })} className={inputCls} />
                         </div>
                       </div>
                       <div>
-                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("direction")}</label>
+                        <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("direction")}</label>
                         <select value={newOrderForm.origin} onChange={(e) => setNewOrderForm({ ...newOrderForm, origin: e.target.value })} className={inputCls}>
                           <option value="Япония">{ORIGIN_LABEL[lang]["Япония"]}</option>
                           <option value="Корея">{ORIGIN_LABEL[lang]["Корея"]}</option>
@@ -2125,11 +2125,11 @@ export default function Index() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("budget_unit")}</label>
+                        <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("budget_unit")}</label>
                         <input placeholder="300000" value={newOrderForm.budget} onChange={(e) => setNewOrderForm({ ...newOrderForm, budget: e.target.value })} className={inputCls} />
                       </div>
                       <div>
-                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("comment")}</label>
+                        <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("comment")}</label>
                         <textarea rows={3} placeholder={t("comment_req_ph")} value={newOrderForm.comment} onChange={(e) => setNewOrderForm({ ...newOrderForm, comment: e.target.value })} className={inputCls + " resize-none"} />
                       </div>
                       <button type="submit" className="w-full py-3.5 btn-navy rounded-sm">{t("create_order")}</button>
@@ -2143,7 +2143,7 @@ export default function Index() {
                 <div>
                   <div className="mb-6">
                     <h2 className="font-['Montserrat'] font-black text-2xl navy mb-2">{t("jp_auctions")}</h2>
-                    <p className="text-[hsl(var(--navy)/0.5)] text-sm">{t("jp_auctions_sub")}</p>
+                    <p className="text-[hsl(var(--navy)/0.68)] text-sm">{t("jp_auctions_sub")}</p>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {[
@@ -2163,7 +2163,7 @@ export default function Index() {
                           </div>
                           <span className="text-[10px] font-['Montserrat'] font-bold px-2 py-0.5 bg-[hsl(var(--gold)/0.1)] text-[hsl(var(--gold))] rounded-full whitespace-nowrap">{a.tag}</span>
                         </div>
-                        <p className="text-[hsl(var(--navy)/0.5)] text-sm leading-relaxed">{a.desc}</p>
+                        <p className="text-[hsl(var(--navy)/0.68)] text-sm leading-relaxed">{a.desc}</p>
                         <div className="flex items-center gap-1.5 text-[hsl(var(--gold))] text-xs font-['Montserrat'] font-semibold group-hover:gap-2.5 transition-all">
                           {t("go_to_auction")} <Icon name="ExternalLink" size={13} />
                         </div>
@@ -2180,15 +2180,15 @@ export default function Index() {
               {/* ── Документы ── */}
               {cabinetTab === "documents" && (
                 <div>
-                  <div className="mb-6"><h2 className="font-['Montserrat'] font-black text-2xl navy mb-2">{t("documents")}</h2><p className="text-[hsl(var(--navy)/0.5)] text-sm">{t("documents_sub")}</p></div>
+                  <div className="mb-6"><h2 className="font-['Montserrat'] font-black text-2xl navy mb-2">{t("documents")}</h2><p className="text-[hsl(var(--navy)/0.68)] text-sm">{t("documents_sub")}</p></div>
                   <div className="max-w-lg">
                     <div className="card-light rounded-sm p-8 border-2 border-dashed border-[hsl(220_15%_85%)] text-center mb-5">
                       <Icon name="Upload" size={32} className="mx-auto mb-3 text-[hsl(var(--navy)/0.25)]" />
                       <p className="font-['Montserrat'] font-semibold navy mb-1">{t("upload_document")}</p>
-                      <p className="text-[hsl(var(--navy)/0.4)] text-xs mb-4">{t("upload_hint")}</p>
+                      <p className="text-[hsl(var(--navy)/0.62)] text-xs mb-4">{t("upload_hint")}</p>
                       <button className="px-5 py-2.5 btn-navy rounded-sm text-xs">{t("choose_file")}</button>
                     </div>
-                    <div className="text-center py-8 text-[hsl(var(--navy)/0.35)]">
+                    <div className="text-center py-8 text-[hsl(var(--navy)/0.6)]">
                       <Icon name="FileText" size={32} className="mx-auto mb-3 opacity-40" />
                       <p className="text-sm">{t("no_documents")}</p>
                     </div>
@@ -2201,7 +2201,7 @@ export default function Index() {
                 <div className="max-w-4xl">
                   <div className="mb-6">
                     <h2 className="font-['Montserrat'] font-bold text-xl navy mb-1">{t("hde_title")}</h2>
-                    <p className="text-[hsl(var(--navy)/0.5)] text-sm">{t("hde_sub")}</p>
+                    <p className="text-[hsl(var(--navy)/0.68)] text-sm">{t("hde_sub")}</p>
                   </div>
 
                   <form onSubmit={saveDeal} className="card-light rounded-sm p-6 mb-8">
@@ -2211,35 +2211,35 @@ export default function Index() {
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_brand")}</label>
+                        <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_brand")}</label>
                         <input required value={dealForm.brand} onChange={(e) => setDealForm({ ...dealForm, brand: e.target.value })} className={inputCls} placeholder="BMW" />
                       </div>
                       <div>
-                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_model")}</label>
+                        <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_model")}</label>
                         <input required value={dealForm.model} onChange={(e) => setDealForm({ ...dealForm, model: e.target.value })} className={inputCls} placeholder="X5 xDrive40i" />
                       </div>
                       <div>
-                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_year")}</label>
+                        <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_year")}</label>
                         <input type="number" value={dealForm.year} onChange={(e) => setDealForm({ ...dealForm, year: e.target.value })} className={inputCls} placeholder="2021" />
                       </div>
                       <div>
-                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_mileage")}</label>
+                        <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_mileage")}</label>
                         <input value={dealForm.mileage} onChange={(e) => setDealForm({ ...dealForm, mileage: e.target.value })} className={inputCls} placeholder="32 000 км" />
                       </div>
                       <div>
-                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_engine")}</label>
+                        <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_engine")}</label>
                         <input value={dealForm.engine} onChange={(e) => setDealForm({ ...dealForm, engine: e.target.value })} className={inputCls} placeholder="3.0 бензин" />
                       </div>
                       <div>
-                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_price")}</label>
+                        <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_price")}</label>
                         <input value={dealForm.price} onChange={(e) => setDealForm({ ...dealForm, price: e.target.value })} className={inputCls} placeholder="от 4 250 000 ₽" />
                       </div>
                       <div>
-                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_badge")}</label>
+                        <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_badge")}</label>
                         <input value={dealForm.badge} onChange={(e) => setDealForm({ ...dealForm, badge: e.target.value })} className={inputCls} placeholder="Хит" />
                       </div>
                       <div>
-                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_photo")}</label>
+                        <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_photo")}</label>
                         <div className="flex items-center gap-3">
                           {dealForm.photo && <img src={dealForm.photo} alt="" className="w-12 h-12 object-cover rounded-sm border border-[hsl(220_15%_88%)]" />}
                           <label className="flex items-center gap-2 px-4 py-2.5 border border-[hsl(220_15%_88%)] rounded-sm text-sm font-['Montserrat'] font-semibold navy cursor-pointer hover:border-[hsl(var(--navy))] transition-colors">
@@ -2264,12 +2264,12 @@ export default function Index() {
                   </form>
 
                   {hotDealsLoading ? (
-                    <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.4)]">
+                    <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.62)]">
                       <Icon name="Loader" size={20} className="animate-spin" />{t("hde_loading")}
                     </div>
                   ) : hotDeals.length === 0 ? (
                     <div className="text-center py-16">
-                      <Icon name="Flame" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.2)]" />
+                      <Icon name="Flame" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.4)]" />
                       <p className="font-['Montserrat'] font-bold navy">{t("hde_empty")}</p>
                     </div>
                   ) : (
@@ -2277,14 +2277,14 @@ export default function Index() {
                       {hotDeals.map((d) => (
                         <div key={d.id} className="card-light rounded-sm p-4 flex flex-col sm:flex-row sm:items-center gap-4">
                           <div className="w-16 h-16 rounded-sm bg-[hsl(220_25%_97%)] flex items-center justify-center flex-shrink-0 overflow-hidden">
-                            {d.photo ? <img src={d.photo} alt="" className="w-full h-full object-cover" /> : <Icon name="Car" size={24} className="text-[hsl(var(--navy)/0.3)]" />}
+                            {d.photo ? <img src={d.photo} alt="" className="w-full h-full object-cover" /> : <Icon name="Car" size={24} className="text-[hsl(var(--navy)/0.55)]" />}
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-['Montserrat'] font-bold text-sm navy">{d.brand} {d.model}</span>
                               {d.badge && <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))]">{d.badge}</span>}
                             </div>
-                            <div className="text-[hsl(var(--navy)/0.5)] text-xs mt-1">{[d.year, d.mileage, d.engine].filter(Boolean).join(" · ")}</div>
+                            <div className="text-[hsl(var(--navy)/0.68)] text-xs mt-1">{[d.year, d.mileage, d.engine].filter(Boolean).join(" · ")}</div>
                             <div className="font-['Montserrat'] font-bold text-sm gold mt-0.5">{d.price}</div>
                           </div>
                           <div className="flex gap-2 flex-shrink-0">
@@ -2307,15 +2307,15 @@ export default function Index() {
                 <div className="max-w-3xl">
                   <div className="mb-6">
                     <h2 className="font-['Montserrat'] font-bold text-xl navy mb-1">{t("su_title")}</h2>
-                    <p className="text-[hsl(var(--navy)/0.5)] text-sm">{t("su_sub")}</p>
+                    <p className="text-[hsl(var(--navy)/0.68)] text-sm">{t("su_sub")}</p>
                   </div>
                   {staffUsersLoading ? (
-                    <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.4)]">
+                    <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.62)]">
                       <Icon name="Loader" size={20} className="animate-spin" />{t("su_loading")}
                     </div>
                   ) : staffUsers.length === 0 ? (
                     <div className="text-center py-16">
-                      <Icon name="Users" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.2)]" />
+                      <Icon name="Users" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.4)]" />
                       <p className="font-['Montserrat'] font-bold navy">{t("su_empty")}</p>
                     </div>
                   ) : (
@@ -2333,10 +2333,10 @@ export default function Index() {
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <span className="font-['Montserrat'] font-bold text-sm navy truncate">{u.full_name || u.email}</span>
                                   <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${staffRole ? "bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))]" : "bg-gray-100 text-gray-600"}`}>{staffRole ? t("su_role_staff") : t("su_role_client")}</span>
-                                  {isMe && <span className="text-xs text-[hsl(var(--navy)/0.35)]">({t("su_you")})</span>}
+                                  {isMe && <span className="text-xs text-[hsl(var(--navy)/0.6)]">({t("su_you")})</span>}
                                 </div>
                                 <div className="text-[hsl(var(--navy)/0.6)] text-sm mt-0.5 truncate">{u.email}{u.phone ? ` · ${u.phone}` : ""}</div>
-                                <div className="text-[hsl(var(--navy)/0.35)] text-xs mt-1">{u.company ? `${u.company} · ` : ""}{t("su_registered")} {new Date(u.created_at).toLocaleDateString(lang === "ru" ? "ru" : "en")}</div>
+                                <div className="text-[hsl(var(--navy)/0.6)] text-xs mt-1">{u.company ? `${u.company} · ` : ""}{t("su_registered")} {new Date(u.created_at).toLocaleDateString(lang === "ru" ? "ru" : "en")}</div>
                               </div>
                             </div>
                             {!isMe && (
@@ -2358,7 +2358,7 @@ export default function Index() {
               {cabinetTab === "profile" && (
                 <div className="max-w-lg">
                   <form onSubmit={doSaveProfile} className="card-light rounded-sm p-7 flex flex-col gap-5">
-                    <div><h2 className="font-['Montserrat'] font-bold text-xl navy mb-1">{t("edit_profile")}</h2><p className="text-[hsl(var(--navy)/0.45)] text-sm">Email: {user.email}</p></div>
+                    <div><h2 className="font-['Montserrat'] font-bold text-xl navy mb-1">{t("edit_profile")}</h2><p className="text-[hsl(var(--navy)/0.65)] text-sm">Email: {user.email}</p></div>
                     {profileSaved && <div className="bg-green-50 border border-green-200 text-green-700 text-sm px-4 py-3 rounded-sm flex items-center gap-2"><Icon name="Check" size={15} />{t("profile_saved")}</div>}
                     {[
                       { key: "full_name", label: t("full_name"), placeholder: t("ph_name") },
@@ -2367,7 +2367,7 @@ export default function Index() {
                       { key: "inn", label: t("inn"), placeholder: t("ph_inn") },
                     ].map((f) => (
                       <div key={f.key}>
-                        <label className="block text-[hsl(var(--navy)/0.5)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{f.label}</label>
+                        <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{f.label}</label>
                         <input placeholder={f.placeholder} value={profileForm[f.key as keyof typeof profileForm]} onChange={(e) => setProfileForm({ ...profileForm, [f.key]: e.target.value })} className={inputCls} />
                       </div>
                     ))}
@@ -2383,10 +2383,10 @@ export default function Index() {
         <footer className="border-t border-[hsl(220_15%_88%)] py-8 px-5 sm:px-8 mt-8 bg-white">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <button onClick={() => nav("home")}><img src={LOGO} alt="Partcore Logistics" className="h-10 w-36 object-cover object-left" style={{ objectPosition: "10% center", transform: "scale(1.15)", transformOrigin: "left center" }} /></button>
-            <div className="text-[hsl(var(--navy)/0.35)] text-xs text-center">{t("footer_copy")}</div>
+            <div className="text-[hsl(var(--navy)/0.6)] text-xs text-center">{t("footer_copy")}</div>
             <div className="flex gap-5 flex-wrap justify-center">
               {navItems.map((item) => (
-                <button key={item.id} onClick={() => nav(item.id)} className="text-xs text-[hsl(var(--navy)/0.4)] hover:text-[hsl(var(--navy))] transition-colors font-['Montserrat'] font-medium">{item.label}</button>
+                <button key={item.id} onClick={() => nav(item.id)} className="text-xs text-[hsl(var(--navy)/0.62)] hover:text-[hsl(var(--navy))] transition-colors font-['Montserrat'] font-medium">{item.label}</button>
               ))}
             </div>
           </div>
