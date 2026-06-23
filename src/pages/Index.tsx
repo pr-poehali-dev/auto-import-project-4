@@ -1030,7 +1030,7 @@ export default function Index() {
                       </button>
                     ))}
                   </div>
-                  <p className="text-[hsl(var(--navy)/0.55)] text-base leading-relaxed mb-9 anim-up d2">{t("hero_subtitle")}</p>
+                  <p className="text-[hsl(var(--navy)/0.72)] text-base leading-relaxed mb-9 anim-up d2">{t("hero_subtitle")}</p>
                   <div className="flex flex-col sm:flex-row gap-3 anim-up d3 justify-center">
                     <button onClick={() => nav("contacts")} className="px-8 py-3.5 btn-navy rounded-sm">{t("send_request")}</button>
                     <button onClick={() => nav("how")} className="px-8 py-3.5 btn-outline rounded-sm">{t("how_we_work")}</button>
