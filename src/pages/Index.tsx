@@ -1182,7 +1182,7 @@ export default function Index() {
               <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${DIRECTIONS_IMG})` }} />
               <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/85 to-white/70" />
               <div className="relative max-w-7xl mx-auto px-5 sm:px-8 py-20 sm:py-24">
-                <div className="section-tag mb-3 !text-white">{t("directions_tag")}</div>
+                <div className="section-tag mb-3">{t("directions_tag")}</div>
                 <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl navy">{t("source_countries")}</h1>
                 <div className="h-1 w-16 bg-[hsl(var(--gold))] mt-4" />
                 <p className="text-[hsl(var(--navy)/0.68)] text-lg leading-relaxed max-w-3xl mt-6">{t("directions_intro")}</p>
