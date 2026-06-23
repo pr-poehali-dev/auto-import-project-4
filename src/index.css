@@ -159,9 +159,9 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
     font-family: "Montserrat", sans-serif;
-    color: hsl(var(--gold));
-    background: hsl(var(--navy) / 0.55);
-    border: 1px solid hsl(var(--gold) / 0.6);
+    color: #fff;
+    background: hsl(var(--gold));
+    border: 1px solid hsl(var(--gold));
     border-radius: 2px;
   }
 
