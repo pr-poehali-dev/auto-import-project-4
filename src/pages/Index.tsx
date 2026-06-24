@@ -922,8 +922,11 @@ export default function Index() {
 
       {/* ── ПЛАВАЮЩИЙ ЛОГОТИП С МЕНЮ (десктоп) ── */}
       <div className="hidden md:block fixed top-4 left-5 z-50 group/logo">
-        <button onClick={() => nav("home")} className="block rounded-sm overflow-hidden bg-[hsl(220_52%_12%/0.45)] backdrop-blur-md border border-white/10 shadow-lg">
+        <button onClick={() => nav("home")} className="flex items-center gap-2 rounded-sm overflow-hidden bg-white/90 backdrop-blur-md border border-white/40 shadow-lg pr-3">
           <img src={LOGO} alt="Partcore Logistics" className="h-14 w-14 object-contain" />
+          <span className="font-['Montserrat'] font-black text-xl leading-none">
+            <span className="navy">PARTCORE</span> <span className="text-[hsl(var(--gold))]">LOGISTICS</span>
+          </span>
         </button>
 
         {/* вертикальное меню-иконки при наведении на логотип */}
@@ -969,8 +972,11 @@ export default function Index() {
 
       {/* ── МОБИЛЬНАЯ КНОПКА-МЕНЮ ── */}
       <div className="md:hidden fixed top-4 left-4 right-4 z-50 flex items-center justify-between">
-        <button onClick={() => nav("home")} className="rounded-sm overflow-hidden bg-[hsl(220_52%_12%/0.5)] backdrop-blur-md border border-white/10">
+        <button onClick={() => nav("home")} className="flex items-center gap-1.5 rounded-sm overflow-hidden bg-white/90 backdrop-blur-md border border-white/40 pr-2.5">
           <img src={LOGO} alt="Partcore Logistics" className="h-11 w-11 object-contain" />
+          <span className="font-['Montserrat'] font-black text-sm leading-none">
+            <span className="navy">PARTCORE</span> <span className="text-[hsl(var(--gold))]">LOGISTICS</span>
+          </span>
         </button>
         <button className="w-11 h-11 flex items-center justify-center rounded-sm bg-[hsl(220_52%_12%/0.5)] backdrop-blur-md border border-white/10 text-white" onClick={() => setMenuOpen(!menuOpen)}>
           <Icon name={menuOpen ? "X" : "Menu"} size={22} />
