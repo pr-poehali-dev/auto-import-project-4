@@ -1059,7 +1059,7 @@ export default function Index() {
                         <span className="absolute inset-0 bg-gradient-to-t from-white/90 via-white/55 to-white/25 pointer-events-none" />
                         <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[hsl(var(--gold))] group-hover:w-full transition-all duration-500" />
                         <div className="relative z-10">
-                          <h3 className="font-['Montserrat'] font-bold text-base mb-1 navy flex items-center gap-2 leading-tight"><img src={`https://flagcdn.com/w40/${o.cc}.png`} alt="" className="w-8 h-6 object-cover rounded-sm shadow-sm flex-shrink-0" /><span className="min-w-0 break-words">{o.name[lang]}</span></h3>
+                          <h3 className="font-['Montserrat'] font-bold text-sm mb-1 navy flex items-center gap-2 leading-tight"><img src={`https://flagcdn.com/w40/${o.cc}.png`} alt="" className="w-7 h-5 object-cover rounded-sm shadow-sm flex-shrink-0" /><span className="min-w-0">{o.name[lang]}</span></h3>
                           <p className="text-[hsl(var(--navy)/0.68)] text-xs leading-relaxed mb-3">{o.desc[lang]}</p>
                           <div className="flex items-center gap-1 text-xs font-['Montserrat'] font-semibold text-[hsl(var(--navy))] group-hover:gap-2 transition-all">{t("more")} <Icon name="ArrowRight" size={13} /></div>
                         </div>
@@ -1089,7 +1089,7 @@ export default function Index() {
                 {ORIGINS.map((o) => (
                   <button key={o.id} onClick={() => openOrigin(o.id)} className="text-left card-light rounded-sm p-7 group relative overflow-hidden hover:shadow-lg transition-all cursor-pointer">
                     <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[hsl(var(--gold))] group-hover:w-full transition-all duration-500" />
-                    <h3 className="font-['Montserrat'] font-bold text-lg mb-2 navy flex items-center gap-2 leading-tight"><span className="text-4xl flex-shrink-0">{o.flag}</span><span className="min-w-0 break-words">{o.name[lang]}</span></h3>
+                    <h3 className="font-['Montserrat'] font-bold text-base mb-2 navy flex items-center gap-2 leading-tight"><span className="text-3xl flex-shrink-0">{o.flag}</span><span className="min-w-0">{o.name[lang]}</span></h3>
                     <p className="text-[hsl(var(--navy)/0.68)] text-sm leading-relaxed mb-4">{o.desc[lang]}</p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-xs font-['Montserrat'] font-semibold gold"><Icon name="Package" size={13} />{o.volume[lang]}</div>
