@@ -1226,19 +1226,19 @@ export default function Index() {
           const o = ORIGINS.find((x) => x.id === originId) || ORIGINS[0];
           return (
             <section className="min-h-screen py-14 px-5 sm:px-8 max-w-7xl mx-auto">
-              <button onClick={() => nav("home")} className="flex items-center gap-2 text-[hsl(var(--navy)/0.68)] text-sm font-['Montserrat'] font-semibold mb-8 hover:text-[hsl(var(--navy))] transition-colors">
+              <button onClick={() => nav("home")} className="flex items-center gap-2 text-white text-sm font-['Montserrat'] font-semibold mb-8 hover:text-white/80 transition-colors drop-shadow-[0_1px_3px_rgba(25,61,100,0.6)]">
                 <Icon name="ArrowLeft" size={15} />{t("all_directions")}
               </button>
 
               <div className="flex items-center gap-5 mb-6">
                 <div className="text-6xl">{o.flag}</div>
                 <div>
-                  <div className="section-tag mb-2">{t("direction_tag")}</div>
-                  <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl navy">{o.name[lang].toUpperCase()} <span className="align-middle">{o.flag}</span></h1>
+                  <div className="section-tag mb-2 !text-white">{t("direction_tag")}</div>
+                  <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl text-white drop-shadow-[0_2px_4px_rgba(25,61,100,0.55)]">{o.name[lang].toUpperCase()} <span className="align-middle">{o.flag}</span></h1>
                 </div>
               </div>
               <div className="divider-navy mb-8" />
-              <p className="text-[hsl(var(--navy)/0.6)] text-lg leading-relaxed max-w-3xl mb-12">{o.intro[lang]}</p>
+              <p className="text-white text-lg leading-relaxed max-w-3xl mb-12 drop-shadow-[0_1px_3px_rgba(25,61,100,0.6)]">{o.intro[lang]}</p>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-14">
                 {o.facts.map((f) => (
@@ -1256,9 +1256,9 @@ export default function Index() {
                 <div className="mb-14">
                   <div className="flex items-center gap-3 mb-2">
                     <Icon name="Flame" size={24} className="text-[hsl(var(--gold))]" />
-                    <h2 className="font-['Montserrat'] font-black text-2xl navy">{t("hot_deals_title")}</h2>
+                    <h2 className="font-['Montserrat'] font-black text-2xl text-white drop-shadow-[0_1px_3px_rgba(25,61,100,0.6)]">{t("hot_deals_title")}</h2>
                   </div>
-                  <p className="text-[hsl(var(--navy)/0.68)] text-sm mb-6 max-w-2xl">{t("hot_deals_sub")}</p>
+                  <p className="text-white/90 text-sm mb-6 max-w-2xl drop-shadow-[0_1px_3px_rgba(25,61,100,0.6)]">{t("hot_deals_sub")}</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     {hotDeals.map((d) => (
                       <div key={d.id} className="card-light rounded-sm overflow-hidden flex flex-col group">
@@ -1301,10 +1301,10 @@ export default function Index() {
               {"auctionLinks" in o && o.auctionLinks && (
                 <div className="mb-14">
                   <div className="flex items-center gap-3 mb-2">
-                    <h2 className="font-['Montserrat'] font-black text-2xl navy">{t("auction_access")}</h2>
+                    <h2 className="font-['Montserrat'] font-black text-2xl text-white drop-shadow-[0_1px_3px_rgba(25,61,100,0.6)]">{t("auction_access")}</h2>
                     <span className="text-[10px] font-['Montserrat'] font-bold px-2 py-0.5 bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))] rounded-full uppercase tracking-wide">Live</span>
                   </div>
-                  <p className="text-[hsl(var(--navy)/0.68)] text-sm mb-6 max-w-2xl">{t("auction_access_sub")}</p>
+                  <p className="text-white/90 text-sm mb-6 max-w-2xl drop-shadow-[0_1px_3px_rgba(25,61,100,0.6)]">{t("auction_access_sub")}</p>
 
                   {!user ? (
                     <div className="card-light rounded-sm p-10 text-center flex flex-col items-center">
@@ -1383,7 +1383,7 @@ export default function Index() {
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-14">
                 <div>
-                  <h2 className="font-['Montserrat'] font-black text-2xl navy mb-5">{t("advantages")}</h2>
+                  <h2 className="font-['Montserrat'] font-black text-2xl text-white mb-5 drop-shadow-[0_1px_3px_rgba(25,61,100,0.6)]">{t("advantages")}</h2>
                   <div className="flex flex-col gap-3">
                     {o.advantages.map((a, i) => (
                       <div key={i} className="flex items-start gap-3 card-light rounded-sm p-4">
@@ -1395,7 +1395,7 @@ export default function Index() {
                 </div>
                 <div className="flex flex-col gap-8">
                   <div>
-                    <h2 className="font-['Montserrat'] font-black text-2xl navy mb-5">{t("popular_brands")}</h2>
+                    <h2 className="font-['Montserrat'] font-black text-2xl text-white mb-5 drop-shadow-[0_1px_3px_rgba(25,61,100,0.6)]">{t("popular_brands")}</h2>
                     <div className="flex flex-wrap gap-2">
                       {o.brands.map((b) => (
                         <span key={b} className="px-4 py-2 bg-[hsl(220_25%_97%)] border border-[hsl(220_15%_88%)] rounded-sm text-sm font-['Montserrat'] font-semibold navy">{b}</span>
@@ -1403,7 +1403,7 @@ export default function Index() {
                     </div>
                   </div>
                   <div>
-                    <h2 className="font-['Montserrat'] font-black text-2xl navy mb-5">{t("auctions_platforms")}</h2>
+                    <h2 className="font-['Montserrat'] font-black text-2xl text-white mb-5 drop-shadow-[0_1px_3px_rgba(25,61,100,0.6)]">{t("auctions_platforms")}</h2>
                     <div className="flex flex-col gap-2">
                       {o.auctions.map((a) => (
                         <div key={a.ru} className="flex items-center gap-3 card-light rounded-sm px-4 py-3">
