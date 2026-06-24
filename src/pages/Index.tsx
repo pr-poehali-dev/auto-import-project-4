@@ -144,6 +144,36 @@ const ORIGINS = [
     ],
   },
   {
+    id: "japan-kits", flag: "🇯🇵", cc: "jp",
+    name: { ru: "Япония · Машинокомплекты", en: "Japan · Vehicle Kits" },
+    desc: { ru: "Поставка машинокомплектов под разборку — двигатели, кузова, агрегаты", en: "Supply of vehicle kits for dismantling — engines, bodies, components" },
+    volume: { ru: "от 40 комплектов/мес.", en: "from 40 kits/month" },
+    intro: { ru: "Япония — оптимальное направление для поставки машинокомплектов под разборку. Поставляем распилы, конструкторы и полные машинокомплекты: двигатели, АКПП, кузова и агрегаты в оригинальном состоянии с минимальным износом.", en: "Japan is the optimal destination for supplying vehicle kits for dismantling. We deliver cut bodies, constructors and full vehicle kits: engines, transmissions, bodies and components in original condition with minimal wear." },
+    brands: ["Toyota", "Lexus", "Honda", "Nissan", "Mazda", "Mitsubishi", "Subaru", "Suzuki"],
+    auctions: [
+      { ru: "USS Auction", en: "USS Auction" },
+      { ru: "JU Auction", en: "JU Auction" },
+      { ru: "Прямые контракты с разборками", en: "Direct contracts with dismantlers" },
+    ],
+    auctionLinks: [
+      { name: "USS Auction", url: "https://www.ussnet.co.jp", desc: { ru: "Крупнейший аукцион Японии · 20 000+ лотов в неделю", en: "Largest auction in Japan · 20,000+ lots per week" } },
+      { name: "JU Auction", url: "https://www.ju-group.co.jp", desc: { ru: "Сеть региональных аукционов по всей Японии", en: "Network of regional auctions across Japan" } },
+      { name: "TAA (Toyota)", url: "https://www.taa.gr.jp", desc: { ru: "Официальный аукцион Toyota и Lexus", en: "Official Toyota and Lexus auction" } },
+    ],
+    facts: [
+      { icon: "Clock", title: { ru: "Срок доставки", en: "Delivery time" }, val: { ru: "40–50 дней", en: "40–50 days" } },
+      { icon: "Anchor", title: { ru: "Порт прибытия", en: "Port of arrival" }, val: { ru: "Владивосток", en: "Vladivostok" } },
+      { icon: "Boxes", title: { ru: "Объём", en: "Volume" }, val: { ru: "от 40 компл./мес.", en: "from 40 kits/month" } },
+      { icon: "Wrench", title: { ru: "Формат", en: "Format" }, val: { ru: "Машинокомплекты", en: "Vehicle kits" } },
+    ],
+    advantages: [
+      { ru: "Полные машинокомплекты, распилы и конструкторы", en: "Full vehicle kits, cut bodies and constructors" },
+      { ru: "Оригинальные двигатели и АКПП с малым пробегом", en: "Original engines and transmissions with low mileage" },
+      { ru: "Выгодная таможенная схема для комплектующих", en: "Favorable customs scheme for components" },
+      { ru: "Полный комплект документов на каждый агрегат", en: "Complete documentation for each component" },
+    ],
+  },
+  {
     id: "korea", flag: "🇰🇷", cc: "kr",
     name: { ru: "Корея", en: "Korea" },
     desc: { ru: "Hyundai, Kia, Ssangyong — высокий спрос на запчасти", en: "Hyundai, Kia, Ssangyong — high demand for parts" },
