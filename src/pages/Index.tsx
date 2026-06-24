@@ -1054,7 +1054,7 @@ export default function Index() {
             </section>
 
             <section className="py-20 px-5 sm:px-8 max-w-7xl mx-auto">
-              <div className="mb-12"><div className="section-tag mb-3">{t("directions_tag")}</div><h2 className="font-['Montserrat'] font-black text-4xl sm:text-5xl navy">{t("from_where")}</h2><div className="divider-navy mt-4" /></div>
+              <div className="mb-12"><div className="section-tag mb-3 !text-white">{t("directions_tag")}</div><h2 className="font-['Montserrat'] font-black text-4xl sm:text-5xl navy">{t("from_where")}</h2><div className="divider-navy mt-4" /></div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                 {ORIGINS.map((o) => (
                   <button key={o.id} onClick={() => openOrigin(o.id)} className="text-left card-light rounded-sm p-7 group relative overflow-hidden hover:shadow-lg transition-all cursor-pointer">
