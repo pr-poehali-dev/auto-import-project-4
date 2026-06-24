@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import Icon from "@/components/ui/icon";
 
 const LOGO = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/bucket/0d9e1542-9580-4b01-a093-0b9580927df1.jpg";
-const HERO_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/69b82125-e3a5-4f1b-9b5d-3f6a6b2bd5c4.jpg";
-const DIRECTIONS_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/b696b668-4aa3-4ccc-a176-579a2d4c20d3.jpg";
-const SERVICES_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/ed33512a-90ea-4788-91d5-d6f6d85ab1a9.jpg";
-const HOW_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/067252f1-3722-40e7-a2f0-455cac91a6d1.jpg";
-const CONTACTS_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/255e2ab3-7629-4890-a262-8c85f859b0df.jpg";
+const HERO_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/da9d3125-256d-4d63-ad86-6fe07e916286.jpg";
+const DIRECTIONS_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/aedb59f4-ddb5-4001-b220-1edb774e89a4.jpg";
+const SERVICES_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/8b4c69b3-835f-482c-a4d0-7789392c02da.jpg";
+const HOW_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/860a7ef0-c02a-4734-806c-11360d2ed14d.jpg";
+const CONTACTS_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/ca83d876-8b7a-4801-86e6-c0bd70225c97.jpg";
 const PAGE_BG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/99f57650-e15d-441d-a58e-1ae5e323cbce.jpg";
 
 const AUTH_URL = "https://functions.poehali.dev/ddb4a7f6-82c2-4cca-8d4c-ed685f8a3c72";
