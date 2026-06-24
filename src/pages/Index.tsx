@@ -1225,8 +1225,10 @@ export default function Index() {
         {page === "origin" && (() => {
           const o = ORIGINS.find((x) => x.id === originId) || ORIGINS[0];
           return (
-            <section className="min-h-screen py-14 px-5 sm:px-8 max-w-7xl mx-auto">
-              <button onClick={() => nav("home")} className="flex items-center gap-2 text-white text-sm font-['Montserrat'] font-semibold mb-8 hover:text-white/80 transition-colors drop-shadow-[0_1px_3px_rgba(25,61,100,0.6)]">
+            <section className="min-h-screen bg-[hsl(var(--navy))] relative overflow-hidden">
+              <div className="absolute inset-0 light-grid opacity-10 pointer-events-none" />
+              <div className="relative py-14 px-5 sm:px-8 max-w-7xl mx-auto">
+              <button onClick={() => nav("home")} className="flex items-center gap-2 text-white text-sm font-['Montserrat'] font-semibold mb-8 hover:text-white/80 transition-colors">
                 <Icon name="ArrowLeft" size={15} />{t("all_directions")}
               </button>
 
@@ -1416,7 +1418,7 @@ export default function Index() {
                 </div>
               </div>
 
-              <div className="bg-[hsl(var(--navy))] rounded-sm p-8 sm:p-10 text-center relative overflow-hidden">
+              <div className="bg-white/5 border border-white/15 rounded-sm p-8 sm:p-10 text-center relative overflow-hidden backdrop-blur-sm">
                 <div className="absolute inset-0 light-grid opacity-10" />
                 <div className="relative">
                   <h3 className="font-['Montserrat'] font-black text-2xl sm:text-3xl text-white mb-3">{t("origin_cta_title_pre")}{o.name[lang]}{t("origin_cta_title_post")}</h3>
@@ -1426,6 +1428,7 @@ export default function Index() {
                     <button onClick={() => nav("how")} className="px-8 py-3.5 border border-white/30 text-white rounded-sm font-['Montserrat'] font-semibold hover:bg-white/10 transition-colors">{t("how_we_work")}</button>
                   </div>
                 </div>
+              </div>
               </div>
             </section>
           );
