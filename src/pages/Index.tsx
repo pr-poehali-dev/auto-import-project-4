@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Icon from "@/components/ui/icon";
 
-const LOGO = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/bucket/892f391f-a7d5-48a5-92ab-0fda67f800fc.jpg";
+const LOGO = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/bucket/0d9e1542-9580-4b01-a093-0b9580927df1.jpg";
 const HERO_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/69b82125-e3a5-4f1b-9b5d-3f6a6b2bd5c4.jpg";
 const DIRECTIONS_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/b696b668-4aa3-4ccc-a176-579a2d4c20d3.jpg";
 const SERVICES_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/ed33512a-90ea-4788-91d5-d6f6d85ab1a9.jpg";
@@ -923,7 +923,7 @@ export default function Index() {
       {/* ── ПЛАВАЮЩИЙ ЛОГОТИП С МЕНЮ (десктоп) ── */}
       <div className="hidden md:block fixed top-4 left-5 z-50 group/logo">
         <button onClick={() => nav("home")} className="block rounded-sm overflow-hidden bg-[hsl(220_52%_12%/0.45)] backdrop-blur-md border border-white/10 shadow-lg">
-          <img src={LOGO} alt="Partcore Logistics" className="h-14 w-44 object-cover object-left" style={{ objectPosition: "10% center", transform: "scale(1.15)", transformOrigin: "left center" }} />
+          <img src={LOGO} alt="Partcore Logistics" className="h-14 w-14 object-contain" />
         </button>
 
         {/* вертикальное меню-иконки при наведении на логотип */}
@@ -970,7 +970,7 @@ export default function Index() {
       {/* ── МОБИЛЬНАЯ КНОПКА-МЕНЮ ── */}
       <div className="md:hidden fixed top-4 left-4 right-4 z-50 flex items-center justify-between">
         <button onClick={() => nav("home")} className="rounded-sm overflow-hidden bg-[hsl(220_52%_12%/0.5)] backdrop-blur-md border border-white/10">
-          <img src={LOGO} alt="Partcore Logistics" className="h-11 w-32 object-cover object-left" style={{ objectPosition: "10% center", transform: "scale(1.15)", transformOrigin: "left center" }} />
+          <img src={LOGO} alt="Partcore Logistics" className="h-11 w-11 object-contain" />
         </button>
         <button className="w-11 h-11 flex items-center justify-center rounded-sm bg-[hsl(220_52%_12%/0.5)] backdrop-blur-md border border-white/10 text-white" onClick={() => setMenuOpen(!menuOpen)}>
           <Icon name={menuOpen ? "X" : "Menu"} size={22} />
@@ -2382,7 +2382,7 @@ export default function Index() {
         {/* FOOTER */}
         <footer className="border-t border-[hsl(220_15%_88%)] py-8 px-5 sm:px-8 mt-8 bg-white">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <button onClick={() => nav("home")}><img src={LOGO} alt="Partcore Logistics" className="h-10 w-36 object-cover object-left" style={{ objectPosition: "10% center", transform: "scale(1.15)", transformOrigin: "left center" }} /></button>
+            <button onClick={() => nav("home")}><img src={LOGO} alt="Partcore Logistics" className="h-12 w-12 object-contain" /></button>
             <div className="text-[hsl(var(--navy)/0.6)] text-xs text-center">{t("footer_copy")}</div>
             <div className="flex gap-5 flex-wrap justify-center">
               {navItems.map((item) => (
