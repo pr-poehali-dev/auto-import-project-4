@@ -1090,7 +1090,7 @@ export default function Index() {
             </section>
 
             <section className="py-20 px-5 sm:px-8 max-w-7xl mx-auto">
-              <div className="mb-12"><div className="section-tag mb-3 !text-white">{t("advantages_tag")}</div><h2 className="font-['Montserrat'] font-black text-4xl sm:text-5xl navy">{t("why_us")}</h2><div className="divider-navy mt-4" /></div>
+              <div className="mb-12"><div className="section-tag mb-3 !text-white">{t("advantages_tag")}</div><h2 className="font-['Montserrat'] font-black text-4xl sm:text-5xl text-white drop-shadow-[0_2px_4px_rgba(25,61,100,0.55)]">{t("why_us")}</h2><div className="divider-navy mt-4" /></div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {WHY.map((w, i) => (
                   <div key={i} className="card-light rounded-sm p-6 group flex gap-5">
