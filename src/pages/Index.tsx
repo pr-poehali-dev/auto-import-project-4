@@ -431,6 +431,8 @@ const I18N: Record<Lang, Record<string, string>> = {
     td_all_group: "Выбрать все",
     td_clear_group: "Снять все",
     td_selected: "Выбрано",
+    td_full: "Полная разборка",
+    td_clear_all: "Очистить всё",
     teardowns_empty: "Пока нет авто с разборными листами",
     teardowns_empty_sub: "Они появятся, когда вы добавите авто в заявки клиентов",
     teardowns_all_cars: "Все авто с разборными листами",
@@ -592,6 +594,8 @@ const I18N: Record<Lang, Record<string, string>> = {
     td_all_group: "Select all",
     td_clear_group: "Clear all",
     td_selected: "Selected",
+    td_full: "Full teardown",
+    td_clear_all: "Clear all",
     teardowns_empty: "No cars with teardown lists yet",
     teardowns_empty_sub: "They appear once you add cars to client requests",
     teardowns_all_cars: "All cars with teardown lists",
@@ -735,6 +739,13 @@ export default function Index() {
       return { ...f, teardown: f.teardown.filter((x) => !names.includes(x.name)) };
     });
   };
+  const selectFullTeardown = () => {
+    setCarForm((f) => {
+      const custom = f.teardown.filter((x) => !TEARDOWN_PRESET.includes(x.name));
+      return { ...f, teardown: [...TEARDOWN_PRESET.map((name) => ({ name, needed: false })), ...custom] };
+    });
+  };
+  const clearTeardown = () => setCarForm((f) => ({ ...f, teardown: [] }));
   const addCustomPart = () => {
     const raw = teardownInput.trim();
     if (!raw) { setTeardownInput(""); return; }
@@ -2281,6 +2292,16 @@ export default function Index() {
                         <div>
                           <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("teardown_title")}</label>
                           <p className="text-[hsl(var(--navy)/0.62)] text-xs mb-3">{t("teardown_staff_hint")}</p>
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            <button type="button" onClick={selectFullTeardown}
+                              className="flex items-center gap-1.5 text-xs font-['Montserrat'] font-semibold px-3 py-1.5 rounded-sm bg-[hsl(var(--gold))] text-white hover:opacity-90 transition-opacity">
+                              <Icon name="ListChecks" size={13} />{t("td_full")}
+                            </button>
+                            <button type="button" onClick={clearTeardown}
+                              className="flex items-center gap-1.5 text-xs font-['Montserrat'] font-semibold px-3 py-1.5 rounded-sm border border-[hsl(220_15%_85%)] text-[hsl(var(--navy)/0.65)] hover:border-red-300 hover:text-red-600 transition-colors">
+                              <Icon name="Eraser" size={13} />{t("td_clear_all")}
+                            </button>
+                          </div>
                           <div className="flex flex-col gap-4 mb-3">
                             {TEARDOWN_GROUPS.map((grp) => {
                               const groupNames = grp.parts.map((p) => joinTd(grp.group, p));
