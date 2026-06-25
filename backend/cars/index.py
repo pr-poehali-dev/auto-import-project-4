@@ -97,7 +97,7 @@ def handler(event: dict, context) -> dict:
             if all_flag and is_staff:
                 cur.execute(
                     f"SELECT c.id, c.car_brand, c.car_model, c.car_year, c.price, c.mileage, "
-                    f"c.description, c.photos, c.teardown, c.created_at, "
+                    f"c.description, c.photos, c.teardown, c.created_at, c.vin, "
                     f"o.id, o.order_number, o.user_id, "
                     f"u.full_name, u.email, u.company "
                     f"FROM {SCHEMA}.cars c "
@@ -110,9 +110,9 @@ def handler(event: dict, context) -> dict:
                      "price": r[4], "mileage": r[5], "description": r[6] or "",
                      "photos": json.loads(r[7]) if r[7] else [],
                      "teardown": r[8] if isinstance(r[8], list) else (json.loads(r[8]) if r[8] else []),
-                     "created_at": str(r[9]),
-                     "order_id": r[10], "order_number": r[11],
-                     "client_name": r[13] or "", "client_email": r[14] or "", "client_company": r[15] or ""}
+                     "created_at": str(r[9]), "vin": r[10] or "",
+                     "order_id": r[11], "order_number": r[12],
+                     "client_name": r[14] or "", "client_email": r[15] or "", "client_company": r[16] or ""}
                     for r in cur.fetchall()
                 ]
                 return ok({"cars": cars})
@@ -125,7 +125,7 @@ def handler(event: dict, context) -> dict:
             if not is_staff and row[0] != user_id:
                 return err("Нет доступа", 403)
             cur.execute(
-                f"SELECT id, car_brand, car_model, car_year, price, mileage, description, photos, teardown, created_at "
+                f"SELECT id, car_brand, car_model, car_year, price, mileage, description, photos, teardown, created_at, vin "
                 f"FROM {SCHEMA}.cars WHERE order_id = %s ORDER BY created_at DESC",
                 (order_id,)
             )
@@ -134,7 +134,7 @@ def handler(event: dict, context) -> dict:
                  "price": r[4], "mileage": r[5], "description": r[6] or "",
                  "photos": json.loads(r[7]) if r[7] else [],
                  "teardown": r[8] if isinstance(r[8], list) else (json.loads(r[8]) if r[8] else []),
-                 "created_at": str(r[9])}
+                 "created_at": str(r[9]), "vin": r[10] or ""}
                 for r in cur.fetchall()
             ]
             return ok({"cars": cars})
@@ -160,18 +160,28 @@ def handler(event: dict, context) -> dict:
 
             teardown = []
             for item in (body.get("teardown") or []):
-                name = (item.get("name") or "").strip() if isinstance(item, dict) else str(item).strip()
-                if name:
-                    teardown.append({"name": name, "needed": bool(item.get("needed")) if isinstance(item, dict) else False})
+                if isinstance(item, dict):
+                    name = (item.get("name") or "").strip()
+                    if name:
+                        try:
+                            qty = int(item.get("qty") or 1)
+                        except (ValueError, TypeError):
+                            qty = 1
+                        teardown.append({"name": name, "needed": bool(item.get("needed")), "qty": max(1, qty)})
+                else:
+                    name = str(item).strip()
+                    if name:
+                        teardown.append({"name": name, "needed": False, "qty": 1})
 
+            vin = (body.get("vin") or "").strip().upper()[:32]
             cur.execute(
                 f"INSERT INTO {SCHEMA}.cars "
-                f"(order_id, car_brand, car_model, car_year, price, mileage, description, photos, teardown, created_by) "
-                f"VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+                f"(order_id, car_brand, car_model, car_year, price, mileage, description, photos, teardown, vin, created_by) "
+                f"VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
                 (order_id, body.get("car_brand", "").strip(), body.get("car_model", "").strip(),
                  body.get("car_year") or None, body.get("price") or None, body.get("mileage") or None,
                  body.get("description", "").strip(), json.dumps(photo_urls),
-                 json.dumps(teardown, ensure_ascii=False), user_id)
+                 json.dumps(teardown, ensure_ascii=False), vin or None, user_id)
             )
             car_id = cur.fetchone()[0]
             conn.commit()

@@ -70,8 +70,8 @@ async function apiHotDeals(method: "GET" | "POST" | "DELETE", opts: { token?: st
 // ── Types ────────────────────────────────────────────────────
 interface User { id: number; email: string; phone: string; full_name: string; company: string; inn: string; created_at: string; role?: string; }
 interface Order { id: number; order_number: string; car_brand: string; car_model: string; car_year: number; quantity: number; budget: number; status: string; status_label: string; origin: string; created_at: string; comment?: string; client_name?: string; client_email?: string; client_phone?: string; client_company?: string; cars_count?: number; }
-interface TeardownItem { name: string; needed: boolean; }
-interface Car { id: number; car_brand: string; car_model: string; car_year: number; price: number; mileage: number; description: string; photos: string[]; teardown: TeardownItem[]; created_at: string; }
+interface TeardownItem { name: string; needed: boolean; qty?: number; }
+interface Car { id: number; car_brand: string; car_model: string; car_year: number; price: number; mileage: number; description: string; photos: string[]; teardown: TeardownItem[]; created_at: string; vin?: string; }
 
 // Разделитель «Группа » Узел» внутри name (для совместимости с бэкендом, который хранит только name)
 const TD_SEP = " » ";
@@ -125,13 +125,13 @@ const TEARDOWN_GROUPS: { group: string; parts: string[] }[] = [
 const TEARDOWN_PRESET = TEARDOWN_GROUPS.flatMap((g) => g.parts.map((p) => joinTd(g.group, p)));
 
 // Группировка списка узлов для отображения
-const groupTeardown = (items: TeardownItem[]): { group: string; items: { name: string; part: string; needed: boolean }[] }[] => {
-  const map: Record<string, { name: string; part: string; needed: boolean }[]> = {};
+const groupTeardown = (items: TeardownItem[]): { group: string; items: { name: string; part: string; needed: boolean; qty: number }[] }[] => {
+  const map: Record<string, { name: string; part: string; needed: boolean; qty: number }[]> = {};
   const order: string[] = [];
   for (const it of items) {
     const { group, part } = splitTd(it.name);
     if (!map[group]) { map[group] = []; order.push(group); }
-    map[group].push({ name: it.name, part, needed: it.needed });
+    map[group].push({ name: it.name, part, needed: it.needed, qty: it.qty || 1 });
   }
   return order.map((g) => ({ group: g, items: map[g] }));
 };
@@ -433,6 +433,8 @@ const I18N: Record<Lang, Record<string, string>> = {
     td_selected: "Выбрано",
     td_full: "Полная разборка",
     td_clear_all: "Очистить всё",
+    vin: "VIN автомобиля",
+    pdf_popup_blocked: "Разрешите всплывающие окна, чтобы скачать PDF",
     teardowns_empty: "Пока нет авто с разборными листами",
     teardowns_empty_sub: "Они появятся, когда вы добавите авто в заявки клиентов",
     teardowns_all_cars: "Все авто с разборными листами",
@@ -596,6 +598,8 @@ const I18N: Record<Lang, Record<string, string>> = {
     td_selected: "Selected",
     td_full: "Full teardown",
     td_clear_all: "Clear all",
+    vin: "Vehicle VIN",
+    pdf_popup_blocked: "Allow pop-ups to download the PDF",
     teardowns_empty: "No cars with teardown lists yet",
     teardowns_empty_sub: "They appear once you add cars to client requests",
     teardowns_all_cars: "All cars with teardown lists",
@@ -707,7 +711,7 @@ export default function Index() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [cars, setCars] = useState<Car[]>([]);
   const [carsLoading, setCarsLoading] = useState(false);
-  const [carForm, setCarForm] = useState({ car_brand: "", car_model: "", car_year: "", price: "", mileage: "", description: "", photos: [] as string[], teardown: [] as TeardownItem[] });
+  const [carForm, setCarForm] = useState({ car_brand: "", car_model: "", car_year: "", vin: "", price: "", mileage: "", description: "", photos: [] as string[], teardown: [] as TeardownItem[] });
   const [carSaving, setCarSaving] = useState(false);
   const [teardownInput, setTeardownInput] = useState("");
   // клиент: сохранение отметок разборного листа
@@ -727,14 +731,17 @@ export default function Index() {
       const exists = f.teardown.find((x) => x.name === name);
       return exists
         ? { ...f, teardown: f.teardown.filter((x) => x.name !== name) }
-        : { ...f, teardown: [...f.teardown, { name, needed: false }] };
+        : { ...f, teardown: [...f.teardown, { name, needed: false, qty: 1 }] };
     });
+  };
+  const setPartQty = (name: string, qty: number) => {
+    setCarForm((f) => ({ ...f, teardown: f.teardown.map((x) => x.name === name ? { ...x, qty: Math.max(1, qty) } : x) }));
   };
   const toggleCarFormGroup = (names: string[], select: boolean) => {
     setCarForm((f) => {
       if (select) {
         const missing = names.filter((n) => !f.teardown.some((x) => x.name === n));
-        return { ...f, teardown: [...f.teardown, ...missing.map((n) => ({ name: n, needed: false }))] };
+        return { ...f, teardown: [...f.teardown, ...missing.map((n) => ({ name: n, needed: false, qty: 1 }))] };
       }
       return { ...f, teardown: f.teardown.filter((x) => !names.includes(x.name)) };
     });
@@ -742,7 +749,7 @@ export default function Index() {
   const selectFullTeardown = () => {
     setCarForm((f) => {
       const custom = f.teardown.filter((x) => !TEARDOWN_PRESET.includes(x.name));
-      return { ...f, teardown: [...TEARDOWN_PRESET.map((name) => ({ name, needed: false })), ...custom] };
+      return { ...f, teardown: [...TEARDOWN_PRESET.map((name) => ({ name, needed: false, qty: 1 })), ...custom] };
     });
   };
   const clearTeardown = () => setCarForm((f) => ({ ...f, teardown: [] }));
@@ -751,7 +758,7 @@ export default function Index() {
     if (!raw) { setTeardownInput(""); return; }
     const name = raw.includes(TD_SEP) ? raw : joinTd("Другое", raw);
     if (carForm.teardown.some((x) => x.name === name)) { setTeardownInput(""); return; }
-    setCarForm((f) => ({ ...f, teardown: [...f.teardown, { name, needed: false }] }));
+    setCarForm((f) => ({ ...f, teardown: [...f.teardown, { name, needed: false, qty: 1 }] }));
     setTeardownInput("");
   };
 
@@ -894,7 +901,7 @@ export default function Index() {
 
   const openOrderCars = (o: Order) => {
     setSelectedOrder(o);
-    setCarForm({ car_brand: "", car_model: "", car_year: "", price: "", mileage: "", description: "", photos: [], teardown: [] });
+    setCarForm({ car_brand: "", car_model: "", car_year: "", vin: "", price: "", mileage: "", description: "", photos: [], teardown: [] });
     loadCars(o.id);
   };
 
@@ -925,12 +932,13 @@ export default function Index() {
       order_id: selectedOrder.id,
       car_brand: carForm.car_brand, car_model: carForm.car_model,
       car_year: carForm.car_year ? parseInt(carForm.car_year) : null,
+      vin: carForm.vin,
       price: carForm.price ? parseInt(carForm.price) : null,
       mileage: carForm.mileage ? parseInt(carForm.mileage) : null,
       description: carForm.description, photos: carForm.photos, teardown: carForm.teardown,
     } });
     setCarSaving(false);
-    setCarForm({ car_brand: "", car_model: "", car_year: "", price: "", mileage: "", description: "", photos: [], teardown: [] });
+    setCarForm({ car_brand: "", car_model: "", car_year: "", vin: "", price: "", mileage: "", description: "", photos: [], teardown: [] });
     loadCars(selectedOrder.id);
     const d = await apiOrders("GET", token);
     setOrders(d.orders || []);
@@ -939,6 +947,73 @@ export default function Index() {
   const doDeleteCar = async (carId: number) => {
     await apiCars("DELETE", token, { query: `car_id=${carId}` });
     if (selectedOrder) loadCars(selectedOrder.id);
+  };
+
+  // Экспорт разборного листа в PDF (бланк packing list) через печать браузера
+  const exportPackingList = (car: Car) => {
+    const esc = (s: string) => (s || "").replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" } as Record<string, string>)[ch]);
+    const carTitle = [car.car_brand, car.car_model, car.car_year].filter(Boolean).join(" ");
+    const dateStr = new Date().toLocaleDateString("ru-RU");
+    const items = (car.teardown || []);
+    let totalQty = 0;
+    let idx = 0;
+    const rows = items.map((it) => {
+      const sp = splitTd(it.name);
+      const q = it.qty || 1;
+      totalQty += q;
+      idx += 1;
+      return `<tr>
+        <td class="c">${idx}</td>
+        <td>${esc(sp.group)}</td>
+        <td>${esc(sp.part)}</td>
+        <td class="c">${q}</td>
+        <td class="c">${it.needed ? "✓" : ""}</td>
+      </tr>`;
+    }).join("");
+
+    const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8">
+      <title>Packing List ${esc(carTitle)}</title>
+      <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; color: #1a2238; margin: 32px; font-size: 13px; }
+        .head { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #1a2238; padding-bottom: 14px; margin-bottom: 18px; }
+        .title { font-size: 24px; font-weight: 800; letter-spacing: 1px; }
+        .sub { color: #6b7280; font-size: 12px; margin-top: 4px; }
+        .meta { margin: 16px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; }
+        .meta div { font-size: 13px; }
+        .meta b { color: #6b7280; font-weight: 600; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #c9ced8; padding: 7px 9px; text-align: left; }
+        th { background: #1a2238; color: #fff; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+        td.c, th.c { text-align: center; }
+        tfoot td { font-weight: 800; background: #f1f3f7; }
+        .foot { margin-top: 28px; display: flex; justify-content: space-between; color: #6b7280; font-size: 12px; }
+        @media print { body { margin: 12mm; } }
+      </style></head><body>
+      <div class="head">
+        <div><div class="title">PACKING LIST</div><div class="sub">Упаковочный / разборный лист</div></div>
+        <div style="text-align:right"><div class="sub">Дата: ${dateStr}</div><div class="sub">№ ${esc(car.order_number ? String(car.order_number) : String(car.id))}</div></div>
+      </div>
+      <div class="meta">
+        <div><b>Автомобиль:</b> ${esc(carTitle) || "—"}</div>
+        <div><b>VIN:</b> ${esc(car.vin || "—")}</div>
+        <div><b>Год:</b> ${car.car_year || "—"}</div>
+        <div><b>Пробег:</b> ${car.mileage ? car.mileage.toLocaleString("ru-RU") + " км" : "—"}</div>
+      </div>
+      <table>
+        <thead><tr><th class="c">№</th><th>Группа</th><th>Наименование детали</th><th class="c">Кол-во</th><th class="c">Нужно клиенту</th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="5" class="c">Список пуст</td></tr>`}</tbody>
+        <tfoot><tr><td colspan="3" style="text-align:right">ИТОГО позиций / штук:</td><td class="c">${items.length} / ${totalQty}</td><td></td></tr></tfoot>
+      </table>
+      <div class="foot"><div>Подпись отправителя: __________________</div><div>Подпись получателя: __________________</div></div>
+      <script>window.onload = function(){ setTimeout(function(){ window.print(); }, 300); };</script>
+      </body></html>`;
+
+    const w = window.open("", "_blank");
+    if (!w) { alert(t("pdf_popup_blocked")); return; }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
   };
 
   // клиент: раскрытие авто по заявке
@@ -2269,6 +2344,12 @@ export default function Index() {
                           </div>
                         </div>
                         <div>
+                          <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("vin")}</label>
+                          <input placeholder="JTDBR32E720012345" value={carForm.vin} maxLength={32}
+                            onChange={(e) => setCarForm({ ...carForm, vin: e.target.value.toUpperCase() })}
+                            className={inputCls + " font-mono tracking-wider"} />
+                        </div>
+                        <div>
                           <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("description_trim")}</label>
                           <textarea rows={3} placeholder={t("description_ph")} value={carForm.description} onChange={(e) => setCarForm({ ...carForm, description: e.target.value })} className={inputCls} />
                         </div>
@@ -2343,10 +2424,18 @@ export default function Index() {
                               <div className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{t("td_selected")}: {carForm.teardown.length}</div>
                               {carForm.teardown.map((it) => {
                                 const sp = splitTd(it.name);
+                                const q = it.qty || 1;
                                 return (
-                                  <div key={it.name} className="flex items-center justify-between bg-[hsl(220_25%_97%)] rounded-sm px-3 py-2">
-                                    <span className="text-sm navy"><span className="text-[hsl(var(--navy)/0.5)]">{sp.group} · </span>{sp.part}</span>
-                                    <button type="button" onClick={() => toggleCarFormPart(it.name)} className="text-[hsl(var(--navy)/0.6)] hover:text-red-600"><Icon name="X" size={14} /></button>
+                                  <div key={it.name} className="flex items-center justify-between gap-2 bg-[hsl(220_25%_97%)] rounded-sm px-3 py-2">
+                                    <span className="text-sm navy min-w-0 truncate"><span className="text-[hsl(var(--navy)/0.5)]">{sp.group} · </span>{sp.part}</span>
+                                    <div className="flex items-center gap-2 flex-shrink-0">
+                                      <div className="flex items-center border border-[hsl(220_15%_85%)] rounded-sm bg-white">
+                                        <button type="button" onClick={() => setPartQty(it.name, q - 1)} className="w-7 h-7 flex items-center justify-center text-[hsl(var(--navy)/0.6)] hover:text-[hsl(var(--navy))]"><Icon name="Minus" size={13} /></button>
+                                        <span className="w-7 text-center text-sm font-semibold navy">{q}</span>
+                                        <button type="button" onClick={() => setPartQty(it.name, q + 1)} className="w-7 h-7 flex items-center justify-center text-[hsl(var(--navy)/0.6)] hover:text-[hsl(var(--navy))]"><Icon name="Plus" size={13} /></button>
+                                      </div>
+                                      <button type="button" onClick={() => toggleCarFormPart(it.name)} className="text-[hsl(var(--navy)/0.6)] hover:text-red-600"><Icon name="X" size={14} /></button>
+                                    </div>
                                   </div>
                                 );
                               })}
@@ -2382,10 +2471,16 @@ export default function Index() {
                                   {!!c.price && <span className="font-semibold text-[hsl(var(--gold))]">{c.price.toLocaleString()} ₽</span>}
                                   {!!c.mileage && <span>{c.mileage.toLocaleString()} {t("km")}</span>}
                                 </div>
+                                {c.vin && <div className="text-xs mt-1 text-[hsl(var(--navy)/0.62)]">VIN: <span className="font-mono font-semibold navy tracking-wider">{c.vin}</span></div>}
                                 {c.description && <p className="text-[hsl(var(--navy)/0.55)] text-sm mt-2 leading-relaxed">{c.description}</p>}
                                 {c.teardown && c.teardown.length > 0 && (
                                   <div className="mt-3 pt-3 border-t border-[hsl(220_15%_90%)]">
-                                    <div className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide mb-2">{t("teardown_title")} · {t("teardown_client_picked")}: {c.teardown.filter((x) => x.needed).length}/{c.teardown.length}</div>
+                                    <div className="flex items-center justify-between gap-2 mb-2">
+                                      <div className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{t("teardown_title")} · {t("teardown_client_picked")}: {c.teardown.filter((x) => x.needed).length}/{c.teardown.length}</div>
+                                      <button type="button" onClick={() => exportPackingList(c)} className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors flex-shrink-0">
+                                        <Icon name="FileDown" size={13} />PDF
+                                      </button>
+                                    </div>
                                     <div className="flex flex-col gap-2">
                                       {groupTeardown(c.teardown).map((grp) => (
                                         <div key={grp.group}>
@@ -2393,7 +2488,7 @@ export default function Index() {
                                           <div className="flex flex-col gap-1">
                                             {grp.items.map((it) => (
                                               <div key={it.name} className={`flex items-center gap-2 text-sm ${it.needed ? "navy font-semibold" : "text-[hsl(var(--navy)/0.62)]"}`}>
-                                                <Icon name={it.needed ? "CheckCircle2" : "Circle"} size={15} className={it.needed ? "text-[hsl(var(--gold))]" : "text-[hsl(var(--navy)/0.25)]"} />{it.part}
+                                                <Icon name={it.needed ? "CheckCircle2" : "Circle"} size={15} className={it.needed ? "text-[hsl(var(--gold))]" : "text-[hsl(var(--navy)/0.25)]"} />{it.part}{it.qty > 1 && <span className="text-[hsl(var(--gold))] font-semibold">× {it.qty}</span>}
                                               </div>
                                             ))}
                                           </div>
@@ -2449,8 +2544,14 @@ export default function Index() {
                                 {!!c.price && <span className="font-semibold text-[hsl(var(--gold))]">{c.price.toLocaleString()} ₽</span>}
                                 {!!c.mileage && <span>{c.mileage.toLocaleString()} {t("km")}</span>}
                               </div>
+                              {c.vin && <div className="text-xs mt-1 text-[hsl(var(--navy)/0.62)]">VIN: <span className="font-mono font-semibold navy tracking-wider">{c.vin}</span></div>}
                               <div className="mt-3 pt-3 border-t border-[hsl(220_15%_90%)]">
-                                <div className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide mb-2">{t("teardown_title")} · {t("teardown_client_picked")}: {c.teardown.filter((x) => x.needed).length}/{c.teardown.length}</div>
+                                <div className="flex items-center justify-between gap-2 mb-2">
+                                  <div className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{t("teardown_title")} · {t("teardown_client_picked")}: {c.teardown.filter((x) => x.needed).length}/{c.teardown.length}</div>
+                                  <button type="button" onClick={() => exportPackingList(c)} className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors flex-shrink-0">
+                                    <Icon name="FileDown" size={13} />PDF
+                                  </button>
+                                </div>
                                 <div className="flex flex-col gap-2">
                                   {groupTeardown(c.teardown).map((grp) => (
                                     <div key={grp.group}>
@@ -2458,7 +2559,7 @@ export default function Index() {
                                       <div className="flex flex-col gap-1">
                                         {grp.items.map((it) => (
                                           <div key={it.name} className={`flex items-center gap-2 text-sm ${it.needed ? "navy font-semibold" : "text-[hsl(var(--navy)/0.62)]"}`}>
-                                            <Icon name={it.needed ? "CheckCircle2" : "Circle"} size={15} className={it.needed ? "text-[hsl(var(--gold))]" : "text-[hsl(var(--navy)/0.25)]"} />{it.part}
+                                            <Icon name={it.needed ? "CheckCircle2" : "Circle"} size={15} className={it.needed ? "text-[hsl(var(--gold))]" : "text-[hsl(var(--navy)/0.25)]"} />{it.part}{it.qty > 1 && <span className="text-[hsl(var(--gold))] font-semibold">× {it.qty}</span>}
                                           </div>
                                         ))}
                                       </div>
