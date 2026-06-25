@@ -1735,7 +1735,10 @@ export default function Index() {
               </div>
             </div>
           ) : (
-            <div className="min-h-screen max-w-7xl mx-auto px-5 sm:px-8 py-8">
+            <div className="min-h-screen relative">
+              <div className="fixed inset-0 -z-10 bg-cover bg-center" style={{ backgroundImage: `url(${HERO_IMG})` }} />
+              <div className="fixed inset-0 -z-10 bg-white/85" />
+              <div className="max-w-7xl mx-auto px-5 sm:px-8 py-8">
               {/* Cabinet header */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
                 <div>
@@ -2440,6 +2443,7 @@ export default function Index() {
                   </form>
                 </div>
               )}
+              </div>
             </div>
           )
         )}
