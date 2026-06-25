@@ -15,6 +15,11 @@ const CARS_URL = "https://functions.poehali.dev/8f3531c8-943d-46dc-acd0-b9a66180
 const HOT_DEALS_URL = "https://functions.poehali.dev/cc988794-2c9d-4cf0-935d-51df0229a699";
 
 // ── API helpers ──────────────────────────────────────────────
+async function safeJson(res: Response) {
+  try { return await res.json(); }
+  catch { return { error: "Сервис временно недоступен" }; }
+}
+
 async function apiAuth(action: string, payload: object = {}, token?: string) {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
   if (token) headers["X-Session-Token"] = token;
@@ -23,7 +28,7 @@ async function apiAuth(action: string, payload: object = {}, token?: string) {
     headers,
     body: JSON.stringify({ action, ...payload }),
   });
-  return res.json();
+  return safeJson(res);
 }
 
 async function apiOrders(method: "GET" | "POST" | "PUT", token: string, body?: object) {
@@ -34,7 +39,7 @@ async function apiOrders(method: "GET" | "POST" | "PUT", token: string, body?: o
     headers,
     body: body ? JSON.stringify(body) : undefined,
   });
-  return res.json();
+  return safeJson(res);
 }
 
 async function apiCars(method: "GET" | "POST" | "PATCH" | "DELETE", token: string, opts: { body?: object; query?: string } = {}) {
@@ -742,10 +747,10 @@ export default function Index() {
     const needOrders = page === "cabinet" && token && ["orders", "active_orders", "clients"].includes(cabinetTab);
     if (needOrders) {
       setOrdersLoading(true);
-      apiOrders("GET", token).then((d) => {
-        setOrders(d.orders || []);
-        setOrdersLoading(false);
-      });
+      apiOrders("GET", token)
+        .then((d) => { setOrders(d.orders || []); })
+        .catch(() => { setOrders([]); })
+        .finally(() => { setOrdersLoading(false); });
     }
   }, [page, cabinetTab, token]);
 
