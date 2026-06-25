@@ -1,0 +1,2 @@
+INSERT INTO t_p64303579_auto_import_project_.users (email, password_hash, full_name, role, phone_verified)
+VALUES ('test', '0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c', 'Тест', 'client', true);
