@@ -92,6 +92,30 @@ def handler(event: dict, context) -> dict:
         if method == "GET":
             params = event.get("queryStringParameters") or {}
             order_id = params.get("order_id")
+            all_flag = params.get("all")
+            # Сотрудник: все авто со всех заявок (для вкладки «Разборные листы»)
+            if all_flag and is_staff:
+                cur.execute(
+                    f"SELECT c.id, c.car_brand, c.car_model, c.car_year, c.price, c.mileage, "
+                    f"c.description, c.photos, c.teardown, c.created_at, "
+                    f"o.id, o.order_number, o.user_id, "
+                    f"u.full_name, u.email, u.company "
+                    f"FROM {SCHEMA}.cars c "
+                    f"JOIN {SCHEMA}.orders o ON o.id = c.order_id "
+                    f"JOIN {SCHEMA}.users u ON u.id = o.user_id "
+                    f"ORDER BY c.created_at DESC"
+                )
+                cars = [
+                    {"id": r[0], "car_brand": r[1], "car_model": r[2], "car_year": r[3],
+                     "price": r[4], "mileage": r[5], "description": r[6] or "",
+                     "photos": json.loads(r[7]) if r[7] else [],
+                     "teardown": r[8] if isinstance(r[8], list) else (json.loads(r[8]) if r[8] else []),
+                     "created_at": str(r[9]),
+                     "order_id": r[10], "order_number": r[11],
+                     "client_name": r[13] or "", "client_email": r[14] or "", "client_company": r[15] or ""}
+                    for r in cur.fetchall()
+                ]
+                return ok({"cars": cars})
             if not order_id:
                 return err("Не указана заявка")
             cur.execute(f"SELECT user_id FROM {SCHEMA}.orders WHERE id = %s", (order_id,))

@@ -370,6 +370,12 @@ const I18N: Record<Lang, Record<string, string>> = {
     auth_required: "Для доступа необходимо войти",
     staff_cabinet: "Кабинет сотрудника", personal_cabinet: "Личный кабинет", staff_badge: "Сотрудник",
     tab_clients: "Заявки клиентов", tab_profile: "Профиль", tab_orders: "Мои заявки",
+    tab_teardowns: "Разборные листы",
+    teardowns_empty: "Пока нет авто с разборными листами",
+    teardowns_empty_sub: "Они появятся, когда вы добавите авто в заявки клиентов",
+    teardowns_all_cars: "Все авто с разборными листами",
+    teardowns_open_order: "Открыть заявку",
+    teardowns_no_list: "Разборный лист пуст",
     tab_active_orders: "Заказы", tab_new_order: "Новая заявка", tab_auctions: "Аукционы", tab_documents: "Документы",
     tab_staff_users: "Сотрудники",
     su_title: "Управление сотрудниками",
@@ -519,6 +525,12 @@ const I18N: Record<Lang, Record<string, string>> = {
     auth_required: "You need to log in to access this",
     staff_cabinet: "Staff dashboard", personal_cabinet: "Dashboard", staff_badge: "Staff",
     tab_clients: "Client requests", tab_profile: "Profile", tab_orders: "My requests",
+    tab_teardowns: "Teardown lists",
+    teardowns_empty: "No cars with teardown lists yet",
+    teardowns_empty_sub: "They appear once you add cars to client requests",
+    teardowns_all_cars: "All cars with teardown lists",
+    teardowns_open_order: "Open request",
+    teardowns_no_list: "Teardown list is empty",
     tab_active_orders: "Orders", tab_new_order: "New request", tab_auctions: "Auctions", tab_documents: "Documents",
     tab_staff_users: "Staff",
     su_title: "Staff management",
@@ -587,7 +599,7 @@ const I18N: Record<Lang, Record<string, string>> = {
 };
 
 type Page = "home" | "directions" | "services" | "how" | "contacts" | "login" | "register" | "cabinet" | "origin" | "staff_login" | "forgot";
-type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile" | "clients" | "staff_users" | "hot_deals";
+type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile" | "clients" | "staff_users" | "hot_deals" | "teardowns";
 
 // ════════════════════════════════════════════════════════════
 export default function Index() {
@@ -630,6 +642,10 @@ export default function Index() {
   const [teardownInput, setTeardownInput] = useState("");
   // клиент: сохранение отметок разборного листа
   const [savingTeardown, setSavingTeardown] = useState<number | null>(null);
+  // сотрудник: все авто с разборными листами
+  interface TeardownCar extends Car { order_id: number; order_number: string; client_name: string; client_email: string; client_company: string; }
+  const [teardownCars, setTeardownCars] = useState<TeardownCar[]>([]);
+  const [teardownCarsLoading, setTeardownCarsLoading] = useState(false);
 
   const toggleCarFormPart = (name: string) => {
     setCarForm((f) => {
@@ -762,11 +778,25 @@ export default function Index() {
     }
   }, [page, cabinetTab, token, isStaff]);
 
+  useEffect(() => {
+    if (page === "cabinet" && token && isStaff && cabinetTab === "teardowns") {
+      loadTeardownCars();
+    }
+  }, [page, cabinetTab, token, isStaff]);
+
   const loadCars = async (orderId: number) => {
     setCarsLoading(true);
     const d = await apiCars("GET", token, { query: `order_id=${orderId}` });
     setCars(d.cars || []);
     setCarsLoading(false);
+  };
+
+  const loadTeardownCars = async () => {
+    setTeardownCarsLoading(true);
+    const d = await apiCars("GET", token, { query: "all=1" });
+    const all: TeardownCar[] = d.cars || [];
+    setTeardownCars(all.filter((c) => c.teardown && c.teardown.length > 0));
+    setTeardownCarsLoading(false);
   };
 
   const openOrderCars = (o: Order) => {
@@ -1758,6 +1788,7 @@ export default function Index() {
               <div className="flex gap-1 flex-wrap mb-8 border-b border-[hsl(220_15%_88%)]">
                 {((isStaff ? [
                   { id: "clients", label: t("tab_clients"), icon: "Users" },
+                  { id: "teardowns", label: t("tab_teardowns"), icon: "Wrench" },
                   { id: "hot_deals", label: t("tab_hot_deals"), icon: "Flame" },
                   { id: "staff_users", label: t("tab_staff_users"), icon: "ShieldCheck" },
                   { id: "profile", label: t("tab_profile"), icon: "User" },
@@ -2146,6 +2177,62 @@ export default function Index() {
                           ))}
                         </div>
                       )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── Разборные листы (сотрудник) ── */}
+              {cabinetTab === "teardowns" && (
+                <div>
+                  {teardownCarsLoading ? (
+                    <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.62)]">
+                      <Icon name="Loader" size={20} className="animate-spin" />{t("loading")}
+                    </div>
+                  ) : teardownCars.length === 0 ? (
+                    <div className="text-center py-16">
+                      <Icon name="Wrench" size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.4)]" />
+                      <p className="font-['Montserrat'] font-bold navy mb-2">{t("teardowns_empty")}</p>
+                      <p className="text-[hsl(var(--navy)/0.65)] text-sm">{t("teardowns_empty_sub")}</p>
+                    </div>
+                  ) : (
+                    <div>
+                      <div className="flex items-center gap-2 mb-5">
+                        <h2 className="font-['Montserrat'] font-bold text-xl navy">{t("teardowns_all_cars")}</h2>
+                        <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))]">{teardownCars.length}</span>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {teardownCars.map((c) => (
+                          <div key={c.id} className="card-light rounded-sm overflow-hidden">
+                            {c.photos && c.photos.length > 0 && (
+                              <img src={c.photos[0]} alt="" className="w-full h-40 object-cover" />
+                            )}
+                            <div className="p-5">
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="font-['Montserrat'] font-bold navy">{[c.car_brand, c.car_model, c.car_year].filter(Boolean).join(" ")}</div>
+                                <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[hsl(var(--navy)/0.06)] text-[hsl(var(--navy))] flex-shrink-0">{c.order_number}</span>
+                              </div>
+                              <div className="text-[hsl(var(--navy)/0.6)] text-sm mt-1">
+                                {c.client_name || c.client_email}{c.client_company ? ` · ${c.client_company}` : ""}
+                              </div>
+                              <div className="flex gap-4 text-sm mt-1 text-[hsl(var(--navy)/0.6)]">
+                                {!!c.price && <span className="font-semibold text-[hsl(var(--gold))]">{c.price.toLocaleString()} ₽</span>}
+                                {!!c.mileage && <span>{c.mileage.toLocaleString()} {t("km")}</span>}
+                              </div>
+                              <div className="mt-3 pt-3 border-t border-[hsl(220_15%_90%)]">
+                                <div className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide mb-2">{t("teardown_title")} · {t("teardown_client_picked")}: {c.teardown.filter((x) => x.needed).length}/{c.teardown.length}</div>
+                                <div className="flex flex-col gap-1">
+                                  {c.teardown.map((it) => (
+                                    <div key={it.name} className={`flex items-center gap-2 text-sm ${it.needed ? "navy font-semibold" : "text-[hsl(var(--navy)/0.62)]"}`}>
+                                      <Icon name={it.needed ? "CheckCircle2" : "Circle"} size={15} className={it.needed ? "text-[hsl(var(--gold))]" : "text-[hsl(var(--navy)/0.25)]"} />{it.name}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
