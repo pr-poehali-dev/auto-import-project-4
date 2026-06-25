@@ -73,14 +73,68 @@ interface Order { id: number; order_number: string; car_brand: string; car_model
 interface TeardownItem { name: string; needed: boolean; }
 interface Car { id: number; car_brand: string; car_model: string; car_year: number; price: number; mileage: number; description: string; photos: string[]; teardown: TeardownItem[]; created_at: string; }
 
-const TEARDOWN_PRESET = [
-  "Двигатель", "АКПП / МКПП", "Раздаточная коробка", "Редуктор",
-  "Передняя подвеска", "Задняя подвеска", "Рулевая рейка",
-  "Кузов (каркас)", "Капот", "Двери комплект", "Крылья", "Бамперы",
-  "Фары / фонари", "Салон (сиденья, торпедо)", "Электрика / проводка",
-  "Колёса / диски", "Радиатор / охлаждение", "Топливная система",
-  "Выхлопная система", "Тормозная система",
+// Разделитель «Группа » Узел» внутри name (для совместимости с бэкендом, который хранит только name)
+const TD_SEP = " » ";
+const splitTd = (name: string): { group: string; part: string } => {
+  const i = name.indexOf(TD_SEP);
+  return i === -1 ? { group: "Другое", part: name } : { group: name.slice(0, i), part: name.slice(i + TD_SEP.length) };
+};
+const joinTd = (group: string, part: string) => `${group}${TD_SEP}${part}`;
+
+// Детальный разборный лист: группы → узлы
+const TEARDOWN_GROUPS: { group: string; parts: string[] }[] = [
+  { group: "Двигатель и навесное", parts: [
+    "Двигатель в сборе", "Блок ДВС", "ГБЦ", "Турбина", "Стартер", "Генератор",
+    "Радиатор", "Интеркулер", "Топливный насос", "Форсунки", "Дроссельная заслонка",
+  ] },
+  { group: "Трансмиссия", parts: [
+    "АКПП", "МКПП", "Вариатор (CVT)", "Раздаточная коробка", "Редуктор передний",
+    "Редуктор задний", "Карданный вал", "Привод левый", "Привод правый",
+  ] },
+  { group: "Ходовая и подвеска", parts: [
+    "Стойка передняя левая", "Стойка передняя правая", "Стойка задняя левая",
+    "Стойка задняя правая", "Рычаги передние", "Рычаги задние", "Ступица передняя",
+    "Ступица задняя", "Рулевая рейка", "Подрамник",
+  ] },
+  { group: "Тормозная система", parts: [
+    "Суппорт передний левый", "Суппорт передний правый", "Суппорт задний левый",
+    "Суппорт задний правый", "Тормозные диски", "Главный тормозной цилиндр", "ABS блок",
+  ] },
+  { group: "Кузовные детали", parts: [
+    "Ноускат (морда)", "Капот", "Крыло переднее левое", "Крыло переднее правое",
+    "Дверь передняя левая", "Дверь передняя правая", "Дверь задняя левая",
+    "Дверь задняя правая", "Крышка багажника", "Бампер передний", "Бампер задний",
+    "Порог левый", "Порог правый", "Зеркало левое", "Зеркало правое", "Крыша",
+  ] },
+  { group: "Оптика", parts: [
+    "Фара левая", "Фара правая", "Фонарь задний левый", "Фонарь задний правый",
+    "Птф левая", "Птф правая",
+  ] },
+  { group: "Салон", parts: [
+    "Сиденья комплект", "Сиденье водителя", "Торпедо (панель)", "Руль",
+    "Airbag комплект", "Климат-блок", "Магнитола / мультимедиа", "Ковры / обшивка",
+  ] },
+  { group: "Электрика", parts: [
+    "Проводка моторная", "Блок предохранителей", "ЭБУ (мозги)", "Замок зажигания комплект",
+    "Аккумулятор",
+  ] },
+  { group: "Колёса", parts: [
+    "Диски комплект", "Шины комплект", "Запасное колесо",
+  ] },
 ];
+const TEARDOWN_PRESET = TEARDOWN_GROUPS.flatMap((g) => g.parts.map((p) => joinTd(g.group, p)));
+
+// Группировка списка узлов для отображения
+const groupTeardown = (items: TeardownItem[]): { group: string; items: { name: string; part: string; needed: boolean }[] }[] => {
+  const map: Record<string, { name: string; part: string; needed: boolean }[]> = {};
+  const order: string[] = [];
+  for (const it of items) {
+    const { group, part } = splitTd(it.name);
+    if (!map[group]) { map[group] = []; order.push(group); }
+    map[group].push({ name: it.name, part, needed: it.needed });
+  }
+  return order.map((g) => ({ group: g, items: map[g] }));
+};
 interface HotDeal { id: number; origin: string; brand: string; model: string; year: number | null; mileage: string; engine: string; price: string; badge: string; photo: string; sort_order: number; }
 
 type Lang = "ru" | "en";
@@ -374,6 +428,9 @@ const I18N: Record<Lang, Record<string, string>> = {
     staff_create_order: "Создать заявку клиенту",
     staff_pick_client: "Клиент",
     staff_pick_client_ph: "Выберите клиента",
+    td_all_group: "Выбрать все",
+    td_clear_group: "Снять все",
+    td_selected: "Выбрано",
     teardowns_empty: "Пока нет авто с разборными листами",
     teardowns_empty_sub: "Они появятся, когда вы добавите авто в заявки клиентов",
     teardowns_all_cars: "Все авто с разборными листами",
@@ -532,6 +589,9 @@ const I18N: Record<Lang, Record<string, string>> = {
     staff_create_order: "Create client request",
     staff_pick_client: "Client",
     staff_pick_client_ph: "Select a client",
+    td_all_group: "Select all",
+    td_clear_group: "Clear all",
+    td_selected: "Selected",
     teardowns_empty: "No cars with teardown lists yet",
     teardowns_empty_sub: "They appear once you add cars to client requests",
     teardowns_all_cars: "All cars with teardown lists",
@@ -666,9 +726,20 @@ export default function Index() {
         : { ...f, teardown: [...f.teardown, { name, needed: false }] };
     });
   };
+  const toggleCarFormGroup = (names: string[], select: boolean) => {
+    setCarForm((f) => {
+      if (select) {
+        const missing = names.filter((n) => !f.teardown.some((x) => x.name === n));
+        return { ...f, teardown: [...f.teardown, ...missing.map((n) => ({ name: n, needed: false }))] };
+      }
+      return { ...f, teardown: f.teardown.filter((x) => !names.includes(x.name)) };
+    });
+  };
   const addCustomPart = () => {
-    const name = teardownInput.trim();
-    if (!name || carForm.teardown.some((x) => x.name === name)) { setTeardownInput(""); return; }
+    const raw = teardownInput.trim();
+    if (!raw) { setTeardownInput(""); return; }
+    const name = raw.includes(TD_SEP) ? raw : joinTd("Другое", raw);
+    if (carForm.teardown.some((x) => x.name === name)) { setTeardownInput(""); return; }
     setCarForm((f) => ({ ...f, teardown: [...f.teardown, { name, needed: false }] }));
     setTeardownInput("");
   };
@@ -1987,15 +2058,22 @@ export default function Index() {
                                               {savingTeardown === c.id && <Icon name="Loader" size={12} className="animate-spin text-[hsl(var(--navy)/0.62)]" />}
                                             </div>
                                             <p className="text-[hsl(var(--navy)/0.62)] text-xs mb-2">{t("teardown_client_hint")}</p>
-                                            <div className="flex flex-col gap-1">
-                                              {c.teardown.map((it) => (
-                                                <label key={it.name} className="flex items-center gap-2.5 cursor-pointer group/part select-none py-0.5">
-                                                  <span className={`w-5 h-5 rounded-sm border flex items-center justify-center flex-shrink-0 transition-colors ${it.needed ? "bg-[hsl(var(--gold))] border-[hsl(var(--gold))]" : "bg-white border-[hsl(220_15%_80%)] group-hover/part:border-[hsl(var(--navy))]"}`}>
-                                                    {it.needed && <Icon name="Check" size={13} className="text-white" />}
-                                                  </span>
-                                                  <input type="checkbox" checked={it.needed} onChange={() => toggleClientPart(c, it.name)} className="hidden" />
-                                                  <span className={`text-sm ${it.needed ? "navy font-semibold" : "text-[hsl(var(--navy)/0.6)]"}`}>{it.name}</span>
-                                                </label>
+                                            <div className="flex flex-col gap-2.5">
+                                              {groupTeardown(c.teardown).map((grp) => (
+                                                <div key={grp.group}>
+                                                  <div className="text-[10px] font-['Montserrat'] font-bold uppercase tracking-wide text-[hsl(var(--navy)/0.5)] mb-1">{grp.group}</div>
+                                                  <div className="flex flex-col gap-1 pl-1">
+                                                    {grp.items.map((it) => (
+                                                      <label key={it.name} className="flex items-center gap-2.5 cursor-pointer group/part select-none py-0.5">
+                                                        <span className={`w-5 h-5 rounded-sm border flex items-center justify-center flex-shrink-0 transition-colors ${it.needed ? "bg-[hsl(var(--gold))] border-[hsl(var(--gold))]" : "bg-white border-[hsl(220_15%_80%)] group-hover/part:border-[hsl(var(--navy))]"}`}>
+                                                          {it.needed && <Icon name="Check" size={13} className="text-white" />}
+                                                        </span>
+                                                        <input type="checkbox" checked={it.needed} onChange={() => toggleClientPart(c, it.name)} className="hidden" />
+                                                        <span className={`text-sm ${it.needed ? "navy font-semibold" : "text-[hsl(var(--navy)/0.6)]"}`}>{it.part}</span>
+                                                      </label>
+                                                    ))}
+                                                  </div>
+                                                </div>
                                               ))}
                                             </div>
                                           </div>
@@ -2203,14 +2281,32 @@ export default function Index() {
                         <div>
                           <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("teardown_title")}</label>
                           <p className="text-[hsl(var(--navy)/0.62)] text-xs mb-3">{t("teardown_staff_hint")}</p>
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            {TEARDOWN_PRESET.map((name) => {
-                              const active = carForm.teardown.some((x) => x.name === name);
+                          <div className="flex flex-col gap-4 mb-3">
+                            {TEARDOWN_GROUPS.map((grp) => {
+                              const groupNames = grp.parts.map((p) => joinTd(grp.group, p));
+                              const allActive = groupNames.every((n) => carForm.teardown.some((x) => x.name === n));
                               return (
-                                <button type="button" key={name} onClick={() => toggleCarFormPart(name)}
-                                  className={`text-xs font-['Montserrat'] font-semibold px-3 py-1.5 rounded-full border transition-colors ${active ? "bg-[hsl(var(--navy))] text-white border-[hsl(var(--navy))]" : "bg-white text-[hsl(var(--navy)/0.6)] border-[hsl(220_15%_85%)] hover:border-[hsl(var(--navy))]"}`}>
-                                  {active && <Icon name="Check" size={12} className="inline mr-1 -mt-0.5" />}{name}
-                                </button>
+                                <div key={grp.group} className="bg-[hsl(220_25%_98%)] border border-[hsl(220_15%_90%)] rounded-sm p-3">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="text-xs font-['Montserrat'] font-bold uppercase tracking-wide navy">{grp.group}</span>
+                                    <button type="button" onClick={() => toggleCarFormGroup(groupNames, !allActive)}
+                                      className="text-[11px] font-['Montserrat'] font-semibold text-[hsl(var(--navy)/0.6)] hover:text-[hsl(var(--navy))]">
+                                      {allActive ? t("td_clear_group") : t("td_all_group")}
+                                    </button>
+                                  </div>
+                                  <div className="flex flex-wrap gap-2">
+                                    {grp.parts.map((part) => {
+                                      const name = joinTd(grp.group, part);
+                                      const active = carForm.teardown.some((x) => x.name === name);
+                                      return (
+                                        <button type="button" key={name} onClick={() => toggleCarFormPart(name)}
+                                          className={`text-xs font-['Montserrat'] font-semibold px-3 py-1.5 rounded-full border transition-colors ${active ? "bg-[hsl(var(--navy))] text-white border-[hsl(var(--navy))]" : "bg-white text-[hsl(var(--navy)/0.6)] border-[hsl(220_15%_85%)] hover:border-[hsl(var(--navy))]"}`}>
+                                          {active && <Icon name="Check" size={12} className="inline mr-1 -mt-0.5" />}{part}
+                                        </button>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
                               );
                             })}
                           </div>
@@ -2223,12 +2319,16 @@ export default function Index() {
                           </div>
                           {carForm.teardown.length > 0 && (
                             <div className="flex flex-col gap-1.5">
-                              {carForm.teardown.map((it) => (
-                                <div key={it.name} className="flex items-center justify-between bg-[hsl(220_25%_97%)] rounded-sm px-3 py-2">
-                                  <span className="text-sm navy">{it.name}</span>
-                                  <button type="button" onClick={() => toggleCarFormPart(it.name)} className="text-[hsl(var(--navy)/0.6)] hover:text-red-600"><Icon name="X" size={14} /></button>
-                                </div>
-                              ))}
+                              <div className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{t("td_selected")}: {carForm.teardown.length}</div>
+                              {carForm.teardown.map((it) => {
+                                const sp = splitTd(it.name);
+                                return (
+                                  <div key={it.name} className="flex items-center justify-between bg-[hsl(220_25%_97%)] rounded-sm px-3 py-2">
+                                    <span className="text-sm navy"><span className="text-[hsl(var(--navy)/0.5)]">{sp.group} · </span>{sp.part}</span>
+                                    <button type="button" onClick={() => toggleCarFormPart(it.name)} className="text-[hsl(var(--navy)/0.6)] hover:text-red-600"><Icon name="X" size={14} /></button>
+                                  </div>
+                                );
+                              })}
                             </div>
                           )}
                         </div>
@@ -2265,10 +2365,17 @@ export default function Index() {
                                 {c.teardown && c.teardown.length > 0 && (
                                   <div className="mt-3 pt-3 border-t border-[hsl(220_15%_90%)]">
                                     <div className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide mb-2">{t("teardown_title")} · {t("teardown_client_picked")}: {c.teardown.filter((x) => x.needed).length}/{c.teardown.length}</div>
-                                    <div className="flex flex-col gap-1">
-                                      {c.teardown.map((it) => (
-                                        <div key={it.name} className={`flex items-center gap-2 text-sm ${it.needed ? "navy font-semibold" : "text-[hsl(var(--navy)/0.62)]"}`}>
-                                          <Icon name={it.needed ? "CheckCircle2" : "Circle"} size={15} className={it.needed ? "text-[hsl(var(--gold))]" : "text-[hsl(var(--navy)/0.25)]"} />{it.name}
+                                    <div className="flex flex-col gap-2">
+                                      {groupTeardown(c.teardown).map((grp) => (
+                                        <div key={grp.group}>
+                                          <div className="text-[10px] font-['Montserrat'] font-bold uppercase tracking-wide text-[hsl(var(--navy)/0.5)] mb-0.5">{grp.group}</div>
+                                          <div className="flex flex-col gap-1">
+                                            {grp.items.map((it) => (
+                                              <div key={it.name} className={`flex items-center gap-2 text-sm ${it.needed ? "navy font-semibold" : "text-[hsl(var(--navy)/0.62)]"}`}>
+                                                <Icon name={it.needed ? "CheckCircle2" : "Circle"} size={15} className={it.needed ? "text-[hsl(var(--gold))]" : "text-[hsl(var(--navy)/0.25)]"} />{it.part}
+                                              </div>
+                                            ))}
+                                          </div>
                                         </div>
                                       ))}
                                     </div>
@@ -2323,10 +2430,17 @@ export default function Index() {
                               </div>
                               <div className="mt-3 pt-3 border-t border-[hsl(220_15%_90%)]">
                                 <div className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide mb-2">{t("teardown_title")} · {t("teardown_client_picked")}: {c.teardown.filter((x) => x.needed).length}/{c.teardown.length}</div>
-                                <div className="flex flex-col gap-1">
-                                  {c.teardown.map((it) => (
-                                    <div key={it.name} className={`flex items-center gap-2 text-sm ${it.needed ? "navy font-semibold" : "text-[hsl(var(--navy)/0.62)]"}`}>
-                                      <Icon name={it.needed ? "CheckCircle2" : "Circle"} size={15} className={it.needed ? "text-[hsl(var(--gold))]" : "text-[hsl(var(--navy)/0.25)]"} />{it.name}
+                                <div className="flex flex-col gap-2">
+                                  {groupTeardown(c.teardown).map((grp) => (
+                                    <div key={grp.group}>
+                                      <div className="text-[10px] font-['Montserrat'] font-bold uppercase tracking-wide text-[hsl(var(--navy)/0.5)] mb-0.5">{grp.group}</div>
+                                      <div className="flex flex-col gap-1">
+                                        {grp.items.map((it) => (
+                                          <div key={it.name} className={`flex items-center gap-2 text-sm ${it.needed ? "navy font-semibold" : "text-[hsl(var(--navy)/0.62)]"}`}>
+                                            <Icon name={it.needed ? "CheckCircle2" : "Circle"} size={15} className={it.needed ? "text-[hsl(var(--gold))]" : "text-[hsl(var(--navy)/0.25)]"} />{it.part}
+                                          </div>
+                                        ))}
+                                      </div>
                                     </div>
                                   ))}
                                 </div>
