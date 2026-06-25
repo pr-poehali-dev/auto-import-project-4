@@ -1,0 +1,1 @@
+{"tests": [{"name": "Probe jpcenter homepage", "method": "GET", "path": "/", "expectedStatus": 200, "expectedBody": {"status": "number"}, "bodyMatcher": "partial"}]}
