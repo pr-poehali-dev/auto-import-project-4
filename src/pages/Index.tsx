@@ -1000,6 +1000,27 @@ export default function Index() {
         </div>
       </div>
 
+      {/* ── ВСЕГДА ВИДИМАЯ КНОПКА КАБИНЕТА/ВХОДА (десктоп) ── */}
+      <div className="hidden md:flex fixed top-4 right-5 z-50 items-center gap-2">
+        {user ? (
+          <button onClick={() => nav("cabinet")}
+            className="flex items-center gap-2 px-4 h-11 rounded-sm backdrop-blur-md border border-white/15 bg-[hsl(220_52%_12%/0.6)] text-white text-sm font-['Montserrat'] font-semibold hover:bg-[hsl(var(--gold))] hover:border-[hsl(var(--gold))] transition-colors">
+            <Icon name="User" size={18} />{user.full_name || t("cabinet")}
+          </button>
+        ) : (
+          <>
+            <button onClick={() => nav("login")}
+              className="flex items-center gap-2 px-4 h-11 rounded-sm backdrop-blur-md border border-white/15 bg-[hsl(220_52%_12%/0.6)] text-white text-sm font-['Montserrat'] font-semibold hover:bg-[hsl(var(--gold))] hover:border-[hsl(var(--gold))] transition-colors">
+              <Icon name="LogIn" size={18} />{t("login")}
+            </button>
+            <button onClick={() => nav("register")}
+              className="flex items-center gap-2 px-4 h-11 rounded-sm border border-[hsl(var(--gold))] bg-[hsl(var(--gold))] text-white text-sm font-['Montserrat'] font-semibold hover:opacity-90 transition-opacity">
+              <Icon name="UserPlus" size={18} />{t("register")}
+            </button>
+          </>
+        )}
+      </div>
+
       {/* ── МОБИЛЬНАЯ КНОПКА-МЕНЮ ── */}
       <div className="md:hidden fixed top-4 left-4 right-4 z-50 flex items-center justify-between">
         <button onClick={() => nav("home")} className="flex items-center gap-1.5 rounded-sm overflow-hidden bg-white/90 backdrop-blur-md border border-white/40 pr-2.5">
