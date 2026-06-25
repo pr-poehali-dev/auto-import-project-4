@@ -111,12 +111,20 @@ def handler(event: dict, context) -> dict:
             comment = body.get("comment", "").strip()
             origin = body.get("origin", "").strip()
 
+            # сотрудник может создать заявку на выбранного клиента
+            target_user_id = user_id
+            if is_staff and body.get("client_id"):
+                cur.execute(f"SELECT id FROM {SCHEMA}.users WHERE id = %s", (int(body["client_id"]),))
+                if not cur.fetchone():
+                    return err("Клиент не найден", 404)
+                target_user_id = int(body["client_id"])
+
             order_num = f"PC-{random.randint(10000, 99999)}"
             cur.execute(
                 f"INSERT INTO {SCHEMA}.orders "
                 f"(user_id, order_number, car_brand, car_model, car_year, quantity, budget, comment, origin) "
                 f"VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id, order_number",
-                (user_id, order_num, car_brand, car_model, car_year, quantity, budget, comment, origin)
+                (target_user_id, order_num, car_brand, car_model, car_year, quantity, budget, comment, origin)
             )
             row = cur.fetchone()
             conn.commit()

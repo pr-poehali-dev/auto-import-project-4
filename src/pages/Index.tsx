@@ -371,6 +371,9 @@ const I18N: Record<Lang, Record<string, string>> = {
     staff_cabinet: "Кабинет сотрудника", personal_cabinet: "Личный кабинет", staff_badge: "Сотрудник",
     tab_clients: "Заявки клиентов", tab_profile: "Профиль", tab_orders: "Мои заявки",
     tab_teardowns: "Разборные листы",
+    staff_create_order: "Создать заявку клиенту",
+    staff_pick_client: "Клиент",
+    staff_pick_client_ph: "Выберите клиента",
     teardowns_empty: "Пока нет авто с разборными листами",
     teardowns_empty_sub: "Они появятся, когда вы добавите авто в заявки клиентов",
     teardowns_all_cars: "Все авто с разборными листами",
@@ -526,6 +529,9 @@ const I18N: Record<Lang, Record<string, string>> = {
     staff_cabinet: "Staff dashboard", personal_cabinet: "Dashboard", staff_badge: "Staff",
     tab_clients: "Client requests", tab_profile: "Profile", tab_orders: "My requests",
     tab_teardowns: "Teardown lists",
+    staff_create_order: "Create client request",
+    staff_pick_client: "Client",
+    staff_pick_client_ph: "Select a client",
     teardowns_empty: "No cars with teardown lists yet",
     teardowns_empty_sub: "They appear once you add cars to client requests",
     teardowns_all_cars: "All cars with teardown lists",
@@ -646,6 +652,11 @@ export default function Index() {
   interface TeardownCar extends Car { order_id: number; order_number: string; client_name: string; client_email: string; client_company: string; }
   const [teardownCars, setTeardownCars] = useState<TeardownCar[]>([]);
   const [teardownCarsLoading, setTeardownCarsLoading] = useState(false);
+  // сотрудник: создание заявки клиенту
+  const [staffOrderOpen, setStaffOrderOpen] = useState(false);
+  const [staffOrderForm, setStaffOrderForm] = useState({ client_id: "", car_brand: "", car_model: "", car_year: "", quantity: "1", budget: "", origin: "Япония", comment: "" });
+  const [staffOrderSaving, setStaffOrderSaving] = useState(false);
+  const [clientsList, setClientsList] = useState<{ id: number; full_name: string; email: string; company: string }[]>([]);
 
   const toggleCarFormPart = (name: string) => {
     setCarForm((f) => {
@@ -966,6 +977,35 @@ export default function Index() {
     setNewOrderSent(true);
     setNewOrderForm({ car_brand: "", car_model: "", car_year: "", quantity: "1", budget: "", origin: "Япония", comment: "" });
     setTimeout(() => { setNewOrderSent(false); setCabinetTab("orders"); }, 2000);
+  };
+
+  const loadClientsList = async () => {
+    const d = await apiAuth("list_users", {}, token);
+    const clients = (d.users || []).filter((u: ManagedUser) => u.role !== "staff");
+    setClientsList(clients.map((u: ManagedUser) => ({ id: u.id, full_name: u.full_name, email: u.email, company: u.company })));
+  };
+
+  const openStaffOrderForm = () => {
+    setStaffOrderOpen(true);
+    setStaffOrderForm({ client_id: "", car_brand: "", car_model: "", car_year: "", quantity: "1", budget: "", origin: "Япония", comment: "" });
+    if (clientsList.length === 0) loadClientsList();
+  };
+
+  const doStaffCreateOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!staffOrderForm.client_id) return;
+    setStaffOrderSaving(true);
+    await apiOrders("POST", token, {
+      client_id: parseInt(staffOrderForm.client_id),
+      car_brand: staffOrderForm.car_brand, car_model: staffOrderForm.car_model,
+      car_year: parseInt(staffOrderForm.car_year) || null,
+      quantity: parseInt(staffOrderForm.quantity), budget: parseInt(staffOrderForm.budget) || null,
+      origin: staffOrderForm.origin, comment: staffOrderForm.comment,
+    });
+    const d = await apiOrders("GET", token);
+    setOrders(d.orders || []);
+    setStaffOrderSaving(false);
+    setStaffOrderOpen(false);
   };
 
   const navItems = [
@@ -1980,7 +2020,68 @@ export default function Index() {
               {cabinetTab === "clients" && (
                 <div>
                   {!selectedOrder ? (
-                    ordersLoading ? (
+                    <>
+                      {/* Создание заявки клиенту */}
+                      <div className="mb-6">
+                        {!staffOrderOpen ? (
+                          <button onClick={openStaffOrderForm} className="flex items-center gap-2 px-5 py-3 btn-navy rounded-sm text-sm">
+                            <Icon name="Plus" size={16} />{t("staff_create_order")}
+                          </button>
+                        ) : (
+                          <form onSubmit={doStaffCreateOrder} className="card-light rounded-sm p-6 flex flex-col gap-4">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-['Montserrat'] font-bold text-lg navy">{t("staff_create_order")}</h3>
+                              <button type="button" onClick={() => setStaffOrderOpen(false)} className="text-[hsl(var(--navy)/0.6)] hover:text-red-600"><Icon name="X" size={18} /></button>
+                            </div>
+                            <div>
+                              <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("staff_pick_client")}</label>
+                              <select required value={staffOrderForm.client_id} onChange={(e) => setStaffOrderForm({ ...staffOrderForm, client_id: e.target.value })} className={inputCls}>
+                                <option value="">{t("staff_pick_client_ph")}</option>
+                                {clientsList.map((c) => (
+                                  <option key={c.id} value={c.id}>{(c.full_name || c.email)}{c.company ? ` · ${c.company}` : ""}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                              <div>
+                                <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("brand")}</label>
+                                <input required placeholder="Toyota" value={staffOrderForm.car_brand} onChange={(e) => setStaffOrderForm({ ...staffOrderForm, car_brand: e.target.value })} className={inputCls} />
+                              </div>
+                              <div>
+                                <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("model")}</label>
+                                <input placeholder="Camry" value={staffOrderForm.car_model} onChange={(e) => setStaffOrderForm({ ...staffOrderForm, car_model: e.target.value })} className={inputCls} />
+                              </div>
+                              <div>
+                                <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("year")}</label>
+                                <input placeholder="2019" value={staffOrderForm.car_year} onChange={(e) => setStaffOrderForm({ ...staffOrderForm, car_year: e.target.value })} className={inputCls} />
+                              </div>
+                              <div>
+                                <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("qty")}</label>
+                                <input type="number" min="1" value={staffOrderForm.quantity} onChange={(e) => setStaffOrderForm({ ...staffOrderForm, quantity: e.target.value })} className={inputCls} />
+                              </div>
+                              <div>
+                                <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("budget_unit")}</label>
+                                <input placeholder="300000" value={staffOrderForm.budget} onChange={(e) => setStaffOrderForm({ ...staffOrderForm, budget: e.target.value })} className={inputCls} />
+                              </div>
+                              <div>
+                                <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("direction")}</label>
+                                <select value={staffOrderForm.origin} onChange={(e) => setStaffOrderForm({ ...staffOrderForm, origin: e.target.value })} className={inputCls}>
+                                  <option value="Япония">{ORIGIN_LABEL[lang]["Япония"]}</option>
+                                  <option value="Корея">{ORIGIN_LABEL[lang]["Корея"]}</option>
+                                  <option value="Гонконг">{ORIGIN_LABEL[lang]["Гонконг"]}</option>
+                                  <option value="Китай">{ORIGIN_LABEL[lang]["Китай"]}</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("comment")}</label>
+                              <textarea rows={2} placeholder={t("comment_req_ph")} value={staffOrderForm.comment} onChange={(e) => setStaffOrderForm({ ...staffOrderForm, comment: e.target.value })} className={inputCls + " resize-none"} />
+                            </div>
+                            <button type="submit" disabled={staffOrderSaving} className="py-3 btn-navy rounded-sm disabled:opacity-60">{staffOrderSaving ? t("loading") : t("create_order")}</button>
+                          </form>
+                        )}
+                      </div>
+                    {ordersLoading ? (
                       <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.62)]">
                         <Icon name="Loader" size={20} className="animate-spin" />{t("loading_clients")}
                       </div>
@@ -2016,7 +2117,8 @@ export default function Index() {
                           </div>
                         ))}
                       </div>
-                    )
+                    )}
+                    </>
                   ) : (
                     <div>
                       <button onClick={() => setSelectedOrder(null)} className="flex items-center gap-2 text-[hsl(var(--navy)/0.68)] text-sm font-['Montserrat'] font-semibold mb-6 hover:text-[hsl(var(--navy))] transition-colors">
