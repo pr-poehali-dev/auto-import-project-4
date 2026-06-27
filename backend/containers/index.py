@@ -57,14 +57,18 @@ def err(msg, status=400):
             "body": json.dumps({"error": msg}, ensure_ascii=False)}
 
 
-def car_row(r):
-    return {
+def car_row(r, with_teardown=False):
+    d = {
         "id": r[0], "car_brand": r[1] or "", "car_model": r[2] or "",
         "car_year": r[3], "vin": r[4] or "",
         "order_id": r[5], "order_number": r[6] or "",
         "client_name": r[7] or "", "client_company": r[8] or "",
         "origin": r[9] or "", "status": r[10] or "",
     }
+    if with_teardown:
+        td = r[11]
+        d["teardown"] = td if isinstance(td, list) else (json.loads(td) if td else [])
+    return d
 
 
 def handler(event: dict, context) -> dict:
@@ -121,7 +125,7 @@ def handler(event: dict, context) -> dict:
             if containers:
                 cur.execute(
                     f"SELECT cc.container_id, c.id, c.car_brand, c.car_model, c.car_year, c.vin, "
-                    f"o.id, o.order_number, u.full_name, u.company, o.origin, o.status "
+                    f"o.id, o.order_number, u.full_name, u.company, o.origin, o.status, c.teardown "
                     f"FROM {SCHEMA}.container_cars cc "
                     f"JOIN {SCHEMA}.cars c ON c.id = cc.car_id "
                     f"JOIN {SCHEMA}.orders o ON o.id = c.order_id "
@@ -132,7 +136,7 @@ def handler(event: dict, context) -> dict:
                 for r in cur.fetchall():
                     cont = by_id.get(r[0])
                     if cont is not None:
-                        cont["cars"].append(car_row(r[1:]))
+                        cont["cars"].append(car_row(r[1:], with_teardown=True))
             return ok({"containers": containers})
 
         if method == "POST":

@@ -755,7 +755,7 @@ export default function Index() {
   const [teardownCars, setTeardownCars] = useState<TeardownCar[]>([]);
   const [teardownCarsLoading, setTeardownCarsLoading] = useState(false);
   // сотрудник: контейнеры (сборка машинокомплектов)
-  interface ContainerCar { id: number; car_brand: string; car_model: string; car_year: number; vin: string; order_number: string; client_name: string; client_company: string; origin: string; status: string; }
+  interface ContainerCar { id: number; car_brand: string; car_model: string; car_year: number; vin: string; order_number: string; client_name: string; client_company: string; origin: string; status: string; teardown?: TeardownItem[]; }
   interface Container { id: number; name: string; container_number: string; origin: string; status: string; status_label: string; comment: string; created_at: string; cars: ContainerCar[]; }
   const [containers, setContainers] = useState<Container[]>([]);
   const [availableCars, setAvailableCars] = useState<ContainerCar[]>([]);
@@ -1118,13 +1118,37 @@ export default function Index() {
   const exportContainerPdf = (ct: Container) => {
     const esc = (s: string) => (s || "").replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" } as Record<string, string>)[ch]);
     const dateStr = new Date().toLocaleDateString("ru-RU");
-    const rows = ct.cars.map((c, i) => `<tr>
+
+    // Машинокомплекты в контейнере
+    const carRows = ct.cars.map((c, i) => `<tr>
         <td class="c">${i + 1}</td>
         <td>${esc([c.car_brand, c.car_model, c.car_year].filter(Boolean).join(" ")) || "—"}</td>
         <td class="mono">${esc(c.vin || "—")}</td>
         <td>${esc(c.order_number || "—")}</td>
-        <td>${esc(c.client_name || c.client_company || "—")}</td>
       </tr>`).join("");
+
+    // Сводный список запчастей по всем машинам контейнера (суммарное количество по детали)
+    const agg = new Map<string, { group: string; part: string; qty: number }>();
+    for (const c of ct.cars) {
+      for (const it of (c.teardown || [])) {
+        const sp = splitTd(it.name);
+        const q = it.qty || 1;
+        const prev = agg.get(it.name);
+        if (prev) prev.qty += q;
+        else agg.set(it.name, { group: sp.group, part: sp.part, qty: q });
+      }
+    }
+    const parts = Array.from(agg.values()).sort((a, b) => a.group.localeCompare(b.group, "ru") || a.part.localeCompare(b.part, "ru"));
+    let totalParts = 0;
+    const partRows = parts.map((p, i) => {
+      totalParts += p.qty;
+      return `<tr>
+        <td class="c">${i + 1}</td>
+        <td>${esc(p.group)}</td>
+        <td>${esc(p.part)}</td>
+        <td class="c">${p.qty}</td>
+      </tr>`;
+    }).join("");
 
     const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8">
       <title>Container ${esc(ct.name)}</title>
@@ -1144,6 +1168,7 @@ export default function Index() {
         td.mono { font-family: 'Courier New', monospace; letter-spacing: .5px; }
         tfoot td { font-weight: 800; background: #f1f3f7; }
         .foot { margin-top: 28px; display: flex; justify-content: space-between; color: #6b7280; font-size: 12px; }
+        .sect { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; margin: 26px 0 4px; }
         @media print { body { margin: 12mm; } }
       </style></head><body>
       <div class="head">
@@ -1159,10 +1184,19 @@ export default function Index() {
         <div><b>Направление:</b> ${esc(ORIGIN_LABEL[lang][ct.origin] || ct.origin || "—")}</div>
         <div><b>Статус:</b> ${esc(ct.status_label || "—")}</div>
       </div>
+
+      <div class="sect">Сводный список запчастей</div>
       <table>
-        <thead><tr><th class="c">№</th><th>Машинокомплект</th><th>VIN</th><th>Заявка</th><th>Клиент</th></tr></thead>
-        <tbody>${rows || `<tr><td colspan="5" class="c">Контейнер пуст</td></tr>`}</tbody>
-        <tfoot><tr><td colspan="4" style="text-align:right">ИТОГО машинокомплектов:</td><td class="c">${ct.cars.length}</td></tr></tfoot>
+        <thead><tr><th class="c">№</th><th>Группа</th><th>Наименование детали</th><th class="c">Кол-во (всего)</th></tr></thead>
+        <tbody>${partRows || `<tr><td colspan="4" class="c">Нет деталей в разборных листах</td></tr>`}</tbody>
+        <tfoot><tr><td colspan="2" style="text-align:right">ИТОГО позиций / деталей:</td><td class="c">${parts.length}</td><td class="c">${totalParts}</td></tr></tfoot>
+      </table>
+
+      <div class="sect">Машинокомплекты в контейнере</div>
+      <table>
+        <thead><tr><th class="c">№</th><th>Машинокомплект</th><th>VIN</th><th>Заявка</th></tr></thead>
+        <tbody>${carRows || `<tr><td colspan="4" class="c">Контейнер пуст</td></tr>`}</tbody>
+        <tfoot><tr><td colspan="3" style="text-align:right">ИТОГО машинокомплектов:</td><td class="c">${ct.cars.length}</td></tr></tfoot>
       </table>
       <div class="foot"><div>Подпись отправителя: __________________</div><div>Подпись получателя: __________________</div></div>
       <script>window.onload = function(){ setTimeout(function(){ window.print(); }, 300); };</script>
