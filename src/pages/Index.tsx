@@ -1110,6 +1110,64 @@ export default function Index() {
     w.document.close();
   };
 
+  // Экспорт упаковочного листа контейнера в PDF (все машинокомплекты + VIN)
+  const exportContainerPdf = (ct: Container) => {
+    const esc = (s: string) => (s || "").replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" } as Record<string, string>)[ch]);
+    const dateStr = new Date().toLocaleDateString("ru-RU");
+    const rows = ct.cars.map((c, i) => `<tr>
+        <td class="c">${i + 1}</td>
+        <td>${esc([c.car_brand, c.car_model, c.car_year].filter(Boolean).join(" ")) || "—"}</td>
+        <td class="mono">${esc(c.vin || "—")}</td>
+        <td>${esc(c.order_number || "—")}</td>
+        <td>${esc(c.client_name || c.client_company || "—")}</td>
+      </tr>`).join("");
+
+    const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8">
+      <title>Container ${esc(ct.name)}</title>
+      <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; color: #1a2238; margin: 32px; font-size: 13px; }
+        .head { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #1a2238; padding-bottom: 14px; margin-bottom: 18px; }
+        .title { font-size: 24px; font-weight: 800; letter-spacing: 1px; }
+        .sub { color: #6b7280; font-size: 12px; margin-top: 4px; }
+        .meta { margin: 16px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 24px; }
+        .meta div { font-size: 13px; }
+        .meta b { color: #6b7280; font-weight: 600; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #c9ced8; padding: 7px 9px; text-align: left; }
+        th { background: #1a2238; color: #fff; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+        td.c, th.c { text-align: center; }
+        td.mono { font-family: 'Courier New', monospace; letter-spacing: .5px; }
+        tfoot td { font-weight: 800; background: #f1f3f7; }
+        .foot { margin-top: 28px; display: flex; justify-content: space-between; color: #6b7280; font-size: 12px; }
+        @media print { body { margin: 12mm; } }
+      </style></head><body>
+      <div class="head">
+        <div><div class="title">CONTAINER PACKING LIST</div><div class="sub">Упаковочный лист контейнера</div></div>
+        <div style="text-align:right"><div class="sub">Дата: ${dateStr}</div></div>
+      </div>
+      <div class="meta">
+        <div><b>Контейнер:</b> ${esc(ct.name) || "—"}</div>
+        <div><b>Номер контейнера:</b> ${esc(ct.container_number || "—")}</div>
+        <div><b>Направление:</b> ${esc(ORIGIN_LABEL[lang][ct.origin] || ct.origin || "—")}</div>
+        <div><b>Статус:</b> ${esc(ct.status_label || "—")}</div>
+      </div>
+      <table>
+        <thead><tr><th class="c">№</th><th>Машинокомплект</th><th>VIN</th><th>Заявка</th><th>Клиент</th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="5" class="c">Контейнер пуст</td></tr>`}</tbody>
+        <tfoot><tr><td colspan="4" style="text-align:right">ИТОГО машинокомплектов:</td><td class="c">${ct.cars.length}</td></tr></tfoot>
+      </table>
+      <div class="foot"><div>Подпись отправителя: __________________</div><div>Подпись получателя: __________________</div></div>
+      <script>window.onload = function(){ setTimeout(function(){ window.print(); }, 300); };</script>
+      </body></html>`;
+
+    const w = window.open("", "_blank");
+    if (!w) { alert(t("pdf_popup_blocked")); return; }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  };
+
   // клиент: раскрытие авто по заявке
   const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
   const [orderCars, setOrderCars] = useState<Record<number, Car[]>>({});
@@ -2765,12 +2823,17 @@ export default function Index() {
                                         {ct.container_number && <div className="text-xs font-mono text-[hsl(var(--navy)/0.6)] mt-0.5">{ct.container_number}</div>}
                                         <div className="text-xs text-[hsl(var(--navy)/0.55)] mt-0.5">{ORIGIN_LABEL[lang][ct.origin] || ct.origin} · {ct.cars.length} {t("cars_word")}</div>
                                       </div>
-                                      <select value={ct.status} onChange={(e) => setContainerStatus(ct.id, e.target.value)} className="text-xs border border-[hsl(220_15%_85%)] rounded-sm px-2 py-1 bg-white navy">
-                                        <option value="collecting">{t("cst_collecting")}</option>
-                                        <option value="shipped">{t("cst_shipped")}</option>
-                                        <option value="arrived">{t("cst_arrived")}</option>
-                                        <option value="done">{t("cst_done")}</option>
-                                      </select>
+                                      <div className="flex items-center gap-2 flex-shrink-0">
+                                        <button type="button" onClick={() => exportContainerPdf(ct)} title="PDF" className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors">
+                                          <Icon name="FileDown" size={14} />PDF
+                                        </button>
+                                        <select value={ct.status} onChange={(e) => setContainerStatus(ct.id, e.target.value)} className="text-xs border border-[hsl(220_15%_85%)] rounded-sm px-2 py-1 bg-white navy">
+                                          <option value="collecting">{t("cst_collecting")}</option>
+                                          <option value="shipped">{t("cst_shipped")}</option>
+                                          <option value="arrived">{t("cst_arrived")}</option>
+                                          <option value="done">{t("cst_done")}</option>
+                                        </select>
+                                      </div>
                                     </div>
                                     {ct.cars.length > 0 ? (
                                       <div className="mt-3 pt-3 border-t border-[hsl(220_15%_90%)] flex flex-col gap-1.5">
