@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Icon from "@/components/ui/icon";
 
 const LOGO = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/bucket/0d9e1542-9580-4b01-a093-0b9580927df1.jpg";
+const COMPANY_NAME = "PRIME CARS";
 const HERO_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/7f88b313-5823-46e8-b5bc-217779dc9159.jpg";
 const DIRECTIONS_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/aedb59f4-ddb5-4001-b220-1edb774e89a4.jpg";
 const SERVICES_IMG = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/files/8b4c69b3-835f-482c-a4d0-7789392c02da.jpg";
@@ -1085,7 +1086,10 @@ export default function Index() {
         @media print { body { margin: 12mm; } }
       </style></head><body>
       <div class="head">
-        <div><div class="title">PACKING LIST</div><div class="sub">Упаковочный / разборный лист</div></div>
+        <div style="display:flex;align-items:center;gap:14px">
+          <img src="${LOGO}" alt="" style="height:52px;width:auto;border-radius:4px" />
+          <div><div class="title">PACKING LIST</div><div class="sub">${esc(COMPANY_NAME)} · Упаковочный / разборный лист</div></div>
+        </div>
         <div style="text-align:right"><div class="sub">Дата: ${dateStr}</div><div class="sub">№ ${esc(car.order_number ? String(car.order_number) : String(car.id))}</div></div>
       </div>
       <div class="meta">
@@ -1143,7 +1147,10 @@ export default function Index() {
         @media print { body { margin: 12mm; } }
       </style></head><body>
       <div class="head">
-        <div><div class="title">CONTAINER PACKING LIST</div><div class="sub">Упаковочный лист контейнера</div></div>
+        <div style="display:flex;align-items:center;gap:14px">
+          <img src="${LOGO}" alt="" style="height:52px;width:auto;border-radius:4px" />
+          <div><div class="title">CONTAINER PACKING LIST</div><div class="sub">${esc(COMPANY_NAME)} · Упаковочный лист контейнера</div></div>
+        </div>
         <div style="text-align:right"><div class="sub">Дата: ${dateStr}</div></div>
       </div>
       <div class="meta">
