@@ -13,6 +13,7 @@ const AUTH_URL = "https://functions.poehali.dev/ddb4a7f6-82c2-4cca-8d4c-ed685f8a
 const ORDERS_URL = "https://functions.poehali.dev/d57608b2-729a-4006-a5c2-598ca59a8239";
 const CARS_URL = "https://functions.poehali.dev/8f3531c8-943d-46dc-acd0-b9a6618054db";
 const HOT_DEALS_URL = "https://functions.poehali.dev/cc988794-2c9d-4cf0-935d-51df0229a699";
+const CONTAINERS_URL = "https://functions.poehali.dev/6f8b4d6b-c853-4c24-8cde-fbbe7b23c3df";
 
 // ── API helpers ──────────────────────────────────────────────
 async function safeJson(res: Response) {
@@ -52,6 +53,18 @@ async function apiCars(method: "GET" | "POST" | "PATCH" | "DELETE", token: strin
     body: opts.body ? JSON.stringify(opts.body) : undefined,
   });
   return res.json();
+}
+
+async function apiContainers(method: "GET" | "POST" | "PUT", token: string, opts: { body?: object; query?: string } = {}) {
+  const headers: Record<string, string> = { "X-Session-Token": token };
+  if (opts.body) headers["Content-Type"] = "application/json";
+  const url = opts.query ? `${CONTAINERS_URL}?${opts.query}` : CONTAINERS_URL;
+  const res = await fetch(url, {
+    method,
+    headers,
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  return safeJson(res);
 }
 
 async function apiHotDeals(method: "GET" | "POST" | "DELETE", opts: { token?: string; body?: object; query?: string } = {}) {
@@ -428,6 +441,13 @@ const I18N: Record<Lang, Record<string, string>> = {
     tab_in_work: "Заявки в работе", tab_shipping: "Отправки",
     in_work_empty: "Нет заявок в работе", in_work_empty_sub: "Здесь появятся заявки, переведённые в работу",
     shipping_empty: "Нет отправок", shipping_empty_sub: "Здесь появятся отправленные и доставленные заявки",
+    containers_title: "Собрать контейнер", container_new: "Новый контейнер", container_create: "Создать контейнер",
+    container_name: "Название", container_number: "Номер контейнера",
+    container_pick_title: "Машинокомплекты из заявок в работе", container_pick_hint: "Отметьте машинокомплекты и добавьте их в контейнер",
+    container_no_cars: "Нет доступных машинокомплектов из заявок в работе", container_picked: "Выбрано",
+    container_choose: "Выберите контейнер", container_add: "Добавить в контейнер",
+    container_empty: "Контейнеры ещё не созданы", container_no_items: "Контейнер пуст",
+    cst_collecting: "Сборка", cst_shipped: "Отправлен", cst_arrived: "Прибыл", cst_done: "Завершён",
     staff_create_order: "Создать заявку клиенту",
     staff_pick_client: "Клиент",
     staff_pick_client_ph: "Выберите клиента",
@@ -596,6 +616,13 @@ const I18N: Record<Lang, Record<string, string>> = {
     tab_in_work: "In progress", tab_shipping: "Shipping",
     in_work_empty: "No requests in progress", in_work_empty_sub: "Requests moved to work will appear here",
     shipping_empty: "No shipments", shipping_empty_sub: "Shipped and delivered requests will appear here",
+    containers_title: "Build a container", container_new: "New container", container_create: "Create container",
+    container_name: "Name", container_number: "Container number",
+    container_pick_title: "Vehicle kits from in-progress requests", container_pick_hint: "Select vehicle kits and add them to a container",
+    container_no_cars: "No available vehicle kits from in-progress requests", container_picked: "Selected",
+    container_choose: "Choose container", container_add: "Add to container",
+    container_empty: "No containers yet", container_no_items: "Container is empty",
+    cst_collecting: "Collecting", cst_shipped: "Shipped", cst_arrived: "Arrived", cst_done: "Completed",
     staff_create_order: "Create client request",
     staff_pick_client: "Client",
     staff_pick_client_ph: "Select a client",
@@ -726,6 +753,17 @@ export default function Index() {
   interface TeardownCar extends Car { order_id: number; order_number: string; client_name: string; client_email: string; client_company: string; }
   const [teardownCars, setTeardownCars] = useState<TeardownCar[]>([]);
   const [teardownCarsLoading, setTeardownCarsLoading] = useState(false);
+  // сотрудник: контейнеры (сборка машинокомплектов)
+  interface ContainerCar { id: number; car_brand: string; car_model: string; car_year: number; vin: string; order_number: string; client_name: string; client_company: string; origin: string; status: string; }
+  interface Container { id: number; name: string; container_number: string; origin: string; status: string; status_label: string; comment: string; created_at: string; cars: ContainerCar[]; }
+  const [containers, setContainers] = useState<Container[]>([]);
+  const [availableCars, setAvailableCars] = useState<ContainerCar[]>([]);
+  const [containersLoading, setContainersLoading] = useState(false);
+  const [containerForm, setContainerForm] = useState({ name: "", container_number: "", origin: "Япония", comment: "" });
+  const [containerFormOpen, setContainerFormOpen] = useState(false);
+  const [containerSaving, setContainerSaving] = useState(false);
+  const [pickedCars, setPickedCars] = useState<number[]>([]);
+  const [addTargetContainer, setAddTargetContainer] = useState<number | "">("");
   // сотрудник: создание заявки клиенту
   const [staffOrderOpen, setStaffOrderOpen] = useState(false);
   const [staffOrderForm, setStaffOrderForm] = useState({ client_id: "", car_brand: "", car_model: "", car_year: "", quantity: "1", budget: "", origin: "Япония", comment: "" });
@@ -889,6 +927,56 @@ export default function Index() {
       loadTeardownCars();
     }
   }, [page, cabinetTab, token, isStaff]);
+
+  useEffect(() => {
+    if (page === "cabinet" && token && isStaff && cabinetTab === "shipping") {
+      loadContainers();
+    }
+  }, [page, cabinetTab, token, isStaff]);
+
+  const loadContainers = async () => {
+    setContainersLoading(true);
+    const [c, a] = await Promise.all([
+      apiContainers("GET", token),
+      apiContainers("GET", token, { query: "available=1" }),
+    ]);
+    setContainers(c.containers || []);
+    setAvailableCars(a.cars || []);
+    setContainersLoading(false);
+  };
+
+  const doCreateContainer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!containerForm.name.trim()) return;
+    setContainerSaving(true);
+    await apiContainers("POST", token, { body: { action: "create", ...containerForm } });
+    setContainerForm({ name: "", container_number: "", origin: "Япония", comment: "" });
+    setContainerFormOpen(false);
+    setContainerSaving(false);
+    await loadContainers();
+  };
+
+  const togglePickedCar = (id: number) => {
+    setPickedCars((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+  };
+
+  const doAddToContainer = async () => {
+    if (!addTargetContainer || pickedCars.length === 0) return;
+    await apiContainers("POST", token, { body: { action: "add", container_id: addTargetContainer, car_ids: pickedCars } });
+    setPickedCars([]);
+    setAddTargetContainer("");
+    await loadContainers();
+  };
+
+  const doRemoveFromContainer = async (containerId: number, carId: number) => {
+    await apiContainers("POST", token, { body: { action: "remove", container_id: containerId, car_id: carId } });
+    await loadContainers();
+  };
+
+  const setContainerStatus = async (containerId: number, status: string) => {
+    await apiContainers("PUT", token, { body: { container_id: containerId, status } });
+    await loadContainers();
+  };
 
   const loadCars = async (orderId: number) => {
     setCarsLoading(true);
@@ -2565,6 +2653,143 @@ export default function Index() {
                             <Icon name="ChevronRight" size={20} className="text-[hsl(var(--navy)/0.55)]" />
                           </div>
                         ))}
+                      </div>
+                    )}
+
+                    {cabinetTab === "shipping" && (
+                      <div className="mt-10 pt-8 border-t border-[hsl(220_15%_88%)]">
+                        <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
+                          <div className="flex items-center gap-2">
+                            <Icon name="Container" size={20} className="text-[hsl(var(--navy))]" />
+                            <h2 className="font-['Montserrat'] font-bold text-xl navy">{t("containers_title")}</h2>
+                            <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))]">{containers.length}</span>
+                          </div>
+                          {!containerFormOpen && (
+                            <button onClick={() => setContainerFormOpen(true)} className="flex items-center gap-2 px-5 py-2.5 btn-navy rounded-sm text-sm">
+                              <Icon name="Plus" size={16} />{t("container_new")}
+                            </button>
+                          )}
+                        </div>
+
+                        {containerFormOpen && (
+                          <form onSubmit={doCreateContainer} className="card-light rounded-sm p-6 flex flex-col gap-4 mb-6">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-['Montserrat'] font-bold text-lg navy">{t("container_new")}</h3>
+                              <button type="button" onClick={() => setContainerFormOpen(false)} className="text-[hsl(var(--navy)/0.6)] hover:text-red-600"><Icon name="X" size={18} /></button>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("container_name")}</label>
+                                <input required placeholder="Контейнер №1" value={containerForm.name} onChange={(e) => setContainerForm({ ...containerForm, name: e.target.value })} className={inputCls} />
+                              </div>
+                              <div>
+                                <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("container_number")}</label>
+                                <input placeholder="MSKU1234567" value={containerForm.container_number} onChange={(e) => setContainerForm({ ...containerForm, container_number: e.target.value.toUpperCase() })} className={inputCls + " font-mono"} />
+                              </div>
+                              <div>
+                                <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("direction")}</label>
+                                <select value={containerForm.origin} onChange={(e) => setContainerForm({ ...containerForm, origin: e.target.value })} className={inputCls}>
+                                  <option value="Япония">{ORIGIN_LABEL[lang]["Япония"]}</option>
+                                  <option value="Корея">{ORIGIN_LABEL[lang]["Корея"]}</option>
+                                  <option value="Гонконг">{ORIGIN_LABEL[lang]["Гонконг"]}</option>
+                                  <option value="Китай">{ORIGIN_LABEL[lang]["Китай"]}</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("comment")}</label>
+                                <input placeholder="" value={containerForm.comment} onChange={(e) => setContainerForm({ ...containerForm, comment: e.target.value })} className={inputCls} />
+                              </div>
+                            </div>
+                            <button type="submit" disabled={containerSaving} className="self-start px-6 py-3 btn-navy rounded-sm disabled:opacity-60">{containerSaving ? t("saving") : t("container_create")}</button>
+                          </form>
+                        )}
+
+                        {containersLoading ? (
+                          <div className="flex items-center gap-3 py-10 justify-center text-[hsl(var(--navy)/0.62)]"><Icon name="Loader" size={20} className="animate-spin" />{t("loading")}</div>
+                        ) : (
+                          <>
+                            {/* Выбор машинокомплектов из заявок в работе */}
+                            <div className="card-light rounded-sm p-5 mb-6">
+                              <h3 className="font-['Montserrat'] font-bold navy mb-1">{t("container_pick_title")}</h3>
+                              <p className="text-[hsl(var(--navy)/0.62)] text-sm mb-4">{t("container_pick_hint")}</p>
+                              {availableCars.length === 0 ? (
+                                <p className="text-[hsl(var(--navy)/0.6)] text-sm py-3">{t("container_no_cars")}</p>
+                              ) : (
+                                <>
+                                  <div className="flex flex-col gap-2 mb-4">
+                                    {availableCars.map((c) => {
+                                      const picked = pickedCars.includes(c.id);
+                                      return (
+                                        <label key={c.id} className={`flex items-center gap-3 px-3 py-2.5 rounded-sm border cursor-pointer transition-colors ${picked ? "border-[hsl(var(--gold))] bg-[hsl(var(--gold)/0.06)]" : "border-[hsl(220_15%_88%)] hover:border-[hsl(var(--navy))]"}`}>
+                                          <span className={`w-5 h-5 rounded-sm border flex items-center justify-center flex-shrink-0 ${picked ? "bg-[hsl(var(--gold))] border-[hsl(var(--gold))]" : "bg-white border-[hsl(220_15%_80%)]"}`}>
+                                            {picked && <Icon name="Check" size={13} className="text-white" />}
+                                          </span>
+                                          <input type="checkbox" checked={picked} onChange={() => togglePickedCar(c.id)} className="hidden" />
+                                          <div className="min-w-0">
+                                            <div className="text-sm font-semibold navy">{[c.car_brand, c.car_model, c.car_year].filter(Boolean).join(" ") || "—"}{c.vin && <span className="font-mono text-xs text-[hsl(var(--navy)/0.55)] ml-2">{c.vin}</span>}</div>
+                                            <div className="text-xs text-[hsl(var(--navy)/0.55)]">{c.order_number} · {c.client_name || c.client_company || "—"} · {ORIGIN_LABEL[lang][c.origin] || c.origin}</div>
+                                          </div>
+                                        </label>
+                                      );
+                                    })}
+                                  </div>
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-sm text-[hsl(var(--navy)/0.65)]">{t("container_picked")}: {pickedCars.length}</span>
+                                    <select value={addTargetContainer} onChange={(e) => setAddTargetContainer(e.target.value ? Number(e.target.value) : "")} className={inputCls + " max-w-xs"}>
+                                      <option value="">{t("container_choose")}</option>
+                                      {containers.map((ct) => (<option key={ct.id} value={ct.id}>{ct.name}{ct.container_number ? ` (${ct.container_number})` : ""}</option>))}
+                                    </select>
+                                    <button type="button" onClick={doAddToContainer} disabled={!addTargetContainer || pickedCars.length === 0}
+                                      className="px-5 py-2.5 btn-navy rounded-sm text-sm disabled:opacity-50">{t("container_add")}</button>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+
+                            {/* Список контейнеров */}
+                            {containers.length === 0 ? (
+                              <div className="text-center py-10 text-[hsl(var(--navy)/0.6)]">
+                                <Icon name="Container" size={36} className="mx-auto mb-3 opacity-40" />
+                                <p className="text-sm">{t("container_empty")}</p>
+                              </div>
+                            ) : (
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {containers.map((ct) => (
+                                  <div key={ct.id} className="card-light rounded-sm p-5">
+                                    <div className="flex items-start justify-between gap-3">
+                                      <div>
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                          <span className="font-['Montserrat'] font-bold navy">{ct.name}</span>
+                                          <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[hsl(var(--navy)/0.06)] text-[hsl(var(--navy))]">{ct.status_label}</span>
+                                        </div>
+                                        {ct.container_number && <div className="text-xs font-mono text-[hsl(var(--navy)/0.6)] mt-0.5">{ct.container_number}</div>}
+                                        <div className="text-xs text-[hsl(var(--navy)/0.55)] mt-0.5">{ORIGIN_LABEL[lang][ct.origin] || ct.origin} · {ct.cars.length} {t("cars_word")}</div>
+                                      </div>
+                                      <select value={ct.status} onChange={(e) => setContainerStatus(ct.id, e.target.value)} className="text-xs border border-[hsl(220_15%_85%)] rounded-sm px-2 py-1 bg-white navy">
+                                        <option value="collecting">{t("cst_collecting")}</option>
+                                        <option value="shipped">{t("cst_shipped")}</option>
+                                        <option value="arrived">{t("cst_arrived")}</option>
+                                        <option value="done">{t("cst_done")}</option>
+                                      </select>
+                                    </div>
+                                    {ct.cars.length > 0 ? (
+                                      <div className="mt-3 pt-3 border-t border-[hsl(220_15%_90%)] flex flex-col gap-1.5">
+                                        {ct.cars.map((c) => (
+                                          <div key={c.id} className="flex items-center justify-between gap-2 text-sm">
+                                            <span className="navy min-w-0 truncate">{[c.car_brand, c.car_model, c.car_year].filter(Boolean).join(" ") || "—"}<span className="text-[hsl(var(--navy)/0.5)] ml-1">· {c.order_number}</span></span>
+                                            <button onClick={() => doRemoveFromContainer(ct.id, c.id)} className="text-[hsl(var(--navy)/0.5)] hover:text-red-600 flex-shrink-0"><Icon name="X" size={14} /></button>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <p className="mt-3 pt-3 border-t border-[hsl(220_15%_90%)] text-xs text-[hsl(var(--navy)/0.55)]">{t("container_no_items")}</p>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        )}
                       </div>
                     )}
                   </div>
