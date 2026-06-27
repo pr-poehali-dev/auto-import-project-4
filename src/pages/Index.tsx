@@ -425,6 +425,9 @@ const I18N: Record<Lang, Record<string, string>> = {
     staff_cabinet: "Кабинет сотрудника", personal_cabinet: "Личный кабинет", staff_badge: "Сотрудник",
     tab_clients: "Заявки клиентов", tab_profile: "Профиль", tab_orders: "Мои заявки",
     tab_teardowns: "Разборные листы",
+    tab_in_work: "Заявки в работе", tab_shipping: "Отправки",
+    in_work_empty: "Нет заявок в работе", in_work_empty_sub: "Здесь появятся заявки, переведённые в работу",
+    shipping_empty: "Нет отправок", shipping_empty_sub: "Здесь появятся отправленные и доставленные заявки",
     staff_create_order: "Создать заявку клиенту",
     staff_pick_client: "Клиент",
     staff_pick_client_ph: "Выберите клиента",
@@ -590,6 +593,9 @@ const I18N: Record<Lang, Record<string, string>> = {
     staff_cabinet: "Staff dashboard", personal_cabinet: "Dashboard", staff_badge: "Staff",
     tab_clients: "Client requests", tab_profile: "Profile", tab_orders: "My requests",
     tab_teardowns: "Teardown lists",
+    tab_in_work: "In progress", tab_shipping: "Shipping",
+    in_work_empty: "No requests in progress", in_work_empty_sub: "Requests moved to work will appear here",
+    shipping_empty: "No shipments", shipping_empty_sub: "Shipped and delivered requests will appear here",
     staff_create_order: "Create client request",
     staff_pick_client: "Client",
     staff_pick_client_ph: "Select a client",
@@ -673,7 +679,7 @@ const I18N: Record<Lang, Record<string, string>> = {
 };
 
 type Page = "home" | "directions" | "services" | "how" | "contacts" | "login" | "register" | "cabinet" | "origin" | "staff_login" | "forgot";
-type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile" | "clients" | "staff_users" | "hot_deals" | "teardowns";
+type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile" | "clients" | "in_work" | "shipping" | "staff_users" | "hot_deals" | "teardowns";
 
 // ════════════════════════════════════════════════════════════
 export default function Index() {
@@ -860,7 +866,7 @@ export default function Index() {
 
   // ── load orders when cabinet opens ──
   useEffect(() => {
-    const needOrders = page === "cabinet" && token && ["orders", "active_orders", "clients"].includes(cabinetTab);
+    const needOrders = page === "cabinet" && token && ["orders", "active_orders", "clients", "in_work", "shipping"].includes(cabinetTab);
     if (needOrders) {
       setOrdersLoading(true);
       apiOrders("GET", token)
@@ -1985,6 +1991,8 @@ export default function Index() {
               <div className="flex gap-1 flex-wrap mb-8 border-b border-[hsl(220_15%_88%)]">
                 {((isStaff ? [
                   { id: "clients", label: t("tab_clients"), icon: "Users" },
+                  { id: "in_work", label: t("tab_in_work"), icon: "Loader" },
+                  { id: "shipping", label: t("tab_shipping"), icon: "Truck" },
                   { id: "teardowns", label: t("tab_teardowns"), icon: "Wrench" },
                   { id: "hot_deals", label: t("tab_hot_deals"), icon: "Flame" },
                   { id: "staff_users", label: t("tab_staff_users"), icon: "ShieldCheck" },
@@ -2506,6 +2514,62 @@ export default function Index() {
                   )}
                 </div>
               )}
+
+              {/* ── Заявки в работе (сотрудник) ── */}
+              {(cabinetTab === "in_work" || cabinetTab === "shipping") && (() => {
+                const inWorkStatuses = ["processing", "auction"];
+                const shippingStatuses = ["shipped", "customs", "delivered", "done"];
+                const wanted = cabinetTab === "in_work" ? inWorkStatuses : shippingStatuses;
+                const list = orders.filter((o) => wanted.includes(o.status));
+                const emptyKey = cabinetTab === "in_work" ? "in_work_empty" : "shipping_empty";
+                const emptySubKey = cabinetTab === "in_work" ? "in_work_empty_sub" : "shipping_empty_sub";
+                const emptyIcon = cabinetTab === "in_work" ? "Loader" : "Truck";
+                return (
+                  <div>
+                    <div className="flex items-center gap-2 mb-5">
+                      <h2 className="font-['Montserrat'] font-bold text-xl navy">{cabinetTab === "in_work" ? t("tab_in_work") : t("tab_shipping")}</h2>
+                      <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))]">{list.length}</span>
+                    </div>
+                    {ordersLoading ? (
+                      <div className="flex items-center gap-3 py-16 justify-center text-[hsl(var(--navy)/0.62)]">
+                        <Icon name="Loader" size={20} className="animate-spin" />{t("loading")}
+                      </div>
+                    ) : list.length === 0 ? (
+                      <div className="text-center py-16">
+                        <Icon name={emptyIcon} size={40} className="mx-auto mb-4 text-[hsl(var(--navy)/0.4)]" />
+                        <p className="font-['Montserrat'] font-bold navy mb-2">{t(emptyKey)}</p>
+                        <p className="text-[hsl(var(--navy)/0.65)] text-sm">{t(emptySubKey)}</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-3">
+                        {list.map((o) => (
+                          <div key={o.id} onClick={() => { openOrderCars(o); setCabinetTab("clients"); }}
+                            className="card-light rounded-sm p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:shadow-md transition-all">
+                            <div className="flex items-start gap-4">
+                              <div className="w-10 h-10 bg-[hsl(var(--navy)/0.06)] rounded-sm flex items-center justify-center flex-shrink-0">
+                                <Icon name={cabinetTab === "in_work" ? "Wrench" : "Truck"} size={18} className="text-[hsl(var(--navy))]" />
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-['Montserrat'] font-bold text-sm navy">{o.order_number}</span>
+                                  <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${STATUS_COLOR[o.status] || "bg-gray-100 text-gray-600"}`}>{STATUS_LABEL[lang][o.status] || o.status_label}</span>
+                                  {!!o.cars_count && <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))]">{o.cars_count} {t("cars_word")}</span>}
+                                </div>
+                                <div className="text-[hsl(var(--navy))] text-sm font-semibold mt-1">{o.client_name || o.client_email}{o.client_company ? ` · ${o.client_company}` : ""}</div>
+                                <div className="text-[hsl(var(--navy)/0.55)] text-sm mt-0.5">
+                                  {t("request_word")} {[o.car_brand, o.car_model, o.car_year].filter(Boolean).join(" ")} · {ORIGIN_LABEL[lang][o.origin] || o.origin} · {o.quantity} {t("pcs")}
+                                </div>
+                                <div className="text-[hsl(var(--navy)/0.6)] text-xs mt-1">{o.client_phone} · {new Date(o.created_at).toLocaleDateString(lang)}</div>
+                              </div>
+                            </div>
+                            <Icon name="ChevronRight" size={20} className="text-[hsl(var(--navy)/0.55)]" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* ── Разборные листы (сотрудник) ── */}
               {cabinetTab === "teardowns" && (
