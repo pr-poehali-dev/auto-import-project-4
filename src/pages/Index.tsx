@@ -1366,18 +1366,19 @@ export default function Index() {
     { id: "contacts" as Page, label: t("nav_contacts"), icon: "Mail" },
   ];
 
-  const inputCls = "w-full bg-[hsl(220_25%_97%)] border border-[hsl(220_15%_88%)] px-4 py-3 text-sm text-[hsl(var(--navy))] placeholder-[hsl(var(--navy)/0.5)] focus:outline-none focus:border-[hsl(var(--navy)/0.5)] transition-colors rounded-sm";
+  const inputCls = "w-full bg-[hsl(222_46%_8%/0.7)] border border-[hsl(var(--gold)/0.18)] px-4 py-3 text-sm text-[hsl(var(--navy))] placeholder-[hsl(var(--navy)/0.4)] focus:outline-none focus:border-[hsl(var(--gold)/0.55)] focus:ring-1 focus:ring-[hsl(var(--gold)/0.3)] transition-colors rounded-sm";
 
   return (
     <div className="min-h-screen text-foreground overflow-x-hidden relative">
 
       {/* ── FULL-PAGE BACKGROUND ── */}
       <div className="fixed inset-0 -z-10 bg-cover bg-center" style={{ backgroundImage: `url(${PAGE_BG})` }} />
-      <div className="fixed inset-0 -z-10 bg-[hsl(220_52%_10%/0.55)]" />
+      <div className="fixed inset-0 -z-10 bg-[radial-gradient(1200px_600px_at_70%_-10%,hsl(41_74%_56%/0.10),transparent_60%)]" />
+      <div className="fixed inset-0 -z-10 bg-[linear-gradient(180deg,hsl(222_47%_6%/0.92),hsl(222_50%_4%/0.96))]" />
 
       {/* ── ПЛАВАЮЩИЙ ЛОГОТИП С МЕНЮ (десктоп) ── */}
       <div className="hidden md:block fixed top-4 left-5 z-50 group/logo">
-        <button onClick={() => nav("home")} className="flex items-center gap-2 rounded-sm overflow-hidden bg-white/90 backdrop-blur-md border border-white/40 shadow-lg pr-3">
+        <button onClick={() => nav("home")} className="flex items-center gap-2 rounded-sm overflow-hidden bg-[hsl(222_44%_9%/0.85)] backdrop-blur-md border border-[hsl(var(--gold)/0.3)] shadow-lg pr-3">
           <img src={LOGO} alt="Partcore Logistics" className="h-14 w-14 object-contain" />
           <span className="font-['Montserrat'] font-black text-xl leading-none">
             <span className="navy">PARTCORE</span> <span className="text-[hsl(var(--gold))]">LOGISTICS</span>
@@ -1448,7 +1449,7 @@ export default function Index() {
 
       {/* ── МОБИЛЬНАЯ КНОПКА-МЕНЮ ── */}
       <div className="md:hidden fixed top-4 left-4 right-4 z-50 flex items-center justify-between">
-        <button onClick={() => nav("home")} className="flex items-center gap-1.5 rounded-sm overflow-hidden bg-white/90 backdrop-blur-md border border-white/40 pr-2.5">
+        <button onClick={() => nav("home")} className="flex items-center gap-1.5 rounded-sm overflow-hidden bg-[hsl(222_44%_9%/0.85)] backdrop-blur-md border border-[hsl(var(--gold)/0.3)] pr-2.5">
           <img src={LOGO} alt="Partcore Logistics" className="h-11 w-11 object-contain" />
           <span className="font-['Montserrat'] font-black text-sm leading-none">
             <span className="navy">PARTCORE</span> <span className="text-[hsl(var(--gold))]">LOGISTICS</span>
@@ -1493,16 +1494,17 @@ export default function Index() {
           <>
             <section className="relative min-h-[88vh] flex items-center overflow-hidden light-grid">
               <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${HERO_IMG})` }}>
-                <div className="absolute inset-0 bg-gradient-to-r from-white via-white/92 to-white/50" />
+                <div className="absolute inset-0 bg-gradient-to-b from-[hsl(222_50%_5%/0.72)] via-[hsl(222_50%_5%/0.86)] to-[hsl(222_50%_4%/0.95)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(900px_500px_at_50%_120%,hsl(41_74%_56%/0.12),transparent_65%)]" />
               </div>
-              <div className="absolute left-0 top-0 bottom-0 w-1 bg-[hsl(var(--navy))]" />
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-[hsl(var(--gold))]" />
               <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 py-20">
                 <div className="max-w-3xl flex flex-col items-center text-center">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-9 anim-up d1 w-full">
                     {ORIGINS.map((o) => (
                       <button key={o.id} onClick={() => openOrigin(o.id)} className="text-left card-light rounded-sm p-5 group relative overflow-hidden hover:shadow-lg transition-all cursor-pointer">
                         <img src={`https://flagcdn.com/w640/${o.cc}.png`} alt="" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500 pointer-events-none select-none" />
-                        <span className="absolute inset-0 bg-gradient-to-t from-white/90 via-white/55 to-white/25 pointer-events-none" />
+                        <span className="absolute inset-0 bg-gradient-to-t from-[hsl(222_46%_9%/0.94)] via-[hsl(222_46%_10%/0.78)] to-[hsl(222_46%_12%/0.5)] pointer-events-none" />
                         <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-[hsl(var(--gold))] group-hover:w-full transition-all duration-500" />
                         <div className="relative z-10">
                           <h3 className="font-['Montserrat'] font-bold text-sm mb-1 navy flex items-center gap-2 leading-tight"><img src={`https://flagcdn.com/w40/${o.cc}.png`} alt="" className="w-7 h-5 object-cover rounded-sm shadow-sm flex-shrink-0" /><span className="min-w-0">{o.name[lang]}</span></h3>
@@ -1546,7 +1548,7 @@ export default function Index() {
               </div>
             </section>
 
-            <section className="py-20 px-5 sm:px-8 bg-[hsl(220_25%_97%)]">
+            <section className="py-20 px-5 sm:px-8 bg-[hsl(222_44%_9%/0.5)]">
               <div className="max-w-7xl mx-auto">
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
                   <div><div className="section-tag mb-3">{t("what_we_do")}</div><h2 className="font-['Montserrat'] font-black text-4xl sm:text-5xl">{t("services_title")}</h2><div className="divider-navy mt-4" /></div>
@@ -1596,7 +1598,7 @@ export default function Index() {
           <section className="min-h-screen">
             <div className="relative overflow-hidden mb-12">
               <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${SERVICES_IMG})` }} />
-              <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--navy))] via-[hsl(var(--navy)/0.85)] to-[hsl(var(--navy)/0.55)]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[hsl(222_50%_5%/0.94)] via-[hsl(222_50%_6%/0.82)] to-[hsl(222_50%_7%/0.55)]" />
               <div className="relative max-w-7xl mx-auto px-5 sm:px-8 py-20 sm:py-24">
                 <div className="section-tag mb-3 border-[hsl(var(--gold)/0.5)] text-[hsl(var(--gold))]">{t("what_we_do")}</div>
                 <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl text-white">{t("services_title")}</h1>
@@ -1614,7 +1616,7 @@ export default function Index() {
                 </div>
               ))}
             </div>
-            <div className="bg-[hsl(220_25%_97%)] rounded-sm p-8 border border-[hsl(var(--gold)/0.3)] text-center">
+            <div className="bg-[hsl(222_44%_9%/0.5)] rounded-sm p-8 border border-[hsl(var(--gold)/0.3)] text-center">
               <h3 className="font-['Montserrat'] font-bold text-2xl mb-3 navy">{t("custom_service_title")}</h3>
               <p className="text-[hsl(var(--navy)/0.68)] mb-6 text-sm">{t("custom_service_sub")}</p>
               <button onClick={() => nav("contacts")} className="px-8 py-3.5 btn-navy rounded-sm">{t("discuss_task")}</button>
@@ -1628,7 +1630,7 @@ export default function Index() {
           <section className="min-h-screen">
             <div className="relative overflow-hidden mb-12">
               <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${HOW_IMG})` }} />
-              <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--navy))] via-[hsl(var(--navy)/0.85)] to-[hsl(var(--navy)/0.55)]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[hsl(222_50%_5%/0.94)] via-[hsl(222_50%_6%/0.82)] to-[hsl(222_50%_7%/0.55)]" />
               <div className="relative max-w-7xl mx-auto px-5 sm:px-8 py-20 sm:py-24">
                 <div className="section-tag mb-3 border-[hsl(var(--gold)/0.5)] text-[hsl(var(--gold))]">{t("process_tag")}</div>
                 <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl text-white">{t("how_we_work_title")}</h1>
@@ -1662,10 +1664,10 @@ export default function Index() {
           <section className="min-h-screen">
             <div className="relative overflow-hidden mb-12">
               <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${DIRECTIONS_IMG})` }} />
-              <div className="absolute inset-0 bg-gradient-to-r from-white/98 via-white/95 to-white/85" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[hsl(222_50%_5%/0.94)] via-[hsl(222_50%_6%/0.82)] to-[hsl(222_50%_7%/0.55)]" />
               <div className="relative max-w-7xl mx-auto px-5 sm:px-8 py-20 sm:py-24">
                 <div className="section-tag mb-3">{t("directions_tag")}</div>
-                <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl navy drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)]">{t("source_countries")}</h1>
+                <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl text-white">{t("source_countries")}</h1>
                 <div className="h-1 w-16 bg-[hsl(var(--gold))] mt-4" />
                 <p className="text-[hsl(var(--navy)/0.75)] text-lg leading-relaxed max-w-3xl mt-6">{t("directions_intro")}</p>
               </div>
@@ -1683,10 +1685,10 @@ export default function Index() {
                   <p className="text-[hsl(var(--navy)/0.55)] text-sm leading-relaxed mb-5 flex-1">{o.desc[lang]}</p>
                   <div className="flex flex-wrap gap-1.5 mb-5">
                     {o.brands.slice(0, 4).map((b) => (
-                      <span key={b} className="px-2.5 py-1 bg-[hsl(220_25%_97%)] border border-[hsl(220_15%_88%)] rounded-sm text-xs font-['Montserrat'] font-semibold navy">{b}</span>
+                      <span key={b} className="px-2.5 py-1 bg-[hsl(222_44%_9%/0.5)] border border-[hsl(var(--gold)/0.15)] rounded-sm text-xs font-['Montserrat'] font-semibold navy">{b}</span>
                     ))}
                   </div>
-                  <div className="flex items-center gap-2 text-[hsl(var(--navy)/0.65)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide pt-4 border-t border-[hsl(220_15%_90%)] mb-4">
+                  <div className="flex items-center gap-2 text-[hsl(var(--navy)/0.65)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide pt-4 border-t border-[hsl(var(--gold)/0.12)] mb-4">
                     <Icon name="Package" size={14} />{o.volume[lang]}
                   </div>
                   <button onClick={(e) => { e.stopPropagation(); nav("contacts"); }}
@@ -1747,7 +1749,7 @@ export default function Index() {
                             <Icon name="Car" size={56} className="text-white/15" />
                           )}
                           {d.badge && <span className="absolute top-3 left-3 text-[11px] font-['Montserrat'] font-bold px-2.5 py-1 bg-[hsl(var(--gold))] text-white rounded-sm uppercase tracking-wide">{d.badge}</span>}
-                          {d.brand && <span className="absolute top-3 right-3 text-[11px] font-['Montserrat'] font-bold px-2.5 py-1 bg-white/90 navy rounded-sm">{d.brand}</span>}
+                          {d.brand && <span className="absolute top-3 right-3 text-[11px] font-['Montserrat'] font-bold px-2.5 py-1 bg-[hsl(222_50%_6%/0.85)] backdrop-blur-sm border border-[hsl(var(--gold)/0.25)] navy rounded-sm">{d.brand}</span>}
                         </div>
                         <div className="p-5 flex flex-col flex-1">
                           <h3 className="font-['Montserrat'] font-bold text-lg navy leading-tight mb-3">{d.model}</h3>
@@ -1765,7 +1767,7 @@ export default function Index() {
                               <div className="font-['Montserrat'] font-bold text-sm navy">{d.engine || "—"}</div>
                             </div>
                           </div>
-                          <div className="mt-auto pt-4 border-t border-[hsl(220_15%_90%)] flex items-center justify-between gap-3">
+                          <div className="mt-auto pt-4 border-t border-[hsl(var(--gold)/0.12)] flex items-center justify-between gap-3">
                             <span className="font-['Montserrat'] font-black text-lg gold">{d.price}</span>
                             <button onClick={() => nav("contacts")} className="px-4 py-2.5 btn-gold rounded-sm whitespace-nowrap">{t("hd_reserve")}</button>
                           </div>
@@ -1814,7 +1816,7 @@ export default function Index() {
                             {t("open_here")}
                           </button>
                           <a href={a.url} target="_blank" rel="noopener noreferrer"
-                            className="px-3 py-2 border border-[hsl(220_15%_85%)] rounded-sm flex items-center justify-center hover:border-[hsl(var(--navy))] transition-colors" title={t("open_new_tab_title")}>
+                            className="px-3 py-2 border border-[hsl(var(--gold)/0.18)] rounded-sm flex items-center justify-center hover:border-[hsl(var(--navy))] transition-colors" title={t("open_new_tab_title")}>
                             <Icon name="ExternalLink" size={14} className="text-[hsl(var(--navy))]" />
                           </a>
                         </div>
@@ -1824,7 +1826,7 @@ export default function Index() {
 
                   {activeAuction && (
                     <div className="card-light rounded-sm overflow-hidden">
-                      <div className="flex items-center justify-between px-4 py-3 bg-[hsl(220_25%_97%)] border-b border-[hsl(220_15%_88%)]">
+                      <div className="flex items-center justify-between px-4 py-3 bg-[hsl(222_44%_9%/0.5)] border-b border-[hsl(var(--gold)/0.15)]">
                         <div className="flex items-center gap-2">
                           <Icon name="Globe" size={15} className="text-[hsl(var(--navy))]" />
                           <span className="font-['Montserrat'] font-semibold text-sm navy">{activeAuction.name}</span>
@@ -1839,10 +1841,10 @@ export default function Index() {
                           </button>
                         </div>
                       </div>
-                      <div className="relative bg-[hsl(220_25%_97%)]">
+                      <div className="relative bg-[hsl(222_44%_9%/0.5)]">
                         <iframe src={activeAuction.url} title={activeAuction.name} className="w-full h-[600px] border-0" sandbox="allow-same-origin allow-scripts allow-popups allow-forms" />
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                          <div className="bg-white/90 rounded-sm px-5 py-4 text-center max-w-xs pointer-events-auto shadow-lg" style={{ opacity: 0.95 }}>
+                          <div className="card-light rounded-sm px-5 py-4 text-center max-w-xs pointer-events-auto shadow-lg" style={{ opacity: 0.97 }}>
                             <Icon name="Info" size={20} className="text-[hsl(var(--gold))] mx-auto mb-2" />
                             <p className="text-[hsl(var(--navy)/0.7)] text-xs leading-relaxed mb-3">{t("iframe_warning")}</p>
                             <a href={activeAuction.url} target="_blank" rel="noopener noreferrer"
@@ -1876,7 +1878,7 @@ export default function Index() {
                     <h2 className="font-['Montserrat'] font-black text-2xl text-white mb-5 drop-shadow-[0_1px_3px_rgba(25,61,100,0.6)]">{t("popular_brands")}</h2>
                     <div className="flex flex-wrap gap-2">
                       {o.brands.map((b) => (
-                        <span key={b} className="px-4 py-2 bg-[hsl(220_25%_97%)] border border-[hsl(220_15%_88%)] rounded-sm text-sm font-['Montserrat'] font-semibold navy">{b}</span>
+                        <span key={b} className="px-4 py-2 bg-[hsl(222_44%_9%/0.5)] border border-[hsl(var(--gold)/0.15)] rounded-sm text-sm font-['Montserrat'] font-semibold navy">{b}</span>
                       ))}
                     </div>
                   </div>
@@ -1915,7 +1917,7 @@ export default function Index() {
           <section className="min-h-screen">
             <div className="relative overflow-hidden mb-12">
               <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${CONTACTS_IMG})` }} />
-              <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--navy))] via-[hsl(var(--navy)/0.85)] to-[hsl(var(--navy)/0.55)]" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[hsl(222_50%_5%/0.94)] via-[hsl(222_50%_6%/0.82)] to-[hsl(222_50%_7%/0.55)]" />
               <div className="relative max-w-7xl mx-auto px-5 sm:px-8 py-20 sm:py-24">
                 <div className="section-tag mb-3 border-[hsl(var(--gold)/0.5)] text-[hsl(var(--gold))]">{t("contact_tag")}</div>
                 <h1 className="font-['Montserrat'] font-black text-4xl sm:text-5xl text-white">{t("leave_request_title")}</h1>
@@ -1982,7 +1984,7 @@ export default function Index() {
                 <h1 className="font-['Montserrat'] font-black text-3xl text-white mb-2">{t("staff_login_title")}</h1>
                 <p className="text-white/80 text-sm">{t("staff_login_sub")}</p>
               </div>
-              <div className="bg-white rounded-sm p-8 shadow-xl">
+              <div className="card-light rounded-sm p-8 shadow-xl">
                 <form onSubmit={doStaffLogin} className="flex flex-col gap-5">
                   {authError && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-sm">{authError}</div>}
                   <div>
@@ -2157,7 +2159,7 @@ export default function Index() {
           ) : (
             <div className="min-h-screen relative">
               <div className="fixed inset-0 -z-10 bg-cover bg-center" style={{ backgroundImage: `url(${HERO_IMG})` }} />
-              <div className="fixed inset-0 -z-10 bg-white/85" />
+              <div className="fixed inset-0 -z-10 bg-[linear-gradient(180deg,hsl(222_47%_6%/0.94),hsl(222_50%_4%/0.97))]" />
               <div className="max-w-7xl mx-auto px-5 sm:px-8 py-8">
               {/* Cabinet header */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
@@ -2169,13 +2171,13 @@ export default function Index() {
                   </h1>
                   {user.company && <p className="text-[hsl(var(--navy)/0.65)] text-sm mt-0.5">{user.company}</p>}
                 </div>
-                <button onClick={doLogout} className="flex items-center gap-2 px-4 py-2 border border-[hsl(220_15%_88%)] text-[hsl(var(--navy)/0.68)] text-sm font-['Montserrat'] font-semibold hover:text-red-600 hover:border-red-200 transition-all rounded-sm">
+                <button onClick={doLogout} className="flex items-center gap-2 px-4 py-2 border border-[hsl(var(--gold)/0.15)] text-[hsl(var(--navy)/0.68)] text-sm font-['Montserrat'] font-semibold hover:text-red-600 hover:border-red-200 transition-all rounded-sm">
                   <Icon name="LogOut" size={15} />{t("logout")}
                 </button>
               </div>
 
               {/* Tabs */}
-              <div className="flex gap-1 flex-wrap mb-8 border-b border-[hsl(220_15%_88%)]">
+              <div className="flex gap-1 flex-wrap mb-8 border-b border-[hsl(var(--gold)/0.15)]">
                 {((isStaff ? [
                   { id: "clients", label: t("tab_clients"), icon: "Users" },
                   { id: "in_work", label: t("tab_in_work"), icon: "Loader" },
@@ -2193,7 +2195,7 @@ export default function Index() {
                   { id: "profile", label: t("tab_profile"), icon: "User" },
                 ]) as { id: CabinetTab; label: string; icon: string }[]).map((tab) => (
                   <button key={tab.id} onClick={() => { setCabinetTab(tab.id); setSelectedOrder(null); }}
-                    className={`flex items-center gap-2 px-4 py-3 text-sm font-['Montserrat'] font-semibold border-b-2 transition-all ${cabinetTab === tab.id ? "border-[hsl(var(--navy))] text-[hsl(var(--navy))]" : "border-transparent text-[hsl(var(--navy)/0.65)] hover:text-[hsl(var(--navy))]"}`}>
+                    className={`flex items-center gap-2 px-4 py-3 text-sm font-['Montserrat'] font-semibold border-b-2 transition-all ${cabinetTab === tab.id ? "border-[hsl(var(--gold))] text-[hsl(var(--gold))]" : "border-transparent text-[hsl(var(--navy)/0.6)] hover:text-[hsl(var(--navy))]"}`}>
                     <Icon name={tab.icon} size={15} />{tab.label}
                   </button>
                 ))}
@@ -2293,25 +2295,25 @@ export default function Index() {
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-1 sm:gap-2 pt-4 border-t border-[hsl(220_15%_90%)] overflow-x-auto">
+                          <div className="flex items-center gap-1 sm:gap-2 pt-4 border-t border-[hsl(var(--gold)/0.12)] overflow-x-auto">
                             {steps.map((s, i) => {
                               const reached = curIdx >= i;
                               const isCurrent = curIdx === i;
                               return (
                                 <div key={s.key} className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                                   <div className="flex flex-col items-center gap-1.5">
-                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${reached ? "bg-[hsl(var(--gold))] text-white" : "bg-[hsl(220_25%_94%)] text-[hsl(var(--navy)/0.55)]"}`}>
+                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${reached ? "bg-[hsl(var(--gold))] text-white" : "bg-[hsl(222_30%_18%)] text-[hsl(var(--navy)/0.55)]"}`}>
                                       {reached ? <Icon name="Check" size={13} /> : <span className="text-[10px] font-bold">{i + 1}</span>}
                                     </div>
                                     <span className={`text-[10px] font-['Montserrat'] font-semibold whitespace-nowrap ${isCurrent ? "text-[hsl(var(--gold))]" : reached ? "text-[hsl(var(--navy))]" : "text-[hsl(var(--navy)/0.6)]"}`}>{s.label}</span>
                                   </div>
-                                  {i < steps.length - 1 && <div className={`w-4 sm:w-8 h-0.5 ${curIdx > i ? "bg-[hsl(var(--gold))]" : "bg-[hsl(220_25%_90%)]"}`} />}
+                                  {i < steps.length - 1 && <div className={`w-4 sm:w-8 h-0.5 ${curIdx > i ? "bg-[hsl(var(--gold))]" : "bg-[hsl(222_28%_22%)]"}`} />}
                                 </div>
                               );
                             })}
                           </div>
                           {!!o.cars_count && (
-                            <div className="pt-4 mt-4 border-t border-[hsl(220_15%_90%)]">
+                            <div className="pt-4 mt-4 border-t border-[hsl(var(--gold)/0.12)]">
                               <button onClick={() => toggleOrderCars(o.id)} className="flex items-center gap-2 text-sm font-['Montserrat'] font-semibold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors">
                                 <Icon name="Car" size={15} />{t("selected_cars")} ({o.cars_count})
                                 <Icon name={expandedOrder === o.id ? "ChevronUp" : "ChevronDown"} size={15} />
@@ -2319,9 +2321,9 @@ export default function Index() {
                               {expandedOrder === o.id && (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                                   {(orderCars[o.id] || []).map((c) => (
-                                    <div key={c.id} className="border border-[hsl(220_15%_88%)] rounded-sm overflow-hidden">
+                                    <div key={c.id} className="border border-[hsl(var(--gold)/0.15)] rounded-sm overflow-hidden">
                                       {c.photos.length > 0 && (
-                                        <div className="flex gap-1 overflow-x-auto bg-[hsl(220_25%_97%)]">
+                                        <div className="flex gap-1 overflow-x-auto bg-[hsl(222_44%_9%/0.5)]">
                                           {c.photos.map((p, i) => (<img key={i} src={p} alt="" className="h-40 w-auto object-cover flex-shrink-0" />))}
                                         </div>
                                       )}
@@ -2333,7 +2335,7 @@ export default function Index() {
                                         </div>
                                         {c.description && <p className="text-[hsl(var(--navy)/0.55)] text-sm mt-2 leading-relaxed">{c.description}</p>}
                                         {c.teardown && c.teardown.length > 0 && (
-                                          <div className="mt-3 pt-3 border-t border-[hsl(220_15%_90%)]">
+                                          <div className="mt-3 pt-3 border-t border-[hsl(var(--gold)/0.12)]">
                                             <div className="flex items-center gap-2 mb-2">
                                               <span className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{t("teardown_title")}</span>
                                               {savingTeardown === c.id && <Icon name="Loader" size={12} className="animate-spin text-[hsl(var(--navy)/0.62)]" />}
@@ -2346,7 +2348,7 @@ export default function Index() {
                                                   <div className="flex flex-col gap-1 pl-1">
                                                     {grp.items.map((it) => (
                                                       <label key={it.name} className="flex items-center gap-2.5 cursor-pointer group/part select-none py-0.5">
-                                                        <span className={`w-5 h-5 rounded-sm border flex items-center justify-center flex-shrink-0 transition-colors ${it.needed ? "bg-[hsl(var(--gold))] border-[hsl(var(--gold))]" : "bg-white border-[hsl(220_15%_80%)] group-hover/part:border-[hsl(var(--navy))]"}`}>
+                                                        <span className={`w-5 h-5 rounded-sm border flex items-center justify-center flex-shrink-0 transition-colors ${it.needed ? "bg-[hsl(var(--gold))] border-[hsl(var(--gold))]" : "bg-[hsl(222_46%_8%)] border-[hsl(var(--gold)/0.3)] group-hover/part:border-[hsl(var(--navy))]"}`}>
                                                           {it.needed && <Icon name="Check" size={13} className="text-white" />}
                                                         </span>
                                                         <input type="checkbox" checked={it.needed} onChange={() => toggleClientPart(c, it.name)} className="hidden" />
@@ -2498,7 +2500,7 @@ export default function Index() {
                           <div><span className="text-[hsl(var(--navy)/0.62)]">{t("request_label")}</span> <span className="navy">{[selectedOrder.car_brand, selectedOrder.car_model, selectedOrder.car_year].filter(Boolean).join(" ") || "—"}</span></div>
                           <div><span className="text-[hsl(var(--navy)/0.62)]">{t("direction_label")}</span> <span className="navy">{ORIGIN_LABEL[lang][selectedOrder.origin] || selectedOrder.origin} · {selectedOrder.quantity} {t("pcs")}</span></div>
                         </div>
-                        {selectedOrder.comment && <div className="text-sm bg-[hsl(220_25%_97%)] rounded-sm p-3 mb-5"><span className="text-[hsl(var(--navy)/0.62)]">{t("client_comment")}</span><span className="navy">{selectedOrder.comment}</span></div>}
+                        {selectedOrder.comment && <div className="text-sm bg-[hsl(222_44%_9%/0.5)] rounded-sm p-3 mb-5"><span className="text-[hsl(var(--navy)/0.62)]">{t("client_comment")}</span><span className="navy">{selectedOrder.comment}</span></div>}
                         <div>
                           <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("order_status")}</label>
                           <select value={selectedOrder.status} onChange={(e) => changeOrderStatus(selectedOrder.id, e.target.value)} className={inputCls + " max-w-xs"}>
@@ -2552,13 +2554,13 @@ export default function Index() {
                           <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("car_photos")}</label>
                           <div className="flex flex-wrap gap-3 items-center">
                             {carForm.photos.map((p, i) => (
-                              <div key={i} className="relative w-20 h-20 rounded-sm overflow-hidden border border-[hsl(220_15%_85%)]">
+                              <div key={i} className="relative w-20 h-20 rounded-sm overflow-hidden border border-[hsl(var(--gold)/0.18)]">
                                 <img src={p} alt="" className="w-full h-full object-cover" />
                                 <button type="button" onClick={() => setCarForm({ ...carForm, photos: carForm.photos.filter((_, j) => j !== i) })}
                                   className="absolute top-0.5 right-0.5 w-5 h-5 bg-black/60 text-white rounded-full flex items-center justify-center"><Icon name="X" size={11} /></button>
                               </div>
                             ))}
-                            <label className="w-20 h-20 rounded-sm border-2 border-dashed border-[hsl(220_15%_80%)] flex flex-col items-center justify-center cursor-pointer hover:border-[hsl(var(--navy))] transition-colors text-[hsl(var(--navy)/0.65)]">
+                            <label className="w-20 h-20 rounded-sm border-2 border-dashed border-[hsl(var(--gold)/0.2)] flex flex-col items-center justify-center cursor-pointer hover:border-[hsl(var(--navy))] transition-colors text-[hsl(var(--navy)/0.65)]">
                               <Icon name="Plus" size={18} />
                               <span className="text-[10px] mt-1">{t("photo")}</span>
                               <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => handlePhotoSelect(e.target.files)} />
@@ -2574,7 +2576,7 @@ export default function Index() {
                               <Icon name="ListChecks" size={13} />{t("td_full")}
                             </button>
                             <button type="button" onClick={clearTeardown}
-                              className="flex items-center gap-1.5 text-xs font-['Montserrat'] font-semibold px-3 py-1.5 rounded-sm border border-[hsl(220_15%_85%)] text-[hsl(var(--navy)/0.65)] hover:border-red-300 hover:text-red-600 transition-colors">
+                              className="flex items-center gap-1.5 text-xs font-['Montserrat'] font-semibold px-3 py-1.5 rounded-sm border border-[hsl(var(--gold)/0.18)] text-[hsl(var(--navy)/0.65)] hover:border-red-300 hover:text-red-600 transition-colors">
                               <Icon name="Eraser" size={13} />{t("td_clear_all")}
                             </button>
                           </div>
@@ -2583,7 +2585,7 @@ export default function Index() {
                               const groupNames = grp.parts.map((p) => joinTd(grp.group, p));
                               const allActive = groupNames.every((n) => carForm.teardown.some((x) => x.name === n));
                               return (
-                                <div key={grp.group} className="bg-[hsl(220_25%_98%)] border border-[hsl(220_15%_90%)] rounded-sm p-3">
+                                <div key={grp.group} className="bg-[hsl(222_44%_9%/0.6)] border border-[hsl(var(--gold)/0.15)] rounded-sm p-3">
                                   <div className="flex items-center justify-between mb-2">
                                     <span className="text-xs font-['Montserrat'] font-bold uppercase tracking-wide navy">{grp.group}</span>
                                     <button type="button" onClick={() => toggleCarFormGroup(groupNames, !allActive)}
@@ -2597,7 +2599,7 @@ export default function Index() {
                                       const active = carForm.teardown.some((x) => x.name === name);
                                       return (
                                         <button type="button" key={name} onClick={() => toggleCarFormPart(name)}
-                                          className={`text-xs font-['Montserrat'] font-semibold px-3 py-1.5 rounded-full border transition-colors ${active ? "bg-[hsl(var(--navy))] text-white border-[hsl(var(--navy))]" : "bg-white text-[hsl(var(--navy)/0.6)] border-[hsl(220_15%_85%)] hover:border-[hsl(var(--navy))]"}`}>
+                                          className={`text-xs font-['Montserrat'] font-semibold px-3 py-1.5 rounded-full border transition-colors ${active ? "bg-[hsl(var(--gold))] text-[hsl(222_47%_8%)] border-[hsl(var(--gold))]" : "bg-[hsl(222_46%_8%)] text-[hsl(var(--navy)/0.6)] border-[hsl(var(--gold)/0.18)] hover:border-[hsl(var(--gold)/0.5)]"}`}>
                                           {active && <Icon name="Check" size={12} className="inline mr-1 -mt-0.5" />}{part}
                                         </button>
                                       );
@@ -2621,10 +2623,10 @@ export default function Index() {
                                 const sp = splitTd(it.name);
                                 const q = it.qty || 1;
                                 return (
-                                  <div key={it.name} className="flex items-center justify-between gap-2 bg-[hsl(220_25%_97%)] rounded-sm px-3 py-2">
+                                  <div key={it.name} className="flex items-center justify-between gap-2 bg-[hsl(222_44%_9%/0.5)] rounded-sm px-3 py-2">
                                     <span className="text-sm navy min-w-0 truncate"><span className="text-[hsl(var(--navy)/0.5)]">{sp.group} · </span>{sp.part}</span>
                                     <div className="flex items-center gap-2 flex-shrink-0">
-                                      <div className="flex items-center border border-[hsl(220_15%_85%)] rounded-sm bg-white">
+                                      <div className="flex items-center border border-[hsl(var(--gold)/0.18)] rounded-sm bg-[hsl(222_46%_8%)]">
                                         <button type="button" onClick={() => setPartQty(it.name, q - 1)} className="w-7 h-7 flex items-center justify-center text-[hsl(var(--navy)/0.6)] hover:text-[hsl(var(--navy))]"><Icon name="Minus" size={13} /></button>
                                         <span className="w-7 text-center text-sm font-semibold navy">{q}</span>
                                         <button type="button" onClick={() => setPartQty(it.name, q + 1)} className="w-7 h-7 flex items-center justify-center text-[hsl(var(--navy)/0.6)] hover:text-[hsl(var(--navy))]"><Icon name="Plus" size={13} /></button>
@@ -2653,7 +2655,7 @@ export default function Index() {
                           {cars.map((c) => (
                             <div key={c.id} className="card-light rounded-sm overflow-hidden">
                               {c.photos.length > 0 && (
-                                <div className="flex gap-1 overflow-x-auto bg-[hsl(220_25%_97%)]">
+                                <div className="flex gap-1 overflow-x-auto bg-[hsl(222_44%_9%/0.5)]">
                                   {c.photos.map((p, i) => (<img key={i} src={p} alt="" className="h-40 w-auto object-cover flex-shrink-0" />))}
                                 </div>
                               )}
@@ -2669,7 +2671,7 @@ export default function Index() {
                                 {c.vin && <div className="text-xs mt-1 text-[hsl(var(--navy)/0.62)]">VIN: <span className="font-mono font-semibold navy tracking-wider">{c.vin}</span></div>}
                                 {c.description && <p className="text-[hsl(var(--navy)/0.55)] text-sm mt-2 leading-relaxed">{c.description}</p>}
                                 {c.teardown && c.teardown.length > 0 && (
-                                  <div className="mt-3 pt-3 border-t border-[hsl(220_15%_90%)]">
+                                  <div className="mt-3 pt-3 border-t border-[hsl(var(--gold)/0.12)]">
                                     <div className="flex items-center justify-between gap-2 mb-2">
                                       <div className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{t("teardown_title")} · {t("teardown_client_picked")}: {c.teardown.filter((x) => x.needed).length}/{c.teardown.length}</div>
                                       <button type="button" onClick={() => exportPackingList(c)} className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors flex-shrink-0">
@@ -2756,7 +2758,7 @@ export default function Index() {
                     )}
 
                     {cabinetTab === "shipping" && (
-                      <div className="mt-10 pt-8 border-t border-[hsl(220_15%_88%)]">
+                      <div className="mt-10 pt-8 border-t border-[hsl(var(--gold)/0.15)]">
                         <div className="flex items-center justify-between gap-3 mb-5 flex-wrap">
                           <div className="flex items-center gap-2">
                             <Icon name="Container" size={20} className="text-[hsl(var(--navy))]" />
@@ -2819,8 +2821,8 @@ export default function Index() {
                                     {availableCars.map((c) => {
                                       const picked = pickedCars.includes(c.id);
                                       return (
-                                        <label key={c.id} className={`flex items-center gap-3 px-3 py-2.5 rounded-sm border cursor-pointer transition-colors ${picked ? "border-[hsl(var(--gold))] bg-[hsl(var(--gold)/0.06)]" : "border-[hsl(220_15%_88%)] hover:border-[hsl(var(--navy))]"}`}>
-                                          <span className={`w-5 h-5 rounded-sm border flex items-center justify-center flex-shrink-0 ${picked ? "bg-[hsl(var(--gold))] border-[hsl(var(--gold))]" : "bg-white border-[hsl(220_15%_80%)]"}`}>
+                                        <label key={c.id} className={`flex items-center gap-3 px-3 py-2.5 rounded-sm border cursor-pointer transition-colors ${picked ? "border-[hsl(var(--gold))] bg-[hsl(var(--gold)/0.06)]" : "border-[hsl(var(--gold)/0.15)] hover:border-[hsl(var(--navy))]"}`}>
+                                          <span className={`w-5 h-5 rounded-sm border flex items-center justify-center flex-shrink-0 ${picked ? "bg-[hsl(var(--gold))] border-[hsl(var(--gold))]" : "bg-[hsl(222_46%_8%)] border-[hsl(var(--gold)/0.3)]"}`}>
                                             {picked && <Icon name="Check" size={13} className="text-white" />}
                                           </span>
                                           <input type="checkbox" checked={picked} onChange={() => togglePickedCar(c.id)} className="hidden" />
@@ -2868,7 +2870,7 @@ export default function Index() {
                                         <button type="button" onClick={() => exportContainerPdf(ct)} title="PDF" className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors">
                                           <Icon name="FileDown" size={14} />PDF
                                         </button>
-                                        <select value={ct.status} onChange={(e) => setContainerStatus(ct.id, e.target.value)} className="text-xs border border-[hsl(220_15%_85%)] rounded-sm px-2 py-1 bg-white navy">
+                                        <select value={ct.status} onChange={(e) => setContainerStatus(ct.id, e.target.value)} className="text-xs border border-[hsl(var(--gold)/0.18)] rounded-sm px-2 py-1 bg-[hsl(222_46%_8%)] navy">
                                           <option value="collecting">{t("cst_collecting")}</option>
                                           <option value="shipped">{t("cst_shipped")}</option>
                                           <option value="arrived">{t("cst_arrived")}</option>
@@ -2877,7 +2879,7 @@ export default function Index() {
                                       </div>
                                     </div>
                                     {ct.cars.length > 0 ? (
-                                      <div className="mt-3 pt-3 border-t border-[hsl(220_15%_90%)] flex flex-col gap-1.5">
+                                      <div className="mt-3 pt-3 border-t border-[hsl(var(--gold)/0.12)] flex flex-col gap-1.5">
                                         {ct.cars.map((c) => (
                                           <div key={c.id} className="flex items-center justify-between gap-2 text-sm">
                                             <span className="navy min-w-0 truncate">{[c.car_brand, c.car_model, c.car_year].filter(Boolean).join(" ") || "—"}<span className="text-[hsl(var(--navy)/0.5)] ml-1">· {c.order_number}</span></span>
@@ -2886,7 +2888,7 @@ export default function Index() {
                                         ))}
                                       </div>
                                     ) : (
-                                      <p className="mt-3 pt-3 border-t border-[hsl(220_15%_90%)] text-xs text-[hsl(var(--navy)/0.55)]">{t("container_no_items")}</p>
+                                      <p className="mt-3 pt-3 border-t border-[hsl(var(--gold)/0.12)] text-xs text-[hsl(var(--navy)/0.55)]">{t("container_no_items")}</p>
                                     )}
                                   </div>
                                 ))}
@@ -2938,7 +2940,7 @@ export default function Index() {
                                 {!!c.mileage && <span>{c.mileage.toLocaleString()} {t("km")}</span>}
                               </div>
                               {c.vin && <div className="text-xs mt-1 text-[hsl(var(--navy)/0.62)]">VIN: <span className="font-mono font-semibold navy tracking-wider">{c.vin}</span></div>}
-                              <div className="mt-3 pt-3 border-t border-[hsl(220_15%_90%)]">
+                              <div className="mt-3 pt-3 border-t border-[hsl(var(--gold)/0.12)]">
                                 <div className="flex items-center justify-between gap-2 mb-2">
                                   <div className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{t("teardown_title")} · {t("teardown_client_picked")}: {c.teardown.filter((x) => x.needed).length}/{c.teardown.length}</div>
                                   <button type="button" onClick={() => exportPackingList(c)} className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors flex-shrink-0">
@@ -3056,7 +3058,7 @@ export default function Index() {
                       </a>
                     ))}
                   </div>
-                  <div className="mt-6 p-4 bg-[hsl(220_25%_97%)] rounded-sm border border-[hsl(var(--gold)/0.3)] flex items-start gap-3">
+                  <div className="mt-6 p-4 bg-[hsl(222_44%_9%/0.5)] rounded-sm border border-[hsl(var(--gold)/0.3)] flex items-start gap-3">
                     <Icon name="Info" size={16} className="text-[hsl(var(--gold))] flex-shrink-0 mt-0.5" />
                     <p className="text-[hsl(var(--navy)/0.6)] text-sm">{t("auction_info_pre")}<button onClick={() => setCabinetTab("new_order")} className="text-[hsl(var(--gold))] font-semibold hover:underline">{t("auction_info_link")}</button>{t("auction_info_post")}</p>
                   </div>
@@ -3068,7 +3070,7 @@ export default function Index() {
                 <div>
                   <div className="mb-6"><h2 className="font-['Montserrat'] font-black text-2xl navy mb-2">{t("documents")}</h2><p className="text-[hsl(var(--navy)/0.68)] text-sm">{t("documents_sub")}</p></div>
                   <div className="max-w-lg">
-                    <div className="card-light rounded-sm p-8 border-2 border-dashed border-[hsl(220_15%_85%)] text-center mb-5">
+                    <div className="card-light rounded-sm p-8 border-2 border-dashed border-[hsl(var(--gold)/0.18)] text-center mb-5">
                       <Icon name="Upload" size={32} className="mx-auto mb-3 text-[hsl(var(--navy)/0.25)]" />
                       <p className="font-['Montserrat'] font-semibold navy mb-1">{t("upload_document")}</p>
                       <p className="text-[hsl(var(--navy)/0.62)] text-xs mb-4">{t("upload_hint")}</p>
@@ -3127,8 +3129,8 @@ export default function Index() {
                       <div>
                         <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-widest uppercase mb-2">{t("hde_photo")}</label>
                         <div className="flex items-center gap-3">
-                          {dealForm.photo && <img src={dealForm.photo} alt="" className="w-12 h-12 object-cover rounded-sm border border-[hsl(220_15%_88%)]" />}
-                          <label className="flex items-center gap-2 px-4 py-2.5 border border-[hsl(220_15%_88%)] rounded-sm text-sm font-['Montserrat'] font-semibold navy cursor-pointer hover:border-[hsl(var(--navy))] transition-colors">
+                          {dealForm.photo && <img src={dealForm.photo} alt="" className="w-12 h-12 object-cover rounded-sm border border-[hsl(var(--gold)/0.15)]" />}
+                          <label className="flex items-center gap-2 px-4 py-2.5 border border-[hsl(var(--gold)/0.15)] rounded-sm text-sm font-['Montserrat'] font-semibold navy cursor-pointer hover:border-[hsl(var(--navy))] transition-colors">
                             <Icon name="Upload" size={15} />{t("hde_upload")}
                             <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
                               const f = e.target.files?.[0];
@@ -3144,7 +3146,7 @@ export default function Index() {
                         {dealSaving ? t("hde_saving") : dealForm.id ? t("hde_save") : t("hde_add")}
                       </button>
                       {dealForm.id ? (
-                        <button type="button" onClick={() => setDealForm({ ...emptyDeal })} className="px-5 py-3 border border-[hsl(220_15%_88%)] rounded-sm text-sm font-['Montserrat'] font-semibold text-[hsl(var(--navy)/0.6)] hover:text-[hsl(var(--navy))]">{t("hde_cancel")}</button>
+                        <button type="button" onClick={() => setDealForm({ ...emptyDeal })} className="px-5 py-3 border border-[hsl(var(--gold)/0.15)] rounded-sm text-sm font-['Montserrat'] font-semibold text-[hsl(var(--navy)/0.6)] hover:text-[hsl(var(--navy))]">{t("hde_cancel")}</button>
                       ) : null}
                     </div>
                   </form>
@@ -3162,7 +3164,7 @@ export default function Index() {
                     <div className="flex flex-col gap-3">
                       {hotDeals.map((d) => (
                         <div key={d.id} className="card-light rounded-sm p-4 flex flex-col sm:flex-row sm:items-center gap-4">
-                          <div className="w-16 h-16 rounded-sm bg-[hsl(220_25%_97%)] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                          <div className="w-16 h-16 rounded-sm bg-[hsl(222_44%_9%/0.5)] flex items-center justify-center flex-shrink-0 overflow-hidden">
                             {d.photo ? <img src={d.photo} alt="" className="w-full h-full object-cover" /> : <Icon name="Car" size={24} className="text-[hsl(var(--navy)/0.55)]" />}
                           </div>
                           <div className="min-w-0 flex-1">
@@ -3174,10 +3176,10 @@ export default function Index() {
                             <div className="font-['Montserrat'] font-bold text-sm gold mt-0.5">{d.price}</div>
                           </div>
                           <div className="flex gap-2 flex-shrink-0">
-                            <button onClick={() => editDeal(d)} className="flex items-center gap-1.5 px-3 py-2 border border-[hsl(220_15%_88%)] rounded-sm text-xs font-['Montserrat'] font-semibold navy hover:border-[hsl(var(--navy))] transition-colors">
+                            <button onClick={() => editDeal(d)} className="flex items-center gap-1.5 px-3 py-2 border border-[hsl(var(--gold)/0.15)] rounded-sm text-xs font-['Montserrat'] font-semibold navy hover:border-[hsl(var(--navy))] transition-colors">
                               <Icon name="Pencil" size={14} />{t("hde_edit")}
                             </button>
-                            <button onClick={() => deleteDeal(d.id)} disabled={dealDeletingId === d.id} className="flex items-center gap-1.5 px-3 py-2 border border-[hsl(220_15%_88%)] rounded-sm text-xs font-['Montserrat'] font-semibold text-[hsl(var(--navy)/0.6)] hover:text-red-600 hover:border-red-200 transition-colors disabled:opacity-60">
+                            <button onClick={() => deleteDeal(d.id)} disabled={dealDeletingId === d.id} className="flex items-center gap-1.5 px-3 py-2 border border-[hsl(var(--gold)/0.15)] rounded-sm text-xs font-['Montserrat'] font-semibold text-[hsl(var(--navy)/0.6)] hover:text-red-600 hover:border-red-200 transition-colors disabled:opacity-60">
                               {dealDeletingId === d.id ? <Icon name="Loader" size={14} className="animate-spin" /> : <Icon name="Trash2" size={14} />}{t("hde_delete")}
                             </button>
                           </div>
@@ -3227,7 +3229,7 @@ export default function Index() {
                             </div>
                             {!isMe && (
                               <button onClick={() => toggleUserRole(u)} disabled={roleSavingId === u.id}
-                                className={`flex items-center gap-2 px-4 py-2.5 text-sm font-['Montserrat'] font-semibold rounded-sm transition-all flex-shrink-0 disabled:opacity-60 ${staffRole ? "border border-[hsl(220_15%_88%)] text-[hsl(var(--navy)/0.6)] hover:text-red-600 hover:border-red-200" : "btn-gold"}`}>
+                                className={`flex items-center gap-2 px-4 py-2.5 text-sm font-['Montserrat'] font-semibold rounded-sm transition-all flex-shrink-0 disabled:opacity-60 ${staffRole ? "border border-[hsl(var(--gold)/0.15)] text-[hsl(var(--navy)/0.6)] hover:text-red-600 hover:border-red-200" : "btn-gold"}`}>
                                 {roleSavingId === u.id ? <Icon name="Loader" size={15} className="animate-spin" /> : <Icon name={staffRole ? "UserMinus" : "ShieldCheck"} size={15} />}
                                 {staffRole ? t("su_remove_staff") : t("su_make_staff")}
                               </button>
@@ -3267,7 +3269,7 @@ export default function Index() {
         )}
 
         {/* FOOTER */}
-        <footer className="border-t border-[hsl(220_15%_88%)] py-8 px-5 sm:px-8 mt-8 bg-white">
+        <footer className="border-t border-[hsl(var(--gold)/0.15)] py-8 px-5 sm:px-8 mt-8 bg-[hsl(222_50%_5%/0.85)] backdrop-blur-sm">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <button onClick={() => nav("home")}><img src={LOGO} alt="Partcore Logistics" className="h-12 w-12 object-contain" /></button>
             <div className="text-[hsl(var(--navy)/0.6)] text-xs text-center">{t("footer_copy")}</div>

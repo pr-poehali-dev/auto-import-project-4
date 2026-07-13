@@ -4,40 +4,44 @@
 
 @layer base {
   :root {
-    /* Цвета из логотипа */
-    --navy: 220 52% 18%; /* тёмно-синий */
-    --red: 5 78% 48%; /* красный */
-    --gold: 36 85% 50%; /* золотой/оранжевый */
+    /* ── DARK LUXE PALETTE ── */
+    --navy: 40 30% 92%; /* «navy» теперь = основной СВЕТЛЫЙ текст на тёмном (тёплый жемчуг) */
+    --ink: 222 47% 7%; /* глубокий тёмный фон */
+    --ink-2: 222 40% 11%; /* поверхность карточек */
+    --ink-3: 222 34% 16%; /* приподнятые поверхности */
+    --red: 5 78% 52%;
+    --gold: 41 74% 56%; /* тёплое золото */
+    --gold-2: 44 82% 68%; /* светлый блик золота */
 
-    --background: 0 0% 99%;
-    --foreground: 220 52% 18%;
+    --background: 222 47% 7%;
+    --foreground: 40 30% 92%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 52% 18%;
+    --card: 222 40% 11%;
+    --card-foreground: 40 30% 92%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 52% 18%;
+    --popover: 222 42% 10%;
+    --popover-foreground: 40 30% 92%;
 
-    --primary: 220 52% 18%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 41 74% 56%;
+    --primary-foreground: 222 47% 7%;
 
-    --secondary: 220 20% 96%;
-    --secondary-foreground: 220 52% 18%;
+    --secondary: 222 34% 16%;
+    --secondary-foreground: 40 30% 92%;
 
-    --muted: 220 15% 95%;
-    --muted-foreground: 220 20% 45%;
+    --muted: 222 30% 18%;
+    --muted-foreground: 220 14% 66%;
 
-    --accent: 36 85% 50%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 41 74% 56%;
+    --accent-foreground: 222 47% 7%;
 
-    --destructive: 5 78% 48%;
+    --destructive: 5 78% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 88%;
-    --input: 220 15% 92%;
-    --ring: 220 52% 18%;
+    --border: 222 24% 22%;
+    --input: 222 28% 18%;
+    --ring: 41 74% 56%;
 
-    --radius: 4px;
+    --radius: 6px;
   }
 }
 
@@ -53,6 +57,7 @@
     @apply bg-background text-foreground;
     font-family: "IBM Plex Sans", sans-serif;
     font-size: 15px;
+    background: hsl(var(--ink));
   }
   h1,
   h2,
@@ -64,9 +69,20 @@
   [class*="font-['Montserrat']"] {
     font-family: "Montserrat", "IBM Plex Sans", sans-serif !important;
   }
+  /* поля ввода на тёмном фоне */
+  input,
+  textarea,
+  select {
+    color: hsl(var(--navy));
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: hsl(var(--navy) / 0.4);
+  }
 }
 
 @layer utilities {
+  /* «navy» = основной светлый текст. Полупрозрачные варианты остаются читаемыми. */
   .navy {
     color: hsl(var(--navy));
   }
@@ -78,7 +94,7 @@
   }
 
   .bg-navy {
-    background: hsl(var(--navy));
+    background: hsl(var(--ink-2));
   }
   .bg-gold {
     background: hsl(var(--gold));
@@ -87,44 +103,72 @@
     background: hsl(var(--red));
   }
 
+  /* Золотая градиентная надпись для акцентных заголовков */
+  .text-lux {
+    background: linear-gradient(
+      120deg,
+      hsl(var(--gold-2)),
+      hsl(var(--gold)) 55%,
+      hsl(38 60% 44%)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ── КНОПКИ ── */
   .btn-navy {
-    background: hsl(var(--navy));
-    color: #fff;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--gold-2)),
+      hsl(var(--gold))
+    );
+    color: hsl(222 47% 8%);
     font-family: "Montserrat", sans-serif;
     font-weight: 700;
     font-size: 13px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
+    box-shadow: 0 6px 22px hsl(var(--gold) / 0.28);
     transition:
-      background 0.2s,
-      box-shadow 0.2s;
+      transform 0.2s,
+      box-shadow 0.25s,
+      filter 0.2s;
   }
   .btn-navy:hover {
-    background: hsl(220 52% 12%);
-    box-shadow: 0 4px 20px hsl(220 52% 18% / 0.25);
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 30px hsl(var(--gold) / 0.4);
   }
 
   .btn-gold {
-    background: hsl(var(--gold));
-    color: #fff;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--gold-2)),
+      hsl(var(--gold))
+    );
+    color: hsl(222 47% 8%);
     font-family: "Montserrat", sans-serif;
     font-weight: 700;
     font-size: 13px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
+    box-shadow: 0 6px 22px hsl(var(--gold) / 0.28);
     transition:
-      background 0.2s,
-      box-shadow 0.2s;
+      transform 0.2s,
+      box-shadow 0.25s,
+      filter 0.2s;
   }
   .btn-gold:hover {
-    background: hsl(36 85% 44%);
-    box-shadow: 0 4px 20px hsl(36 85% 50% / 0.3);
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 30px hsl(var(--gold) / 0.4);
   }
 
   .btn-outline {
     background: transparent;
     color: hsl(var(--navy));
-    border: 2px solid hsl(var(--navy));
+    border: 1.5px solid hsl(var(--gold) / 0.55);
     font-family: "Montserrat", sans-serif;
     font-weight: 700;
     font-size: 13px;
@@ -133,59 +177,75 @@
     transition: all 0.2s;
   }
   .btn-outline:hover {
-    background: hsl(var(--navy));
-    color: #fff;
+    background: hsl(var(--gold) / 0.12);
+    border-color: hsl(var(--gold));
+    color: hsl(var(--gold-2));
   }
 
+  /* ── КАРТОЧКИ (тёмное стекло с золотым кантом) ── */
   .card-light {
-    background: #fff;
-    border: 1px solid hsl(220 15% 90%);
+    background:
+      linear-gradient(
+        160deg,
+        hsl(222 38% 14% / 0.92),
+        hsl(222 44% 10% / 0.92)
+      );
+    border: 1px solid hsl(var(--gold) / 0.14);
+    box-shadow:
+      0 1px 0 hsl(0 0% 100% / 0.04) inset,
+      0 10px 30px hsl(222 60% 3% / 0.5);
+    backdrop-filter: blur(6px);
     transition:
-      transform 0.22s ease,
-      box-shadow 0.22s ease;
+      transform 0.24s ease,
+      box-shadow 0.24s ease,
+      border-color 0.24s ease;
   }
   .card-light:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 40px hsl(220 52% 18% / 0.1);
+    border-color: hsl(var(--gold) / 0.4);
+    box-shadow:
+      0 1px 0 hsl(0 0% 100% / 0.05) inset,
+      0 18px 46px hsl(222 60% 2% / 0.65),
+      0 0 0 1px hsl(var(--gold) / 0.08);
   }
 
   .section-tag {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 3px 10px;
+    padding: 4px 12px;
     font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     font-family: "Montserrat", sans-serif;
-    color: #fff;
-    background: hsl(var(--gold));
-    border: 1px solid hsl(var(--gold));
-    border-radius: 2px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    color: hsl(var(--gold-2));
+    background: hsl(var(--gold) / 0.1);
+    border: 1px solid hsl(var(--gold) / 0.35);
+    border-radius: 999px;
+    box-shadow: 0 2px 10px hsl(var(--gold) / 0.12);
   }
 
   .divider-navy {
-    width: 36px;
+    width: 44px;
     height: 3px;
-    background: hsl(var(--navy));
+    background: linear-gradient(90deg, hsl(var(--gold)), hsl(var(--gold) / 0));
     border-radius: 2px;
   }
 
   .divider-gold {
-    width: 36px;
+    width: 44px;
     height: 3px;
-    background: hsl(var(--gold));
+    background: linear-gradient(90deg, hsl(var(--gold-2)), hsl(var(--gold) / 0));
     border-radius: 2px;
   }
 
-  /* subtle grid pattern */
+  /* тонкая золотая сетка */
   .light-grid {
     background-image:
-      linear-gradient(hsl(220 52% 18% / 0.035) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(220 52% 18% / 0.035) 1px, transparent 1px);
-    background-size: 44px 44px;
+      linear-gradient(hsl(var(--gold) / 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--gold) / 0.04) 1px, transparent 1px);
+    background-size: 46px 46px;
   }
 
   @keyframes fadeUp {
@@ -204,6 +264,14 @@
     }
     100% {
       transform: translateX(-50%);
+    }
+  }
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
     }
   }
 
@@ -225,5 +293,10 @@
 
   .marquee {
     animation: scrollX 28s linear infinite;
+  }
+
+  /* мягкое золотое сияние для акцентных блоков */
+  .glow-gold {
+    box-shadow: 0 0 60px hsl(var(--gold) / 0.18);
   }
 }
