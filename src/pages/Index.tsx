@@ -450,6 +450,10 @@ const I18N: Record<Lang, Record<string, string>> = {
     container_empty: "Контейнеры ещё не созданы", container_no_items: "Контейнер пуст",
     cst_collecting: "Сборка", cst_shipped: "Отправлен", cst_arrived: "Прибыл", cst_done: "Завершён",
     staff_create_order: "Создать заявку клиенту",
+    staff_create_client: "Создать клиента",
+    staff_client_created: "Клиент создан",
+    staff_client_password: "Пароль (необязательно)",
+    staff_client_password_ph: "Оставьте пустым — сгенерируется автоматически",
     staff_pick_client: "Клиент",
     staff_pick_client_ph: "Выберите клиента",
     td_all_group: "Выбрать все",
@@ -625,6 +629,10 @@ const I18N: Record<Lang, Record<string, string>> = {
     container_empty: "No containers yet", container_no_items: "Container is empty",
     cst_collecting: "Collecting", cst_shipped: "Shipped", cst_arrived: "Arrived", cst_done: "Completed",
     staff_create_order: "Create client request",
+    staff_create_client: "Create client",
+    staff_client_created: "Client created",
+    staff_client_password: "Password (optional)",
+    staff_client_password_ph: "Leave empty to auto-generate",
     staff_pick_client: "Client",
     staff_pick_client_ph: "Select a client",
     td_all_group: "Select all",
@@ -770,6 +778,12 @@ export default function Index() {
   const [staffOrderForm, setStaffOrderForm] = useState({ client_id: "", car_brand: "", car_model: "", car_year: "", quantity: "1", budget: "", origin: "Япония", comment: "" });
   const [staffOrderSaving, setStaffOrderSaving] = useState(false);
   const [clientsList, setClientsList] = useState<{ id: number; full_name: string; email: string; company: string }[]>([]);
+  // сотрудник: создание клиента
+  const [staffClientOpen, setStaffClientOpen] = useState(false);
+  const [staffClientForm, setStaffClientForm] = useState({ full_name: "", email: "", phone: "", company: "", inn: "", password: "" });
+  const [staffClientSaving, setStaffClientSaving] = useState(false);
+  const [staffClientError, setStaffClientError] = useState("");
+  const [staffClientDone, setStaffClientDone] = useState(false);
 
   const toggleCarFormPart = (name: string) => {
     setCarForm((f) => {
@@ -1333,6 +1347,26 @@ export default function Index() {
     const d = await apiAuth("list_users", {}, token);
     const clients = (d.users || []).filter((u: ManagedUser) => u.role !== "staff");
     setClientsList(clients.map((u: ManagedUser) => ({ id: u.id, full_name: u.full_name, email: u.email, company: u.company })));
+  };
+
+  const openStaffClientForm = () => {
+    setStaffClientOpen(true);
+    setStaffOrderOpen(false);
+    setStaffClientError("");
+    setStaffClientForm({ full_name: "", email: "", phone: "", company: "", inn: "", password: "" });
+  };
+
+  const doStaffCreateClient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStaffClientError("");
+    setStaffClientSaving(true);
+    const d = await apiAuth("create_client", staffClientForm, token);
+    setStaffClientSaving(false);
+    if (d.error) { setStaffClientError(d.error); return; }
+    await loadClientsList();
+    setStaffClientOpen(false);
+    setStaffClientDone(true);
+    setTimeout(() => setStaffClientDone(false), 3000);
   };
 
   const openStaffOrderForm = () => {
@@ -2382,6 +2416,55 @@ export default function Index() {
                 <div>
                   {!selectedOrder ? (
                     <>
+                      {/* Создание клиента */}
+                      <div className="mb-6">
+                        {staffClientDone && (
+                          <div className="mb-4 flex items-center gap-2 bg-[hsl(var(--gold)/0.12)] border border-[hsl(var(--gold)/0.4)] text-[hsl(var(--gold))] text-sm px-4 py-3 rounded-sm">
+                            <Icon name="Check" size={15} />{t("staff_client_created")}
+                          </div>
+                        )}
+                        {!staffClientOpen ? (
+                          <button onClick={openStaffClientForm} className="flex items-center gap-2 px-5 py-3 btn-outline rounded-sm text-sm">
+                            <Icon name="UserPlus" size={16} />{t("staff_create_client")}
+                          </button>
+                        ) : (
+                          <form onSubmit={doStaffCreateClient} className="card-light rounded-sm p-6 flex flex-col gap-4">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-['Montserrat'] font-bold text-lg navy">{t("staff_create_client")}</h3>
+                              <button type="button" onClick={() => setStaffClientOpen(false)} className="text-[hsl(var(--navy)/0.6)] hover:text-red-600"><Icon name="X" size={18} /></button>
+                            </div>
+                            {staffClientError && <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-sm">{staffClientError}</div>}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("full_name")}</label>
+                                <input placeholder={t("ph_name")} value={staffClientForm.full_name} onChange={(e) => setStaffClientForm({ ...staffClientForm, full_name: e.target.value })} className={inputCls} />
+                              </div>
+                              <div>
+                                <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">Email *</label>
+                                <input required type="email" placeholder="client@mail.ru" value={staffClientForm.email} onChange={(e) => setStaffClientForm({ ...staffClientForm, email: e.target.value })} className={inputCls} />
+                              </div>
+                              <div>
+                                <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("phone")}</label>
+                                <input placeholder="+7 (___) ___-__-__" value={staffClientForm.phone} onChange={(e) => setStaffClientForm({ ...staffClientForm, phone: e.target.value })} className={inputCls} />
+                              </div>
+                              <div>
+                                <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("company_ip")}</label>
+                                <input placeholder={t("ph_company")} value={staffClientForm.company} onChange={(e) => setStaffClientForm({ ...staffClientForm, company: e.target.value })} className={inputCls} />
+                              </div>
+                              <div>
+                                <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("inn")}</label>
+                                <input placeholder={t("ph_inn")} value={staffClientForm.inn} onChange={(e) => setStaffClientForm({ ...staffClientForm, inn: e.target.value })} className={inputCls} />
+                              </div>
+                              <div>
+                                <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("staff_client_password")}</label>
+                                <input type="text" placeholder={t("staff_client_password_ph")} value={staffClientForm.password} onChange={(e) => setStaffClientForm({ ...staffClientForm, password: e.target.value })} className={inputCls} />
+                              </div>
+                            </div>
+                            <button type="submit" disabled={staffClientSaving} className="py-3 btn-navy rounded-sm disabled:opacity-60">{staffClientSaving ? t("loading") : t("staff_create_client")}</button>
+                          </form>
+                        )}
+                      </div>
+
                       {/* Создание заявки клиенту */}
                       <div className="mb-6">
                         {!staffOrderOpen ? (
