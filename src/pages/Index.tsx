@@ -1367,6 +1367,10 @@ export default function Index() {
     setStaffClientOpen(false);
     setStaffClientDone(true);
     setTimeout(() => setStaffClientDone(false), 3000);
+    if (d.id) {
+      setStaffOrderForm({ client_id: String(d.id), car_brand: "", car_model: "", car_year: "", quantity: "1", budget: "", origin: "Япония", comment: "" });
+      setStaffOrderOpen(true);
+    }
   };
 
   const openStaffOrderForm = () => {
