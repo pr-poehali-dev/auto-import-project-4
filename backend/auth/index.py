@@ -320,6 +320,35 @@ def handler(event: dict, context) -> dict:
             ]
             return ok({"users": users})
 
+        if action == "create_client":
+            if not token:
+                return err("Не авторизован", 401)
+            me = get_user_by_token(cur, token)
+            if not me or me["role"] != "staff":
+                return err("Доступ только для сотрудников", 403)
+            email = body.get("email", "").strip().lower()
+            full_name = body.get("full_name", "").strip()
+            phone = normalize_phone(body.get("phone", ""))
+            company = body.get("company", "").strip()
+            inn = body.get("inn", "").strip()
+            password = body.get("password", "").strip()
+            if not email or "@" not in email:
+                return err("Укажите корректный email")
+            if password and len(password) < 6:
+                return err("Пароль — минимум 6 символов")
+            cur.execute(f"SELECT id FROM {SCHEMA}.users WHERE email = %s", (email,))
+            if cur.fetchone():
+                return err("Пользователь с таким email уже существует")
+            pw_hash = hash_pw(password) if password else hash_pw(secrets.token_hex(8))
+            cur.execute(
+                f"INSERT INTO {SCHEMA}.users (email, phone, password_hash, full_name, company, inn, role, phone_verified) "
+                f"VALUES (%s, %s, %s, %s, %s, %s, 'client', %s) RETURNING id",
+                (email, phone, pw_hash, full_name, company, inn, bool(phone))
+            )
+            new_id = cur.fetchone()[0]
+            conn.commit()
+            return ok({"id": new_id, "message": "Клиент создан"})
+
         if action == "set_role":
             if not token:
                 return err("Не авторизован", 401)

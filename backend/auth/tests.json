@@ -43,6 +43,15 @@
       "expectedStatus": 400,
       "expectedBody": {"error": "string"},
       "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create client unauthorized",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "create_client", "email": "new@client.ru"},
+      "expectedStatus": 401,
+      "expectedBody": {"error": "string"},
+      "bodyMatcher": "partial"
     }
   ]
 }
