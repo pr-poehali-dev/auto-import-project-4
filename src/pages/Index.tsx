@@ -1271,6 +1271,105 @@ export default function Index() {
     XLSX.writeFile(wb, `packing_list_${safe}.xlsx`);
   };
 
+  // Экспорт упаковочного листа контейнера в XLSX (машинокомплекты + VIN + детали)
+  const exportContainerXlsx = async (ct: Container) => {
+    const XLSX = await import("xlsx");
+    const dateStr = new Date().toLocaleDateString("ru-RU");
+    const wb = XLSX.utils.book_new();
+
+    // ── Лист 1: Контейнер и машинокомплекты ──
+    const carRows = ct.cars.map((c, i) => [
+      i + 1,
+      [c.car_brand, c.car_model, c.car_year].filter(Boolean).join(" ") || "—",
+      c.vin || "—",
+      c.order_number || "—",
+      c.client_name || "—",
+      c.client_company || "—",
+      (c.teardown || []).length,
+    ]);
+    const s1: (string | number)[][] = [
+      ["CONTAINER PACKING LIST"],
+      [`${COMPANY_NAME} · Упаковочный лист контейнера`],
+      [],
+      ["Дата:", dateStr, "", "Контейнер:", ct.name || "—"],
+      ["Номер контейнера:", ct.container_number || "—", "", "Направление:", ORIGIN_LABEL[lang][ct.origin] || ct.origin || "—"],
+      ["Статус:", ct.status_label || "—", "", "Машинокомплектов:", ct.cars.length],
+      [],
+      ["МАШИНОКОМПЛЕКТЫ В КОНТЕЙНЕРЕ"],
+      ["№", "Машинокомплект", "VIN", "Заявка", "Клиент", "Компания", "Позиций"],
+      ...(carRows.length ? carRows : [["—", "Контейнер пуст", "", "", "", "", ""]]),
+      [],
+      ["", "", "", "", "", "ИТОГО:", ct.cars.length],
+    ];
+    const ws1 = XLSX.utils.aoa_to_sheet(s1);
+    ws1["!cols"] = [{ wch: 6 }, { wch: 30 }, { wch: 22 }, { wch: 14 }, { wch: 24 }, { wch: 22 }, { wch: 10 }];
+    ws1["!merges"] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 6 } },
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 6 } },
+      { s: { r: 7, c: 0 }, e: { r: 7, c: 6 } },
+    ];
+    XLSX.utils.book_append_sheet(wb, ws1, "Контейнер");
+
+    // ── Лист 2: Сводный список запчастей ──
+    const agg = new Map<string, { group: string; part: string; qty: number }>();
+    for (const c of ct.cars) {
+      for (const it of (c.teardown || [])) {
+        const sp = splitTd(it.name);
+        const q = it.qty || 1;
+        const prev = agg.get(it.name);
+        if (prev) prev.qty += q;
+        else agg.set(it.name, { group: sp.group, part: sp.part, qty: q });
+      }
+    }
+    const parts = Array.from(agg.values()).sort(
+      (a, b) => a.group.localeCompare(b.group, "ru") || a.part.localeCompare(b.part, "ru")
+    );
+    let totalParts = 0;
+    const partRows = parts.map((p, i) => { totalParts += p.qty; return [i + 1, p.group, p.part, p.qty]; });
+    const s2: (string | number)[][] = [
+      ["СВОДНЫЙ СПИСОК ЗАПЧАСТЕЙ"],
+      [`Контейнер: ${ct.name || "—"}`, "", "", `Дата: ${dateStr}`],
+      [],
+      ["№", "Группа", "Наименование детали", "Кол-во (всего)"],
+      ...(partRows.length ? partRows : [["—", "Нет деталей в разборных листах", "", ""]]),
+      [],
+      ["", "ИТОГО позиций:", parts.length, totalParts],
+    ];
+    const ws2 = XLSX.utils.aoa_to_sheet(s2);
+    ws2["!cols"] = [{ wch: 6 }, { wch: 28 }, { wch: 42 }, { wch: 16 }];
+    ws2["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 3 } }];
+    XLSX.utils.book_append_sheet(wb, ws2, "Сводный список");
+
+    // ── Лист 3: Детали по каждому авто ──
+    const s3: (string | number)[][] = [
+      ["ДЕТАЛИ ПО КАЖДОМУ МАШИНОКОМПЛЕКТУ"],
+      [`Контейнер: ${ct.name || "—"}`, "", "", `Дата: ${dateStr}`],
+      [],
+      ["Машинокомплект", "VIN", "Заявка", "Тип разбора", "Группа", "Наименование детали", "Кол-во", "Нужно клиенту"],
+    ];
+    for (const c of ct.cars) {
+      const title = [c.car_brand, c.car_model, c.car_year].filter(Boolean).join(" ") || "—";
+      const items = c.teardown || [];
+      const mode = detectTeardownMode(items);
+      const modeLabel = mode ? tdModeLabel(mode) : "—";
+      if (items.length === 0) {
+        s3.push([title, c.vin || "—", c.order_number || "—", modeLabel, "—", "Разборный лист пуст", "", ""]);
+        continue;
+      }
+      for (const it of items) {
+        const sp = splitTd(it.name);
+        s3.push([title, c.vin || "—", c.order_number || "—", modeLabel, sp.group, sp.part, it.qty || 1, it.needed ? "✓" : ""]);
+      }
+    }
+    const ws3 = XLSX.utils.aoa_to_sheet(s3);
+    ws3["!cols"] = [{ wch: 28 }, { wch: 20 }, { wch: 12 }, { wch: 18 }, { wch: 26 }, { wch: 38 }, { wch: 9 }, { wch: 14 }];
+    ws3["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 7 } }];
+    XLSX.utils.book_append_sheet(wb, ws3, "Детали по авто");
+
+    const safe = (ct.container_number || ct.name || "container").replace(/[^\wа-яА-Я0-9-]+/g, "_");
+    XLSX.writeFile(wb, `container_packing_list_${safe}.xlsx`);
+  };
+
   // Экспорт упаковочного листа контейнера в PDF (все машинокомплекты + VIN)
   const exportContainerPdf = (ct: Container) => {
     const esc = (s: string) => (s || "").replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" } as Record<string, string>)[ch]);
@@ -3119,6 +3218,9 @@ export default function Index() {
                                       <div className="flex items-center gap-2 flex-shrink-0">
                                         <button type="button" onClick={() => exportContainerPdf(ct)} title="PDF" className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors">
                                           <Icon name="FileDown" size={14} />PDF
+                                        </button>
+                                        <button type="button" onClick={() => exportContainerXlsx(ct)} title="XLSX" className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors">
+                                          <Icon name="Sheet" size={14} />XLSX
                                         </button>
                                         <select value={ct.status} onChange={(e) => setContainerStatus(ct.id, e.target.value)} className="text-xs border border-[hsl(var(--gold)/0.18)] rounded-sm px-2 py-1 bg-[hsl(222_46%_8%)] navy">
                                           <option value="collecting">{t("cst_collecting")}</option>
