@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Icon from "@/components/ui/icon";
 import TeardownModeBadge, { type TeardownMode } from "@/components/TeardownModeBadge";
+import { writeXlsxWithFreeze } from "@/lib/xlsx-export";
 
 const LOGO = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/bucket/0d9e1542-9580-4b01-a093-0b9580927df1.jpg";
 const COMPANY_NAME = "PRIME CARS";
@@ -1264,11 +1265,13 @@ export default function Index() {
       { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } },
       { s: { r: 1, c: 0 }, e: { r: 1, c: 4 } },
     ];
+    const headerRow = head.length;
+    ws["!autofilter"] = { ref: `A${headerRow}:E${headerRow + Math.max(rows.length, 1)}` };
 
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Разборный лист");
     const safe = (carTitle || "car").replace(/[^\wа-яА-Я0-9-]+/g, "_");
-    XLSX.writeFile(wb, `packing_list_${safe}.xlsx`);
+    await writeXlsxWithFreeze(wb, `packing_list_${safe}.xlsx`, [{ sheetIndex: 0, rows: headerRow }]);
   };
 
   // Экспорт упаковочного листа контейнера в XLSX (машинокомплекты + VIN + детали)
@@ -1327,9 +1330,6 @@ export default function Index() {
     let totalParts = 0;
     const partRows = parts.map((p, i) => { totalParts += p.qty; return [i + 1, p.group, p.part, p.qty]; });
     const s2: (string | number)[][] = [
-      ["СВОДНЫЙ СПИСОК ЗАПЧАСТЕЙ"],
-      [`Контейнер: ${ct.name || "—"}`, "", "", `Дата: ${dateStr}`],
-      [],
       ["№", "Группа", "Наименование детали", "Кол-во (всего)"],
       ...(partRows.length ? partRows : [["—", "Нет деталей в разборных листах", "", ""]]),
       [],
@@ -1337,14 +1337,12 @@ export default function Index() {
     ];
     const ws2 = XLSX.utils.aoa_to_sheet(s2);
     ws2["!cols"] = [{ wch: 6 }, { wch: 28 }, { wch: 42 }, { wch: 16 }];
-    ws2["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 3 } }];
+    const s2DataRows = partRows.length || 1;
+    ws2["!autofilter"] = { ref: `A1:D${s2DataRows + 1}` };
     XLSX.utils.book_append_sheet(wb, ws2, "Сводный список");
 
     // ── Лист 3: Детали по каждому авто ──
     const s3: (string | number)[][] = [
-      ["ДЕТАЛИ ПО КАЖДОМУ МАШИНОКОМПЛЕКТУ"],
-      [`Контейнер: ${ct.name || "—"}`, "", "", `Дата: ${dateStr}`],
-      [],
       ["Машинокомплект", "VIN", "Заявка", "Тип разбора", "Группа", "Наименование детали", "Кол-во", "Нужно клиенту"],
     ];
     for (const c of ct.cars) {
@@ -1363,11 +1361,14 @@ export default function Index() {
     }
     const ws3 = XLSX.utils.aoa_to_sheet(s3);
     ws3["!cols"] = [{ wch: 28 }, { wch: 20 }, { wch: 12 }, { wch: 18 }, { wch: 26 }, { wch: 38 }, { wch: 9 }, { wch: 14 }];
-    ws3["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 7 } }];
+    ws3["!autofilter"] = { ref: `A1:H${Math.max(s3.length, 2)}` };
     XLSX.utils.book_append_sheet(wb, ws3, "Детали по авто");
 
     const safe = (ct.container_number || ct.name || "container").replace(/[^\wа-яА-Я0-9-]+/g, "_");
-    XLSX.writeFile(wb, `container_packing_list_${safe}.xlsx`);
+    await writeXlsxWithFreeze(wb, `container_packing_list_${safe}.xlsx`, [
+      { sheetIndex: 1, rows: 1 },
+      { sheetIndex: 2, rows: 1 },
+    ]);
   };
 
   // Экспорт упаковочного листа контейнера в PDF (все машинокомплекты + VIN)
