@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Icon from "@/components/ui/icon";
-import TeardownModeBadge from "@/components/TeardownModeBadge";
+import TeardownModeBadge, { type TeardownMode } from "@/components/TeardownModeBadge";
 
 const LOGO = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/bucket/0d9e1542-9580-4b01-a093-0b9580927df1.jpg";
 const COMPANY_NAME = "PRIME CARS";
@@ -187,7 +187,6 @@ const groupTeardown = (items: TeardownItem[]): { group: string; items: { name: s
 };
 
 // ── Определение типа разбора по составу разборного листа ──
-type TeardownMode = "halfcut" | "noskat" | "full" | "custom";
 const detectTeardownMode = (items: TeardownItem[]): TeardownMode | null => {
   if (!items || items.length === 0) return null;
   const names = items.map((i) => i.name);
@@ -1161,6 +1160,7 @@ export default function Index() {
     const carTitle = [car.car_brand, car.car_model, car.car_year].filter(Boolean).join(" ");
     const dateStr = new Date().toLocaleDateString("ru-RU");
     const items = (car.teardown || []);
+    const tdMode = detectTeardownMode(items);
     let totalQty = 0;
     let idx = 0;
     const rows = items.map((it) => {
@@ -1208,6 +1208,7 @@ export default function Index() {
         <div><b>VIN:</b> ${esc(car.vin || "—")}</div>
         <div><b>Год:</b> ${car.car_year || "—"}</div>
         <div><b>Пробег:</b> ${car.mileage ? car.mileage.toLocaleString("ru-RU") + " км" : "—"}</div>
+        <div><b>Тип разбора:</b> ${esc(tdMode ? tdModeLabel(tdMode) : "—")}</div>
       </div>
       <table>
         <thead><tr><th class="c">№</th><th>Группа</th><th>Наименование детали</th><th class="c">Кол-во</th><th class="c">Нужно клиенту</th></tr></thead>
@@ -3139,6 +3140,7 @@ export default function Index() {
                                 {!!c.mileage && <span>{c.mileage.toLocaleString()} {t("km")}</span>}
                               </div>
                               {c.vin && <div className="text-xs mt-1 text-[hsl(var(--navy)/0.62)]">VIN: <span className="font-mono font-semibold navy tracking-wider">{c.vin}</span></div>}
+                              <div className="mt-2">{renderTdBadge(c.teardown)}</div>
                               <div className="mt-3 pt-3 border-t border-[hsl(var(--gold)/0.12)]">
                                 <div className="flex items-center justify-between gap-2 mb-2">
                                   <div className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{t("teardown_title")} · {t("teardown_client_picked")}: {c.teardown.filter((x) => x.needed).length}/{c.teardown.length}</div>
