@@ -135,8 +135,43 @@ const TEARDOWN_GROUPS: { group: string; parts: string[] }[] = [
   { group: "Колёса", parts: [
     "Диски комплект", "Шины комплект", "Запасное колесо",
   ] },
+  { group: "Крупные узлы (халфкат)", parts: [
+    "Халфкат передний (перед в сборе)", "Халфкат задний (зад в сборе)",
+    "Двигатель в сборе с КПП", "Кузов в сборе (без ДВС)",
+    "Ноускат в сборе",
+  ] },
 ];
 const TEARDOWN_PRESET = TEARDOWN_GROUPS.flatMap((g) => g.parts.map((p) => joinTd(g.group, p)));
+
+// ── РЕЖИМЫ РАЗБОРНОГО ЛИСТА ──
+const HALFCUT_GROUP = "Крупные узлы (халфкат)";
+// 1. Крупноузловой (халфкаты) — только крупные узлы
+const TD_HALFCUT = TEARDOWN_GROUPS
+  .filter((g) => g.group === HALFCUT_GROUP)
+  .flatMap((g) => g.parts.map((p) => joinTd(g.group, p)));
+// 2. Полный разбор — все детальные позиции (без крупных узлов)
+const TD_FULL = TEARDOWN_GROUPS
+  .filter((g) => g.group !== HALFCUT_GROUP)
+  .flatMap((g) => g.parts.map((p) => joinTd(g.group, p)));
+// Передние детали, которые входят в ноускат (в режиме с ноускатом идут в сборе)
+const NOSKAT_INCLUDED = [
+  joinTd("Кузовные детали", "Ноускат (морда)"),
+  joinTd("Кузовные детали", "Капот"),
+  joinTd("Кузовные детали", "Крыло переднее левое"),
+  joinTd("Кузовные детали", "Крыло переднее правое"),
+  joinTd("Кузовные детали", "Бампер передний"),
+  joinTd("Оптика", "Фара левая"),
+  joinTd("Оптика", "Фара правая"),
+  joinTd("Оптика", "Птф левая"),
+  joinTd("Оптика", "Птф правая"),
+  joinTd("Двигатель и навесное", "Радиатор"),
+  joinTd("Двигатель и навесное", "Интеркулер"),
+];
+// 3. Разбор с ноускатом — полный разбор, но перед идёт одним ноускатом
+const TD_NOSKAT = [
+  joinTd(HALFCUT_GROUP, "Ноускат в сборе"),
+  ...TD_FULL.filter((n) => !NOSKAT_INCLUDED.includes(n)),
+];
 
 // Группировка списка узлов для отображения
 const groupTeardown = (items: TeardownItem[]): { group: string; items: { name: string; part: string; needed: boolean; qty: number }[] }[] => {
@@ -461,6 +496,12 @@ const I18N: Record<Lang, Record<string, string>> = {
     td_selected: "Выбрано",
     td_full: "Полная разборка",
     td_clear_all: "Очистить всё",
+    td_mode_halfcut: "Крупноузловой (халфкат)",
+    td_mode_halfcut_hint: "Крупные узлы: халфкаты, ДВС с КПП, кузов в сборе",
+    td_mode_full: "Полный разбор",
+    td_mode_full_hint: "Все детали и узлы по отдельности",
+    td_mode_noskat: "Разбор с ноускатом",
+    td_mode_noskat_hint: "Полный разбор, но передняя часть идёт одним ноускатом",
     vin: "VIN автомобиля",
     pdf_popup_blocked: "Разрешите всплывающие окна, чтобы скачать PDF",
     teardowns_empty: "Пока нет авто с разборными листами",
@@ -640,6 +681,12 @@ const I18N: Record<Lang, Record<string, string>> = {
     td_selected: "Selected",
     td_full: "Full teardown",
     td_clear_all: "Clear all",
+    td_mode_halfcut: "Half-cut (large units)",
+    td_mode_halfcut_hint: "Large units: half-cuts, engine with gearbox, body assembly",
+    td_mode_full: "Full teardown",
+    td_mode_full_hint: "All parts and components separately",
+    td_mode_noskat: "Teardown with nose cut",
+    td_mode_noskat_hint: "Full teardown, but the front goes as a single nose cut",
     vin: "Vehicle VIN",
     pdf_popup_blocked: "Allow pop-ups to download the PDF",
     teardowns_empty: "No cars with teardown lists yet",
@@ -805,12 +852,15 @@ export default function Index() {
       return { ...f, teardown: f.teardown.filter((x) => !names.includes(x.name)) };
     });
   };
-  const selectFullTeardown = () => {
+  const applyTeardownPreset = (preset: string[]) => {
     setCarForm((f) => {
       const custom = f.teardown.filter((x) => !TEARDOWN_PRESET.includes(x.name));
-      return { ...f, teardown: [...TEARDOWN_PRESET.map((name) => ({ name, needed: false, qty: 1 })), ...custom] };
+      return { ...f, teardown: [...preset.map((name) => ({ name, needed: false, qty: 1 })), ...custom] };
     });
   };
+  const selectHalfcutTeardown = () => applyTeardownPreset(TD_HALFCUT);
+  const selectFullTeardown = () => applyTeardownPreset(TD_FULL);
+  const selectNoskatTeardown = () => applyTeardownPreset(TD_NOSKAT);
   const clearTeardown = () => setCarForm((f) => ({ ...f, teardown: [] }));
   const addCustomPart = () => {
     const raw = teardownInput.trim();
@@ -2658,9 +2708,17 @@ export default function Index() {
                           <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("teardown_title")}</label>
                           <p className="text-[hsl(var(--navy)/0.62)] text-xs mb-3">{t("teardown_staff_hint")}</p>
                           <div className="flex flex-wrap gap-2 mb-3">
-                            <button type="button" onClick={selectFullTeardown}
-                              className="flex items-center gap-1.5 text-xs font-['Montserrat'] font-semibold px-3 py-1.5 rounded-sm bg-[hsl(var(--gold))] text-white hover:opacity-90 transition-opacity">
-                              <Icon name="ListChecks" size={13} />{t("td_full")}
+                            <button type="button" onClick={selectHalfcutTeardown} title={t("td_mode_halfcut_hint")}
+                              className="flex items-center gap-1.5 text-xs font-['Montserrat'] font-semibold px-3 py-1.5 rounded-sm bg-[hsl(var(--gold))] text-[hsl(222_47%_8%)] hover:opacity-90 transition-opacity">
+                              <Icon name="Package" size={13} />{t("td_mode_halfcut")}
+                            </button>
+                            <button type="button" onClick={selectFullTeardown} title={t("td_mode_full_hint")}
+                              className="flex items-center gap-1.5 text-xs font-['Montserrat'] font-semibold px-3 py-1.5 rounded-sm bg-[hsl(var(--gold))] text-[hsl(222_47%_8%)] hover:opacity-90 transition-opacity">
+                              <Icon name="ListChecks" size={13} />{t("td_mode_full")}
+                            </button>
+                            <button type="button" onClick={selectNoskatTeardown} title={t("td_mode_noskat_hint")}
+                              className="flex items-center gap-1.5 text-xs font-['Montserrat'] font-semibold px-3 py-1.5 rounded-sm bg-[hsl(var(--gold))] text-[hsl(222_47%_8%)] hover:opacity-90 transition-opacity">
+                              <Icon name="CarFront" size={13} />{t("td_mode_noskat")}
                             </button>
                             <button type="button" onClick={clearTeardown}
                               className="flex items-center gap-1.5 text-xs font-['Montserrat'] font-semibold px-3 py-1.5 rounded-sm border border-[hsl(var(--gold)/0.18)] text-[hsl(var(--navy)/0.65)] hover:border-red-300 hover:text-red-600 transition-colors">
