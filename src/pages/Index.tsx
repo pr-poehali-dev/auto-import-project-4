@@ -533,6 +533,8 @@ const I18N: Record<Lang, Record<string, string>> = {
     td_badge_full: "Полный разбор",
     td_badge_noskat: "С ноускатом",
     td_badge_custom: "Свой набор",
+    td_filter_all: "Все",
+    td_filter_none: "Нет авто с таким типом разбора",
     vin: "VIN автомобиля",
     pdf_popup_blocked: "Разрешите всплывающие окна, чтобы скачать PDF",
     teardowns_empty: "Пока нет авто с разборными листами",
@@ -722,6 +724,8 @@ const I18N: Record<Lang, Record<string, string>> = {
     td_badge_full: "Full teardown",
     td_badge_noskat: "With nose cut",
     td_badge_custom: "Custom set",
+    td_filter_all: "All",
+    td_filter_none: "No cars with this teardown type",
     vin: "Vehicle VIN",
     pdf_popup_blocked: "Allow pop-ups to download the PDF",
     teardowns_empty: "No cars with teardown lists yet",
@@ -844,6 +848,7 @@ export default function Index() {
   interface TeardownCar extends Car { order_id: number; order_number: string; client_name: string; client_email: string; client_company: string; }
   const [teardownCars, setTeardownCars] = useState<TeardownCar[]>([]);
   const [teardownCarsLoading, setTeardownCarsLoading] = useState(false);
+  const [tdFilter, setTdFilter] = useState<TeardownMode | "all">("all");
   // сотрудник: контейнеры (сборка машинокомплектов)
   interface ContainerCar { id: number; car_brand: string; car_model: string; car_year: number; vin: string; order_number: string; client_name: string; client_company: string; origin: string; status: string; teardown?: TeardownItem[]; }
   interface Container { id: number; name: string; container_number: string; origin: string; status: string; status_label: string; comment: string; created_at: string; cars: ContainerCar[]; }
@@ -3268,14 +3273,49 @@ export default function Index() {
                       <p className="font-['Montserrat'] font-bold navy mb-2">{t("teardowns_empty")}</p>
                       <p className="text-[hsl(var(--navy)/0.65)] text-sm">{t("teardowns_empty_sub")}</p>
                     </div>
-                  ) : (
+                  ) : (() => {
+                    const tdCounts: Record<string, number> = { all: teardownCars.length };
+                    for (const c of teardownCars) {
+                      const m = detectTeardownMode(c.teardown || []);
+                      if (m) tdCounts[m] = (tdCounts[m] || 0) + 1;
+                    }
+                    const filterOpts: { key: TeardownMode | "all"; label: string; icon: string }[] = [
+                      { key: "all", label: t("td_filter_all"), icon: "LayoutGrid" },
+                      { key: "halfcut", label: t("td_badge_halfcut"), icon: "Package" },
+                      { key: "full", label: t("td_badge_full"), icon: "ListChecks" },
+                      { key: "noskat", label: t("td_badge_noskat"), icon: "CarFront" },
+                      { key: "custom", label: t("td_badge_custom"), icon: "Wrench" },
+                    ];
+                    const visibleCars = tdFilter === "all"
+                      ? teardownCars
+                      : teardownCars.filter((c) => detectTeardownMode(c.teardown || []) === tdFilter);
+                    return (
                     <div>
-                      <div className="flex items-center gap-2 mb-5">
+                      <div className="flex items-center gap-2 mb-4">
                         <h2 className="font-['Montserrat'] font-bold text-xl navy">{t("teardowns_all_cars")}</h2>
                         <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))]">{teardownCars.length}</span>
                       </div>
+                      <div className="flex flex-wrap gap-2 mb-5">
+                        {filterOpts.map((o) => {
+                          const cnt = tdCounts[o.key] || 0;
+                          const active = tdFilter === o.key;
+                          return (
+                            <button key={o.key} type="button" onClick={() => setTdFilter(o.key)} disabled={cnt === 0 && o.key !== "all"}
+                              className={`flex items-center gap-1.5 text-xs font-['Montserrat'] font-bold px-3 py-1.5 rounded-full border transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${active ? "bg-[hsl(var(--gold))] text-[hsl(222_47%_8%)] border-[hsl(var(--gold))]" : "bg-[hsl(222_46%_8%)] text-[hsl(var(--navy)/0.65)] border-[hsl(var(--gold)/0.18)] hover:border-[hsl(var(--gold)/0.5)]"}`}>
+                              <Icon name={o.icon} size={13} />{o.label}
+                              <span className={`px-1.5 rounded-full text-[10px] ${active ? "bg-[hsl(222_47%_8%)/0.15] text-[hsl(222_47%_8%)]" : "bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))]"}`}>{cnt}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {visibleCars.length === 0 ? (
+                        <div className="text-center py-14">
+                          <Icon name="SearchX" size={36} className="mx-auto mb-3 text-[hsl(var(--navy)/0.4)]" />
+                          <p className="text-[hsl(var(--navy)/0.65)] text-sm">{t("td_filter_none")}</p>
+                        </div>
+                      ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {teardownCars.map((c) => (
+                        {visibleCars.map((c) => (
                           <div key={c.id} className="card-light rounded-sm overflow-hidden">
                             {c.photos && c.photos.length > 0 && (
                               <img src={c.photos[0]} alt="" className="w-full h-40 object-cover" />
@@ -3325,8 +3365,10 @@ export default function Index() {
                           </div>
                         ))}
                       </div>
+                      )}
                     </div>
-                  )}
+                    );
+                  })()}
                 </div>
               )}
 
