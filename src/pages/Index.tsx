@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Icon from "@/components/ui/icon";
+import TeardownModeBadge from "@/components/TeardownModeBadge";
 
 const LOGO = "https://cdn.poehali.dev/projects/92e249db-e174-4ab7-8e64-42d927b13e30/bucket/0d9e1542-9580-4b01-a093-0b9580927df1.jpg";
 const COMPANY_NAME = "PRIME CARS";
@@ -184,6 +185,32 @@ const groupTeardown = (items: TeardownItem[]): { group: string; items: { name: s
   }
   return order.map((g) => ({ group: g, items: map[g] }));
 };
+
+// ── Определение типа разбора по составу разборного листа ──
+type TeardownMode = "halfcut" | "noskat" | "full" | "custom";
+const detectTeardownMode = (items: TeardownItem[]): TeardownMode | null => {
+  if (!items || items.length === 0) return null;
+  const names = items.map((i) => i.name);
+  const hasNoskatUnit = names.includes(joinTd(HALFCUT_GROUP, "Ноускат в сборе"));
+  const bigUnits = names.filter((n) => splitTd(n).group === HALFCUT_GROUP);
+  const detailed = names.filter((n) => splitTd(n).group !== HALFCUT_GROUP);
+  // только крупные узлы → халфкат
+  if (bigUnits.length > 0 && detailed.length === 0) return "halfcut";
+  // ноускат в сборе + детали, но без передних деталей → разбор с ноускатом
+  if (hasNoskatUnit && detailed.length > 0) {
+    const frontPresent = NOSKAT_INCLUDED.some((n) => names.includes(n));
+    if (!frontPresent) return "noskat";
+    return "custom";
+  }
+  // все детальные позиции без крупных узлов → полный разбор
+  if (bigUnits.length === 0) {
+    const missing = TD_FULL.filter((n) => !names.includes(n));
+    if (missing.length === 0) return "full";
+    return "custom";
+  }
+  return "custom";
+};
+
 interface HotDeal { id: number; origin: string; brand: string; model: string; year: number | null; mileage: string; engine: string; price: string; badge: string; photo: string; sort_order: number; }
 
 type Lang = "ru" | "en";
@@ -502,6 +529,10 @@ const I18N: Record<Lang, Record<string, string>> = {
     td_mode_full_hint: "Все детали и узлы по отдельности",
     td_mode_noskat: "Разбор с ноускатом",
     td_mode_noskat_hint: "Полный разбор, но передняя часть идёт одним ноускатом",
+    td_badge_halfcut: "Халфкат",
+    td_badge_full: "Полный разбор",
+    td_badge_noskat: "С ноускатом",
+    td_badge_custom: "Свой набор",
     vin: "VIN автомобиля",
     pdf_popup_blocked: "Разрешите всплывающие окна, чтобы скачать PDF",
     teardowns_empty: "Пока нет авто с разборными листами",
@@ -687,6 +718,10 @@ const I18N: Record<Lang, Record<string, string>> = {
     td_mode_full_hint: "All parts and components separately",
     td_mode_noskat: "Teardown with nose cut",
     td_mode_noskat_hint: "Full teardown, but the front goes as a single nose cut",
+    td_badge_halfcut: "Half-cut",
+    td_badge_full: "Full teardown",
+    td_badge_noskat: "With nose cut",
+    td_badge_custom: "Custom set",
     vin: "Vehicle VIN",
     pdf_popup_blocked: "Allow pop-ups to download the PDF",
     teardowns_empty: "No cars with teardown lists yet",
@@ -831,6 +866,18 @@ export default function Index() {
   const [staffClientSaving, setStaffClientSaving] = useState(false);
   const [staffClientError, setStaffClientError] = useState("");
   const [staffClientDone, setStaffClientDone] = useState(false);
+
+  const tdModeLabel = (mode: TeardownMode) =>
+    mode === "halfcut" ? t("td_badge_halfcut")
+      : mode === "full" ? t("td_badge_full")
+      : mode === "noskat" ? t("td_badge_noskat")
+      : t("td_badge_custom");
+
+  const renderTdBadge = (items: TeardownItem[] | undefined, size: "sm" | "xs" = "sm") => {
+    const mode = detectTeardownMode(items || []);
+    if (!mode) return null;
+    return <TeardownModeBadge mode={mode} label={tdModeLabel(mode)} size={size} />;
+  };
 
   const toggleCarFormPart = (name: string) => {
     setCarForm((f) => {
@@ -2426,6 +2473,7 @@ export default function Index() {
                                           <div className="mt-3 pt-3 border-t border-[hsl(var(--gold)/0.12)]">
                                             <div className="flex items-center gap-2 mb-2">
                                               <span className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{t("teardown_title")}</span>
+                                              {renderTdBadge(c.teardown, "xs")}
                                               {savingTeardown === c.id && <Icon name="Loader" size={12} className="animate-spin text-[hsl(var(--navy)/0.62)]" />}
                                             </div>
                                             <p className="text-[hsl(var(--navy)/0.62)] text-xs mb-2">{t("teardown_client_hint")}</p>
@@ -2763,7 +2811,10 @@ export default function Index() {
                           </div>
                           {carForm.teardown.length > 0 && (
                             <div className="flex flex-col gap-1.5">
-                              <div className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{t("td_selected")}: {carForm.teardown.length}</div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <div className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{t("td_selected")}: {carForm.teardown.length}</div>
+                                {renderTdBadge(carForm.teardown, "xs")}
+                              </div>
                               {carForm.teardown.map((it) => {
                                 const sp = splitTd(it.name);
                                 const q = it.qty || 1;
@@ -2818,7 +2869,10 @@ export default function Index() {
                                 {c.teardown && c.teardown.length > 0 && (
                                   <div className="mt-3 pt-3 border-t border-[hsl(var(--gold)/0.12)]">
                                     <div className="flex items-center justify-between gap-2 mb-2">
-                                      <div className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{t("teardown_title")} · {t("teardown_client_picked")}: {c.teardown.filter((x) => x.needed).length}/{c.teardown.length}</div>
+                                      <div className="flex items-center gap-2 flex-wrap min-w-0">
+                                        <div className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{t("teardown_title")} · {t("teardown_client_picked")}: {c.teardown.filter((x) => x.needed).length}/{c.teardown.length}</div>
+                                        {renderTdBadge(c.teardown, "xs")}
+                                      </div>
                                       <button type="button" onClick={() => exportPackingList(c)} className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors flex-shrink-0">
                                         <Icon name="FileDown" size={13} />PDF
                                       </button>
