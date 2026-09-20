@@ -1226,6 +1226,51 @@ export default function Index() {
     w.document.close();
   };
 
+  // Экспорт разборного листа в XLSX
+  const exportPackingListXlsx = async (car: Car) => {
+    const XLSX = await import("xlsx");
+    const carTitle = [car.car_brand, car.car_model, car.car_year].filter(Boolean).join(" ");
+    const items = car.teardown || [];
+    const tdMode = detectTeardownMode(items);
+    const dateStr = new Date().toLocaleDateString("ru-RU");
+
+    const head: (string | number)[][] = [
+      ["PACKING LIST", "", "", "", ""],
+      [COMPANY_NAME + " · Упаковочный / разборный лист", "", "", "", ""],
+      ["", "", "", "", ""],
+      ["Дата:", dateStr, "", "Заявка №:", car.order_number ? String(car.order_number) : String(car.id)],
+      ["Автомобиль:", carTitle || "—", "", "VIN:", car.vin || "—"],
+      ["Год:", car.car_year || "—", "", "Пробег:", car.mileage ? `${car.mileage.toLocaleString("ru-RU")} км` : "—"],
+      ["Тип разбора:", tdMode ? tdModeLabel(tdMode) : "—", "", "", ""],
+      ["", "", "", "", ""],
+      ["№", "Группа", "Наименование детали", "Кол-во", "Нужно клиенту"],
+    ];
+
+    let totalQty = 0;
+    const rows = items.map((it, i) => {
+      const sp = splitTd(it.name);
+      const q = it.qty || 1;
+      totalQty += q;
+      return [i + 1, sp.group, sp.part, q, it.needed ? "✓" : ""];
+    });
+
+    const foot: (string | number)[][] = [
+      ["", "", "ИТОГО позиций / штук:", `${items.length} / ${totalQty}`, ""],
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet([...head, ...rows, ...foot]);
+    ws["!cols"] = [{ wch: 6 }, { wch: 26 }, { wch: 38 }, { wch: 10 }, { wch: 16 }];
+    ws["!merges"] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } },
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 4 } },
+    ];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Разборный лист");
+    const safe = (carTitle || "car").replace(/[^\wа-яА-Я0-9-]+/g, "_");
+    XLSX.writeFile(wb, `packing_list_${safe}.xlsx`);
+  };
+
   // Экспорт упаковочного листа контейнера в PDF (все машинокомплекты + VIN)
   const exportContainerPdf = (ct: Container) => {
     const esc = (s: string) => (s || "").replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" } as Record<string, string>)[ch]);
@@ -2874,9 +2919,14 @@ export default function Index() {
                                         <div className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{t("teardown_title")} · {t("teardown_client_picked")}: {c.teardown.filter((x) => x.needed).length}/{c.teardown.length}</div>
                                         {renderTdBadge(c.teardown, "xs")}
                                       </div>
-                                      <button type="button" onClick={() => exportPackingList(c)} className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors flex-shrink-0">
-                                        <Icon name="FileDown" size={13} />PDF
-                                      </button>
+                                      <div className="flex items-center gap-3 flex-shrink-0">
+                                        <button type="button" onClick={() => exportPackingList(c)} className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors">
+                                          <Icon name="FileDown" size={13} />PDF
+                                        </button>
+                                        <button type="button" onClick={() => exportPackingListXlsx(c)} className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors">
+                                          <Icon name="Sheet" size={13} />XLSX
+                                        </button>
+                                      </div>
                                     </div>
                                     <div className="flex flex-col gap-2">
                                       {groupTeardown(c.teardown).map((grp) => (
@@ -3144,9 +3194,14 @@ export default function Index() {
                               <div className="mt-3 pt-3 border-t border-[hsl(var(--gold)/0.12)]">
                                 <div className="flex items-center justify-between gap-2 mb-2">
                                   <div className="text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold uppercase tracking-wide">{t("teardown_title")} · {t("teardown_client_picked")}: {c.teardown.filter((x) => x.needed).length}/{c.teardown.length}</div>
-                                  <button type="button" onClick={() => exportPackingList(c)} className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors flex-shrink-0">
-                                    <Icon name="FileDown" size={13} />PDF
-                                  </button>
+                                  <div className="flex items-center gap-3 flex-shrink-0">
+                                    <button type="button" onClick={() => exportPackingList(c)} className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors">
+                                      <Icon name="FileDown" size={13} />PDF
+                                    </button>
+                                    <button type="button" onClick={() => exportPackingListXlsx(c)} className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors">
+                                      <Icon name="Sheet" size={13} />XLSX
+                                    </button>
+                                  </div>
                                 </div>
                                 <div className="flex flex-col gap-2">
                                   {groupTeardown(c.teardown).map((grp) => (
