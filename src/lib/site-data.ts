@@ -14,6 +14,7 @@ export const ORDERS_URL = "https://functions.poehali.dev/d57608b2-729a-4006-a5c2
 export const CARS_URL = "https://functions.poehali.dev/8f3531c8-943d-46dc-acd0-b9a6618054db";
 export const HOT_DEALS_URL = "https://functions.poehali.dev/cc988794-2c9d-4cf0-935d-51df0229a699";
 export const CONTAINERS_URL = "https://functions.poehali.dev/6f8b4d6b-c853-4c24-8cde-fbbe7b23c3df";
+export const PARTS_REQUESTS_URL = "https://functions.poehali.dev/0d15580b-8ddf-43f1-a0dd-455f5598993a";
 
 // ── API helpers ──────────────────────────────────────────────
 export async function safeJson(res: Response) {
@@ -53,6 +54,17 @@ export async function apiCars(method: "GET" | "POST" | "PATCH" | "DELETE", token
     body: opts.body ? JSON.stringify(opts.body) : undefined,
   });
   return res.json();
+}
+
+export async function apiPartsRequests(method: "GET" | "POST" | "PATCH", token: string, opts: { body?: object } = {}) {
+  const headers: Record<string, string> = { "X-Session-Token": token };
+  if (opts.body) headers["Content-Type"] = "application/json";
+  const res = await fetch(PARTS_REQUESTS_URL, {
+    method,
+    headers,
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  return safeJson(res);
 }
 
 export async function apiContainers(method: "GET" | "POST" | "PUT", token: string, opts: { body?: object; query?: string } = {}) {
@@ -240,6 +252,7 @@ export const detectTeardownMode = (items: TeardownItem[]): TeardownMode | null =
   return "custom";
 };
 
+export interface PartsRequest { id: number; origin: string; category_id: string; category_title: string; car_brand: string; car_model: string; car_year: number | null; vin: string; parts_text: string; comment: string; status: string; status_label: string; created_at: string; client_name?: string; client_email?: string; client_phone?: string; client_company?: string; }
 export interface HotDeal { id: number; origin: string; brand: string; model: string; year: number | null; mileage: string; engine: string; price: string; badge: string; photo: string; sort_order: number; }
 
 export type Lang = "ru" | "en";
@@ -612,7 +625,9 @@ export const I18N: Record<Lang, Record<string, string>> = {
     auth_required: "Для доступа необходимо войти",
     staff_cabinet: "Кабинет сотрудника", personal_cabinet: "Личный кабинет", staff_badge: "Сотрудник",
     tab_clients: "Заявки клиентов", tab_profile: "Профиль", tab_orders: "Мои заявки",
+    tab_parts_requests: "Запросы запчастей",
     tab_teardowns: "Разборные листы",
+    tab_parts_requests: "Запросы запчастей",
     tab_in_work: "Заявки в работе", tab_shipping: "Отправки",
     in_work_empty: "Нет заявок в работе", in_work_empty_sub: "Здесь появятся заявки, переведённые в работу",
     shipping_empty: "Нет отправок", shipping_empty_sub: "Здесь появятся отправленные и доставленные заявки",
@@ -654,6 +669,24 @@ export const I18N: Record<Lang, Record<string, string>> = {
     pl_download: "Упаковочный лист",
     pl_nothing_picked: "Не отмечено ни одной детали — отметьте нужные клиенту позиции.",
     td_missing_ids: "Не заполнены данные для документов",
+    close: "Закрыть",
+    pr_empty: "Запросов пока нет",
+    pr_empty_sub: "Клиенты отправляют запросы наличия из раздела «Автозапчасти» на странице Китая.",
+    pr_new: "Новых",
+    prst_new: "Новый",
+    prst_processing: "В работе",
+    prst_answered: "Ответ отправлен",
+    prst_closed: "Закрыт",
+    cn_parts_ask: "Запросить наличие",
+    cn_parts_brand: "Марка авто",
+    cn_parts_model: "Модель",
+    cn_parts_year: "Год выпуска",
+    cn_parts_list: "Какие запчасти нужны",
+    cn_parts_list_ph: "Например: двигатель в сборе, передние фары, бампер передний",
+    cn_parts_comment: "Комментарий",
+    cn_parts_submit: "Отправить запрос",
+    cn_parts_sent: "Запрос отправлен",
+    cn_parts_sent_sub: "Менеджер проверит наличие и свяжется с вами. Запрос виден в разделе «Запросы запчастей» в кабинете.",
     cn_parts_title: "Автозапчасти",
     cn_parts_sub: "Каталоги китайских марок и полный перечень запчастей, которые мы поставляем под заказ.",
     cn_parts_tab_catalogs: "Каталоги",
@@ -847,6 +880,7 @@ export const I18N: Record<Lang, Record<string, string>> = {
     staff_cabinet: "Staff dashboard", personal_cabinet: "Dashboard", staff_badge: "Staff",
     tab_clients: "Client requests", tab_profile: "Profile", tab_orders: "My requests",
     tab_teardowns: "Teardown lists",
+    tab_parts_requests: "Parts requests",
     tab_in_work: "In progress", tab_shipping: "Shipping",
     in_work_empty: "No requests in progress", in_work_empty_sub: "Requests moved to work will appear here",
     shipping_empty: "No shipments", shipping_empty_sub: "Shipped and delivered requests will appear here",
@@ -888,6 +922,24 @@ export const I18N: Record<Lang, Record<string, string>> = {
     pl_download: "Packing list",
     pl_nothing_picked: "No parts selected — tick the items the client needs.",
     td_missing_ids: "Missing data for documents",
+    close: "Close",
+    pr_empty: "No requests yet",
+    pr_empty_sub: "Clients send availability requests from the Auto parts section on the China page.",
+    pr_new: "New",
+    prst_new: "New",
+    prst_processing: "In progress",
+    prst_answered: "Answered",
+    prst_closed: "Closed",
+    cn_parts_ask: "Check availability",
+    cn_parts_brand: "Car brand",
+    cn_parts_model: "Model",
+    cn_parts_year: "Year",
+    cn_parts_list: "Which parts do you need",
+    cn_parts_list_ph: "e.g. complete engine, front headlights, front bumper",
+    cn_parts_comment: "Comment",
+    cn_parts_submit: "Send request",
+    cn_parts_sent: "Request sent",
+    cn_parts_sent_sub: "A manager will check availability and contact you. The request appears in \"Parts requests\" in your account.",
     cn_parts_title: "Auto parts",
     cn_parts_sub: "Chinese brand catalogs and the full list of parts we supply to order.",
     cn_parts_tab_catalogs: "Catalogs",
@@ -999,4 +1051,4 @@ export const I18N: Record<Lang, Record<string, string>> = {
 };
 
 export type Page = "home" | "directions" | "services" | "how" | "contacts" | "login" | "register" | "cabinet" | "origin" | "staff_login" | "forgot";
-export type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile" | "clients" | "in_work" | "shipping" | "staff_users" | "hot_deals" | "teardowns";
+export type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile" | "clients" | "in_work" | "shipping" | "staff_users" | "hot_deals" | "teardowns" | "parts_requests";

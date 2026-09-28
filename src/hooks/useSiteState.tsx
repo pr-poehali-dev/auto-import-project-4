@@ -5,8 +5,8 @@ import {
   LOGO, COMPANY_NAME, I18N, ORIGIN_LABEL, STATUS_LABEL,
   TD_SEP, TD_FULL, TD_HALFCUT, TD_NOSKAT, TEARDOWN_PRESET,
   splitTd, joinTd, detectTeardownMode, groupTeardown, defaultQty,
-  apiAuth, apiCars, apiContainers, apiHotDeals, apiOrders,
-  type User, type Order, type Car, type TeardownItem, type HotDeal,
+  apiAuth, apiCars, apiContainers, apiHotDeals, apiOrders, apiPartsRequests,
+  type User, type Order, type Car, type TeardownItem, type HotDeal, type PartsRequest,
   type Lang, type Page, type CabinetTab,
 } from "@/lib/site-data";
 
@@ -264,6 +264,62 @@ export function useSiteState() {
       loadContainers();
     }
   }, [page, cabinetTab, token, isStaff]);
+
+  // ── Запросы наличия автозапчастей ──
+  const [partsRequests, setPartsRequests] = useState<PartsRequest[]>([]);
+  const [partsReqLoading, setPartsReqLoading] = useState(false);
+  const emptyPartsForm = { category_id: "", category_title: "", car_brand: "", car_model: "", car_year: "", vin: "", parts_text: "", comment: "" };
+  const [partsForm, setPartsForm] = useState({ ...emptyPartsForm });
+  const [partsFormOpen, setPartsFormOpen] = useState(false);
+  const [partsSaving, setPartsSaving] = useState(false);
+  const [partsSent, setPartsSent] = useState(false);
+
+  const loadPartsRequests = async () => {
+    setPartsReqLoading(true);
+    const d = await apiPartsRequests("GET", token);
+    setPartsRequests(d.requests || []);
+    setPartsReqLoading(false);
+  };
+
+  useEffect(() => {
+    if (page === "cabinet" && token && cabinetTab === "parts_requests") {
+      loadPartsRequests();
+    }
+  }, [page, cabinetTab, token]);
+
+  // Открыть форму запроса по конкретной группе запчастей
+  const openPartsRequest = (categoryId: string, categoryTitle: string) => {
+    setPartsForm({ ...emptyPartsForm, category_id: categoryId, category_title: categoryTitle });
+    setPartsSent(false);
+    setPartsFormOpen(true);
+  };
+  const closePartsRequest = () => { setPartsFormOpen(false); setPartsSent(false); };
+
+  const submitPartsRequest = async () => {
+    if (!partsForm.car_brand.trim()) return;
+    setPartsSaving(true);
+    const d = await apiPartsRequests("POST", token, { body: {
+      origin: "china",
+      category_id: partsForm.category_id,
+      category_title: partsForm.category_title,
+      car_brand: partsForm.car_brand,
+      car_model: partsForm.car_model,
+      car_year: partsForm.car_year ? parseInt(partsForm.car_year) : null,
+      vin: partsForm.vin,
+      parts_text: partsForm.parts_text,
+      comment: partsForm.comment,
+    } });
+    setPartsSaving(false);
+    if (d.error) { alert(d.error); return; }
+    setPartsSent(true);
+  };
+
+  const setPartsRequestStatus = async (id: number, status: string) => {
+    const d = await apiPartsRequests("PATCH", token, { body: { request_id: id, status } });
+    if (d.error) { alert(d.error); return; }
+    setPartsRequests((prev) => prev.map((r) => r.id === id
+      ? { ...r, status, status_label: d.status_label || status } : r));
+  };
 
   const loadContainers = async () => {
     setContainersLoading(true);
@@ -1243,6 +1299,17 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
     exportPackingListTemplateXlsx,
     exportEngineDocXlsx,
     containerPartsSummary,
+    partsRequests,
+    partsReqLoading,
+    partsForm,
+    setPartsForm,
+    partsFormOpen,
+    partsSaving,
+    partsSent,
+    openPartsRequest,
+    closePartsRequest,
+    submitPartsRequest,
+    setPartsRequestStatus,
     tdMissingOnly,
     toggleTdMissingOnly,
     isMissingIds,

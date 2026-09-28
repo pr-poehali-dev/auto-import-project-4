@@ -4,6 +4,7 @@ import { HERO_IMG, type CabinetTab } from "@/lib/site-data";
 import TabOrders from "@/components/site/cabinet/TabOrders";
 import TabClients from "@/components/site/cabinet/TabClients";
 import TabLogistics from "@/components/site/cabinet/TabLogistics";
+import TabPartsRequests from "@/components/site/cabinet/TabPartsRequests";
 import TabMisc from "@/components/site/cabinet/TabMisc";
 
 export default function CabinetPage(s: SiteState) {
@@ -48,6 +49,7 @@ export default function CabinetPage(s: SiteState) {
                   { id: "in_work", label: t("tab_in_work"), icon: "Loader" },
                   { id: "shipping", label: t("tab_shipping"), icon: "Truck" },
                   { id: "teardowns", label: t("tab_teardowns"), icon: "Wrench" },
+                  { id: "parts_requests", label: t("tab_parts_requests"), icon: "PackageSearch" },
                   { id: "hot_deals", label: t("tab_hot_deals"), icon: "Flame" },
                   { id: "staff_users", label: t("tab_staff_users"), icon: "ShieldCheck" },
                   { id: "profile", label: t("tab_profile"), icon: "User" },
@@ -56,6 +58,7 @@ export default function CabinetPage(s: SiteState) {
                   { id: "active_orders", label: t("tab_active_orders"), icon: "Package" },
                   { id: "new_order", label: t("tab_new_order"), icon: "Plus" },
                   { id: "auctions", label: t("tab_auctions"), icon: "Globe" },
+                  { id: "parts_requests", label: t("tab_parts_requests"), icon: "PackageSearch" },
                   { id: "documents", label: t("tab_documents"), icon: "FileText" },
                   { id: "profile", label: t("tab_profile"), icon: "User" },
                 ]) as { id: CabinetTab; label: string; icon: string }[]).map((tab) => (
@@ -71,6 +74,7 @@ export default function CabinetPage(s: SiteState) {
               <TabClients {...s} />
               <TabLogistics {...s} />
               <TabMisc {...s} />
+              <TabPartsRequests {...s} />
               </div>
             </div>
           )

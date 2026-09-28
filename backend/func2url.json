@@ -1,4 +1,5 @@
 {
+  "parts-requests": "https://functions.poehali.dev/0d15580b-8ddf-43f1-a0dd-455f5598993a",
   "containers": "https://functions.poehali.dev/6f8b4d6b-c853-4c24-8cde-fbbe7b23c3df",
   "hot-deals": "https://functions.poehali.dev/cc988794-2c9d-4cf0-935d-51df0229a699",
   "cars": "https://functions.poehali.dev/8f3531c8-943d-46dc-acd0-b9a6618054db",

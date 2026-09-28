@@ -16,6 +16,8 @@ export default function PublicPages(s: SiteState) {
     setAuthError, doForgot, doReset,
     regForm, setRegForm, regStep, doRegister, doSendCode, codeSending, resetRegStep,
     hotDeals,
+    partsForm, setPartsForm, partsFormOpen, partsSaving, partsSent,
+    openPartsRequest, closePartsRequest, submitPartsRequest,
   } = s;
 
   return (
@@ -310,8 +312,11 @@ export default function PublicPages(s: SiteState) {
               )}
 
               {o.id === "china" && (
-                <ChinaParts lang={lang} t={t} isAuthed={!!user}
-                  onLogin={() => nav("login")} onRegister={() => nav("register")} />
+                <ChinaParts lang={lang} t={t} isAuthed={!!user} inputCls={inputCls}
+                  onLogin={() => nav("login")} onRegister={() => nav("register")}
+                  form={partsForm} setForm={setPartsForm} formOpen={partsFormOpen}
+                  saving={partsSaving} sent={partsSent}
+                  onOpen={openPartsRequest} onClose={closePartsRequest} onSubmit={submitPartsRequest} />
               )}
 
               {"auctionLinks" in o && o.auctionLinks && (
