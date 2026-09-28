@@ -328,13 +328,21 @@ export default function TabLogistics(s: SiteState) {
                           <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))]">{teardownCars.length}</span>
                         </div>
                         {(() => {
-                          const engCnt = teardownCars.filter((c) => c.order_status === "teardown").length;
+                          const inTd = teardownCars.filter((c) => c.order_status === "teardown");
+                          const incomplete = inTd.filter((c) => !c.vin || !c.engine_model || !c.engine_number).length;
                           return (
-                            <button type="button" onClick={exportEngineDocXlsx} disabled={engCnt === 0}
-                              className="flex items-center gap-2 text-xs font-['Montserrat'] font-bold px-4 py-2 rounded-sm bg-[hsl(var(--gold))] text-[hsl(222_47%_8%)] hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed">
-                              <Icon name="FileSpreadsheet" size={14} />{t("eng_doc")}
-                              <span className="px-1.5 rounded-full text-[10px] bg-[hsl(222_47%_8%)/0.15]">{engCnt}</span>
-                            </button>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              {incomplete > 0 && (
+                                <span className="flex items-center gap-1.5 text-xs font-['Montserrat'] font-bold px-3 py-2 rounded-sm bg-red-50 border border-red-300 text-red-700">
+                                  <Icon name="TriangleAlert" size={14} />{t("td_missing_count")}: {incomplete}
+                                </span>
+                              )}
+                              <button type="button" onClick={exportEngineDocXlsx} disabled={inTd.length === 0}
+                                className="flex items-center gap-2 text-xs font-['Montserrat'] font-bold px-4 py-2 rounded-sm bg-[hsl(var(--gold))] text-[hsl(222_47%_8%)] hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed">
+                                <Icon name="FileSpreadsheet" size={14} />{t("eng_doc")}
+                                <span className="px-1.5 rounded-full text-[10px] bg-[hsl(222_47%_8%)/0.15]">{inTd.length}</span>
+                              </button>
+                            </div>
                           );
                         })()}
                       </div>
@@ -376,6 +384,30 @@ export default function TabLogistics(s: SiteState) {
                                 {!!c.mileage && <span>{c.mileage.toLocaleString()} {t("km")}</span>}
                               </div>
                               {c.vin && <div className="text-xs mt-1 text-[hsl(var(--navy)/0.62)]">VIN: <span className="font-mono font-semibold navy tracking-wider">{c.vin}</span></div>}
+                              {(c.engine_model || c.engine_number) && (
+                                <div className="text-xs mt-1 text-[hsl(var(--navy)/0.62)] flex flex-wrap gap-x-3">
+                                  {c.engine_model && <span>{t("engine_model")}: <span className="font-mono font-semibold navy">{c.engine_model}</span></span>}
+                                  {c.engine_number && <span>{t("engine_number")}: <span className="font-mono font-semibold navy">{c.engine_number}</span></span>}
+                                </div>
+                              )}
+                              {(() => {
+                                if (c.order_status !== "teardown") return null;
+                                const missing = [
+                                  !c.vin && "VIN",
+                                  !c.engine_model && t("engine_model"),
+                                  !c.engine_number && t("engine_number"),
+                                ].filter(Boolean) as string[];
+                                if (missing.length === 0) return null;
+                                return (
+                                  <div className="mt-2 flex items-start gap-2 rounded-sm px-3 py-2 bg-red-50 border border-red-300">
+                                    <Icon name="TriangleAlert" size={15} className="text-red-600 flex-shrink-0 mt-0.5" />
+                                    <div className="min-w-0">
+                                      <div className="text-[11px] font-['Montserrat'] font-bold uppercase tracking-wide text-red-700">{t("td_missing_ids")}</div>
+                                      <div className="text-xs text-red-700/90 mt-0.5">{missing.join(", ")}</div>
+                                    </div>
+                                  </div>
+                                );
+                              })()}
                               <div className="mt-2">{renderTdBadge(c.teardown)}</div>
                               <div className="mt-3 pt-3 border-t border-[hsl(var(--gold)/0.12)]">
                                 <div className="flex items-center justify-between gap-2 mb-2">
