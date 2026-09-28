@@ -19,7 +19,7 @@ CORS = {
 
 STATUS_MAP = {
     "new": "Новая", "processing": "В обработке",
-    "auction": "На аукционе", "shipped": "Отправлен",
+    "auction": "На аукционе", "teardown": "В разбор", "shipped": "Отправлен",
     "customs": "На таможне", "delivered": "Доставлен", "done": "Завершён"
 }
 

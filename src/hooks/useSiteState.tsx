@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import TeardownModeBadge, { type TeardownMode } from "@/components/TeardownModeBadge";
 import { writeXlsxWithFreeze } from "@/lib/xlsx-export";
 import {
-  LOGO, COMPANY_NAME, I18N, ORIGIN_LABEL,
+  LOGO, COMPANY_NAME, I18N, ORIGIN_LABEL, STATUS_LABEL,
   TD_SEP, TD_FULL, TD_HALFCUT, TD_NOSKAT, TEARDOWN_PRESET,
   splitTd, joinTd, detectTeardownMode, groupTeardown, defaultQty,
   apiAuth, apiCars, apiContainers, apiHotDeals, apiOrders,
@@ -45,7 +45,7 @@ export function useSiteState() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [cars, setCars] = useState<Car[]>([]);
   const [carsLoading, setCarsLoading] = useState(false);
-  const [carForm, setCarForm] = useState({ car_brand: "", car_model: "", car_year: "", vin: "", price: "", mileage: "", description: "", photos: [] as string[], teardown: [] as TeardownItem[] });
+  const [carForm, setCarForm] = useState({ car_brand: "", car_model: "", car_year: "", vin: "", engine_model: "", engine_number: "", price: "", mileage: "", description: "", photos: [] as string[], teardown: [] as TeardownItem[] });
   const [carSaving, setCarSaving] = useState(false);
   const [teardownInput, setTeardownInput] = useState("");
   // клиент: сохранение отметок разборного листа
@@ -56,7 +56,7 @@ export function useSiteState() {
   const [teardownCarsLoading, setTeardownCarsLoading] = useState(false);
   const [tdFilter, setTdFilter] = useState<TeardownMode | "all">("all");
   // сотрудник: контейнеры (сборка машинокомплектов)
-  interface ContainerCar { id: number; car_brand: string; car_model: string; car_year: number; vin: string; order_number: string; client_name: string; client_company: string; origin: string; status: string; teardown?: TeardownItem[]; }
+  interface ContainerCar { id: number; car_brand: string; car_model: string; car_year: number; vin: string; order_number: string; client_name: string; client_company: string; origin: string; status: string; engine_model?: string; engine_number?: string; teardown?: TeardownItem[]; }
   interface Container { id: number; name: string; container_number: string; origin: string; status: string; status_label: string; comment: string; created_at: string; cars: ContainerCar[]; }
   const [containers, setContainers] = useState<Container[]>([]);
   const [availableCars, setAvailableCars] = useState<ContainerCar[]>([]);
@@ -318,7 +318,7 @@ export function useSiteState() {
 
   const openOrderCars = (o: Order) => {
     setSelectedOrder(o);
-    setCarForm({ car_brand: "", car_model: "", car_year: "", vin: "", price: "", mileage: "", description: "", photos: [], teardown: [] });
+    setCarForm({ car_brand: "", car_model: "", car_year: "", vin: "", engine_model: "", engine_number: "", price: "", mileage: "", description: "", photos: [], teardown: [] });
     loadCars(o.id);
   };
 
@@ -350,12 +350,13 @@ export function useSiteState() {
       car_brand: carForm.car_brand, car_model: carForm.car_model,
       car_year: carForm.car_year ? parseInt(carForm.car_year) : null,
       vin: carForm.vin,
+      engine_model: carForm.engine_model, engine_number: carForm.engine_number,
       price: carForm.price ? parseInt(carForm.price) : null,
       mileage: carForm.mileage ? parseInt(carForm.mileage) : null,
       description: carForm.description, photos: carForm.photos, teardown: carForm.teardown,
     } });
     setCarSaving(false);
-    setCarForm({ car_brand: "", car_model: "", car_year: "", vin: "", price: "", mileage: "", description: "", photos: [], teardown: [] });
+    setCarForm({ car_brand: "", car_model: "", car_year: "", vin: "", engine_model: "", engine_number: "", price: "", mileage: "", description: "", photos: [], teardown: [] });
     loadCars(selectedOrder.id);
     const d = await apiOrders("GET", token);
     setOrders(d.orders || []);
@@ -643,6 +644,54 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
     XLSX.writeFile(wb, `packing_list_RU_${safe}.xlsx`);
   };
 
+  // Строки документа по номерным агрегатам (ДВС) — только заявки в статусе «В разбор»
+  const engineDocRows = (list: { car_brand: string; car_model: string; car_year: number; vin?: string; engine_model?: string; engine_number?: string; order_number?: string; client_name?: string; client_company?: string }[]) =>
+    list.map((c, i) => [
+      i + 1,
+      [c.car_brand, c.car_model].filter(Boolean).join(" ") || "—",
+      c.car_year || "—",
+      c.vin || "—",
+      c.engine_model || "—",
+      c.engine_number || "—",
+      c.order_number || "—",
+      c.client_name || c.client_company || "—",
+    ]);
+  const ENGINE_DOC_HEAD = ["№", "Модель автомобиля", "Год выпуска", "VIN номер", "Модель ДВС", "Номер ДВС", "Заявка", "Клиент"];
+  const ENGINE_DOC_COLS = [{ wch: 6 }, { wch: 28 }, { wch: 13 }, { wch: 22 }, { wch: 18 }, { wch: 22 }, { wch: 14 }, { wch: 24 }];
+
+  // Отдельный документ по номерным агрегатам из заявок «В разбор»
+  const exportEngineDocXlsx = async () => {
+    const XLSX = await import("xlsx");
+    const list = teardownCars.filter((c) => c.order_status === "teardown");
+    if (list.length === 0) { alert(t("eng_doc_empty")); return; }
+    const dateStr = new Date().toLocaleDateString("ru-RU");
+
+    const head: (string | number)[][] = [
+      ["НОМЕРНЫЕ АГРЕГАТЫ · ДВС"],
+      [`${COMPANY_NAME} · Сведения о номерных агрегатах`],
+      [],
+      ["Дата:", dateStr, "", "Статус заявок:", STATUS_LABEL[lang].teardown],
+      ["Машинокомплектов:", list.length],
+      [],
+      ENGINE_DOC_HEAD,
+    ];
+    const rows = engineDocRows(list);
+    const aoa = [...head, ...rows, [], ["", "ИТОГО агрегатов:", list.length]];
+
+    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    ws["!cols"] = ENGINE_DOC_COLS;
+    ws["!merges"] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } },
+    ];
+    const hr = head.length;
+    ws["!autofilter"] = { ref: `A${hr}:H${hr + rows.length}` };
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Номерные агрегаты");
+    await writeXlsxWithFreeze(wb, `engine_units_${dateStr.replace(/\./g, "-")}.xlsx`, [{ sheetIndex: 0, rows: hr }]);
+  };
+
   // Экспорт упаковочного листа контейнера в XLSX (машинокомплекты + VIN + детали)
   const exportContainerXlsx = async (ct: Container) => {
     const XLSX = await import("xlsx");
@@ -733,10 +782,39 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
     ws3["!autofilter"] = { ref: `A1:H${Math.max(s3.length, 2)}` };
     XLSX.utils.book_append_sheet(wb, ws3, "Детали по авто");
 
+    // ── Лист 4: Номерные агрегаты (ДВС) — машины из заявок «В разбор» ──
+    const engCars = ct.cars.filter((c) => c.status === "teardown");
+    const engHead: (string | number)[][] = [
+      ["НОМЕРНЫЕ АГРЕГАТЫ · ДВС"],
+      [`${COMPANY_NAME} · Сведения о номерных агрегатах`],
+      [],
+      ["Дата:", dateStr, "", "Контейнер:", ct.container_number || ct.name || "—"],
+      ["Статус заявок:", STATUS_LABEL[lang].teardown, "", "Агрегатов:", engCars.length],
+      [],
+      ENGINE_DOC_HEAD,
+    ];
+    const engRows = engineDocRows(engCars);
+    const s4 = [
+      ...engHead,
+      ...(engRows.length ? engRows : [["—", "Нет машин в статусе «В разбор»", "", "", "", "", "", ""]]),
+      [],
+      ["", "ИТОГО агрегатов:", engCars.length],
+    ];
+    const ws4 = XLSX.utils.aoa_to_sheet(s4);
+    ws4["!cols"] = ENGINE_DOC_COLS;
+    ws4["!merges"] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 7 } },
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 7 } },
+    ];
+    const engHr = engHead.length;
+    ws4["!autofilter"] = { ref: `A${engHr}:H${engHr + Math.max(engRows.length, 1)}` };
+    XLSX.utils.book_append_sheet(wb, ws4, "Номерные агрегаты");
+
     const safe = (ct.container_number || ct.name || "container").replace(/[^\wа-яА-Я0-9-]+/g, "_");
     await writeXlsxWithFreeze(wb, `container_packing_list_${safe}.xlsx`, [
       { sheetIndex: 1, rows: 1 },
       { sheetIndex: 2, rows: 1 },
+      { sheetIndex: 3, rows: engHr },
     ]);
   };
 
@@ -1071,6 +1149,7 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
     exportPackingList,
     exportPackingListXlsx,
     exportPackingListTemplateXlsx,
+    exportEngineDocXlsx,
     printTeardownSheet,
     forgotForm,
     forgotMsg,

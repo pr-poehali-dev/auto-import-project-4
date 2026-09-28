@@ -21,7 +21,7 @@ CORS = {
 }
 
 # Статусы заявок, которые считаются «в работе»
-IN_WORK_STATUSES = ("processing", "auction")
+IN_WORK_STATUSES = ("processing", "auction", "teardown")
 
 CONTAINER_STATUS = {
     "collecting": "Сборка",
@@ -65,8 +65,10 @@ def car_row(r, with_teardown=False):
         "client_name": r[7] or "", "client_company": r[8] or "",
         "origin": r[9] or "", "status": r[10] or "",
     }
+    d["engine_model"] = (r[11] or "") if len(r) > 11 else ""
+    d["engine_number"] = (r[12] or "") if len(r) > 12 else ""
     if with_teardown:
-        td = r[11]
+        td = r[13] if len(r) > 13 else None
         d["teardown"] = td if isinstance(td, list) else (json.loads(td) if td else [])
     return d
 
@@ -97,7 +99,8 @@ def handler(event: dict, context) -> dict:
             if params.get("available"):
                 cur.execute(
                     f"SELECT c.id, c.car_brand, c.car_model, c.car_year, c.vin, "
-                    f"o.id, o.order_number, u.full_name, u.company, o.origin, o.status "
+                    f"o.id, o.order_number, u.full_name, u.company, o.origin, o.status, "
+                    f"c.engine_model, c.engine_number "
                     f"FROM {SCHEMA}.cars c "
                     f"JOIN {SCHEMA}.orders o ON o.id = c.order_id "
                     f"JOIN {SCHEMA}.users u ON u.id = o.user_id "
@@ -125,7 +128,8 @@ def handler(event: dict, context) -> dict:
             if containers:
                 cur.execute(
                     f"SELECT cc.container_id, c.id, c.car_brand, c.car_model, c.car_year, c.vin, "
-                    f"o.id, o.order_number, u.full_name, u.company, o.origin, o.status, c.teardown "
+                    f"o.id, o.order_number, u.full_name, u.company, o.origin, o.status, "
+                    f"c.engine_model, c.engine_number, c.teardown "
                     f"FROM {SCHEMA}.container_cars cc "
                     f"JOIN {SCHEMA}.cars c ON c.id = cc.car_id "
                     f"JOIN {SCHEMA}.orders o ON o.id = c.order_id "

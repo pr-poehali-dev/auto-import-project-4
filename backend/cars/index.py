@@ -99,7 +99,8 @@ def handler(event: dict, context) -> dict:
                     f"SELECT c.id, c.car_brand, c.car_model, c.car_year, c.price, c.mileage, "
                     f"c.description, c.photos, c.teardown, c.created_at, c.vin, "
                     f"o.id, o.order_number, o.user_id, "
-                    f"u.full_name, u.email, u.company "
+                    f"u.full_name, u.email, u.company, "
+                    f"c.engine_model, c.engine_number, o.status "
                     f"FROM {SCHEMA}.cars c "
                     f"JOIN {SCHEMA}.orders o ON o.id = c.order_id "
                     f"JOIN {SCHEMA}.users u ON u.id = o.user_id "
@@ -112,7 +113,8 @@ def handler(event: dict, context) -> dict:
                      "teardown": r[8] if isinstance(r[8], list) else (json.loads(r[8]) if r[8] else []),
                      "created_at": str(r[9]), "vin": r[10] or "",
                      "order_id": r[11], "order_number": r[12],
-                     "client_name": r[14] or "", "client_email": r[15] or "", "client_company": r[16] or ""}
+                     "client_name": r[14] or "", "client_email": r[15] or "", "client_company": r[16] or "",
+                     "engine_model": r[17] or "", "engine_number": r[18] or "", "order_status": r[19] or ""}
                     for r in cur.fetchall()
                 ]
                 return ok({"cars": cars})
@@ -125,7 +127,8 @@ def handler(event: dict, context) -> dict:
             if not is_staff and row[0] != user_id:
                 return err("Нет доступа", 403)
             cur.execute(
-                f"SELECT id, car_brand, car_model, car_year, price, mileage, description, photos, teardown, created_at, vin "
+                f"SELECT id, car_brand, car_model, car_year, price, mileage, description, photos, teardown, created_at, vin, "
+                f"engine_model, engine_number "
                 f"FROM {SCHEMA}.cars WHERE order_id = %s ORDER BY created_at DESC",
                 (order_id,)
             )
@@ -134,7 +137,8 @@ def handler(event: dict, context) -> dict:
                  "price": r[4], "mileage": r[5], "description": r[6] or "",
                  "photos": json.loads(r[7]) if r[7] else [],
                  "teardown": r[8] if isinstance(r[8], list) else (json.loads(r[8]) if r[8] else []),
-                 "created_at": str(r[9]), "vin": r[10] or ""}
+                 "created_at": str(r[9]), "vin": r[10] or "",
+                 "engine_model": r[11] or "", "engine_number": r[12] or ""}
                 for r in cur.fetchall()
             ]
             return ok({"cars": cars})
@@ -174,14 +178,18 @@ def handler(event: dict, context) -> dict:
                         teardown.append({"name": name, "needed": False, "qty": 1})
 
             vin = (body.get("vin") or "").strip().upper()[:32]
+            eng_model = (body.get("engine_model") or "").strip()[:64]
+            eng_number = (body.get("engine_number") or "").strip().upper()[:64]
             cur.execute(
                 f"INSERT INTO {SCHEMA}.cars "
-                f"(order_id, car_brand, car_model, car_year, price, mileage, description, photos, teardown, vin, created_by) "
-                f"VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
+                f"(order_id, car_brand, car_model, car_year, price, mileage, description, photos, teardown, vin, "
+                f"engine_model, engine_number, created_by) "
+                f"VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id",
                 (order_id, body.get("car_brand", "").strip(), body.get("car_model", "").strip(),
                  body.get("car_year") or None, body.get("price") or None, body.get("mileage") or None,
                  body.get("description", "").strip(), json.dumps(photo_urls),
-                 json.dumps(teardown, ensure_ascii=False), vin or None, user_id)
+                 json.dumps(teardown, ensure_ascii=False), vin or None,
+                 eng_model or None, eng_number or None, user_id)
             )
             car_id = cur.fetchone()[0]
             conn.commit()
@@ -202,6 +210,18 @@ def handler(event: dict, context) -> dict:
                 return err("Автомобиль не найден", 404)
             if not is_staff and row[1] != user_id:
                 return err("Нет доступа", 403)
+
+            # Сотрудник дописывает номерные агрегаты (модель и номер ДВС)
+            if is_staff and ("engine_model" in body or "engine_number" in body):
+                eng_model = (body.get("engine_model") or "").strip()[:64]
+                eng_number = (body.get("engine_number") or "").strip().upper()[:64]
+                cur.execute(
+                    f"UPDATE {SCHEMA}.cars SET engine_model = %s, engine_number = %s WHERE id = %s",
+                    (eng_model or None, eng_number or None, car_id)
+                )
+                conn.commit()
+                return ok({"engine_model": eng_model, "engine_number": eng_number,
+                           "message": "Данные ДВС сохранены"})
 
             current = row[0] if isinstance(row[0], list) else (json.loads(row[0]) if row[0] else [])
             needed_map = {str(x.get("name", "")).strip(): bool(x.get("needed")) for x in (body.get("teardown") or []) if isinstance(x, dict)}

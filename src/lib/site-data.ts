@@ -84,7 +84,7 @@ export async function apiHotDeals(method: "GET" | "POST" | "DELETE", opts: { tok
 export interface User { id: number; email: string; phone: string; full_name: string; company: string; inn: string; created_at: string; role?: string; }
 export interface Order { id: number; order_number: string; car_brand: string; car_model: string; car_year: number; quantity: number; budget: number; status: string; status_label: string; origin: string; created_at: string; comment?: string; client_name?: string; client_email?: string; client_phone?: string; client_company?: string; cars_count?: number; }
 export interface TeardownItem { name: string; needed: boolean; qty?: number; }
-export interface Car { id: number; car_brand: string; car_model: string; car_year: number; price: number; mileage: number; description: string; photos: string[]; teardown: TeardownItem[]; created_at: string; vin?: string; }
+export interface Car { id: number; car_brand: string; car_model: string; car_year: number; price: number; mileage: number; description: string; photos: string[]; teardown: TeardownItem[]; created_at: string; vin?: string; engine_model?: string; engine_number?: string; order_status?: string; order_number?: string; }
 
 // Разделитель «Группа » Узел» внутри name (для совместимости с бэкендом, который хранит только name)
 export const TD_SEP = " » ";
@@ -427,14 +427,14 @@ export const BRANDS = ["Toyota","Lexus","Honda","Nissan","Mazda","Mitsubishi","S
 
 export const STATUS_COLOR: Record<string, string> = {
   new: "bg-blue-100 text-blue-700", processing: "bg-yellow-100 text-yellow-700",
-  auction: "bg-purple-100 text-purple-700", shipped: "bg-indigo-100 text-indigo-700",
+  auction: "bg-purple-100 text-purple-700", teardown: "bg-amber-100 text-amber-800", shipped: "bg-indigo-100 text-indigo-700",
   customs: "bg-orange-100 text-orange-700", delivered: "bg-teal-100 text-teal-700", done: "bg-green-100 text-green-700",
 };
 
 // ── Status labels (frontend translation by status code) ──
 export const STATUS_LABEL: Record<Lang, Record<string, string>> = {
-  ru: { new: "Новая", processing: "В обработке", auction: "На аукционе", shipped: "Отправлен", customs: "На таможне", delivered: "Доставлен", done: "Завершён" },
-  en: { new: "New", processing: "Processing", auction: "At auction", shipped: "Shipped", customs: "At customs", delivered: "Delivered", done: "Completed" },
+  ru: { new: "Новая", processing: "В обработке", auction: "На аукционе", teardown: "В разбор", shipped: "Отправлен", customs: "На таможне", delivered: "Доставлен", done: "Завершён" },
+  en: { new: "New", processing: "Processing", auction: "At auction", teardown: "For teardown", shipped: "Shipped", customs: "At customs", delivered: "Delivered", done: "Completed" },
 };
 
 // ── Origin name <-> code map (для перевода поля origin из заявок) ──
@@ -570,6 +570,10 @@ export const I18N: Record<Lang, Record<string, string>> = {
     td_print_sign_client: "Подпись клиента",
     pl_download: "Упаковочный лист",
     pl_nothing_picked: "Не отмечено ни одной детали — отметьте нужные клиенту позиции.",
+    engine_model: "Модель ДВС",
+    engine_number: "Номер ДВС",
+    eng_doc: "Номерные агрегаты",
+    eng_doc_empty: "Нет заявок в статусе «В разбор» — переведите заявку в этот статус.",
     td_full: "Полная разборка",
     td_clear_all: "Очистить всё",
     td_mode_halfcut: "Крупноузловой (халфкат)",
@@ -618,7 +622,7 @@ export const I18N: Record<Lang, Record<string, string>> = {
     request_label: "Запрос:", direction_label: "Направление:",
     client_comment: "Комментарий клиента: ",
     order_status: "Статус заказа",
-    st_new: "Новая", st_processing: "В обработке", st_auction: "На аукционе", st_shipped: "Отправлен",
+    st_new: "Новая", st_processing: "В обработке", st_auction: "На аукционе", st_teardown: "В разбор", st_shipped: "Отправлен",
     st_customs: "На таможне", st_delivered: "Доставлен", st_done: "Завершён",
     add_car_title: "Добавить автомобиль клиенту",
     brand: "Марка *", model: "Модель", year: "Год", price_rub: "Цена, ₽", mileage_km: "Пробег, км",
@@ -781,6 +785,10 @@ export const I18N: Record<Lang, Record<string, string>> = {
     td_print_sign_client: "Client signature",
     pl_download: "Packing list",
     pl_nothing_picked: "No parts selected — tick the items the client needs.",
+    engine_model: "Engine model",
+    engine_number: "Engine number",
+    eng_doc: "Engine units",
+    eng_doc_empty: "No orders with status \"For teardown\".",
     td_full: "Full teardown",
     td_clear_all: "Clear all",
     td_mode_halfcut: "Half-cut (large units)",
@@ -829,7 +837,7 @@ export const I18N: Record<Lang, Record<string, string>> = {
     request_label: "Request:", direction_label: "Destination:",
     client_comment: "Client comment: ",
     order_status: "Order status",
-    st_new: "New", st_processing: "Processing", st_auction: "At auction", st_shipped: "Shipped",
+    st_new: "New", st_processing: "Processing", st_auction: "At auction", st_teardown: "For teardown", st_shipped: "Shipped",
     st_customs: "At customs", st_delivered: "Delivered", st_done: "Completed",
     add_car_title: "Add a car for the client",
     brand: "Make *", model: "Model", year: "Year", price_rub: "Price, ₽", mileage_km: "Mileage, km",

@@ -41,6 +41,7 @@ export default function OrderDetailCard(s: SiteState) {
                             <option value="new">{t("st_new")}</option>
                             <option value="processing">{t("st_processing")}</option>
                             <option value="auction">{t("st_auction")}</option>
+                            <option value="teardown">{t("st_teardown")}</option>
                             <option value="shipped">{t("st_shipped")}</option>
                             <option value="customs">{t("st_customs")}</option>
                             <option value="delivered">{t("st_delivered")}</option>

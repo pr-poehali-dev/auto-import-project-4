@@ -55,6 +55,20 @@ export default function CarsSection(s: SiteState) {
                             onChange={(e) => setCarForm({ ...carForm, vin: e.target.value.toUpperCase() })}
                             className={inputCls + " font-mono tracking-wider"} />
                         </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("engine_model")}</label>
+                            <input placeholder="2AR-FE" value={carForm.engine_model} maxLength={64}
+                              onChange={(e) => setCarForm({ ...carForm, engine_model: e.target.value })}
+                              className={inputCls + " font-mono tracking-wide"} />
+                          </div>
+                          <div>
+                            <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("engine_number")}</label>
+                            <input placeholder="2AR-1234567" value={carForm.engine_number} maxLength={64}
+                              onChange={(e) => setCarForm({ ...carForm, engine_number: e.target.value.toUpperCase() })}
+                              className={inputCls + " font-mono tracking-wide"} />
+                          </div>
+                        </div>
                         <div>
                           <label className="block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2">{t("description_trim")}</label>
                           <textarea rows={3} placeholder={t("description_ph")} value={carForm.description} onChange={(e) => setCarForm({ ...carForm, description: e.target.value })} className={inputCls} />
@@ -107,6 +121,12 @@ export default function CarsSection(s: SiteState) {
                                   {!!c.mileage && <span>{c.mileage.toLocaleString()} {t("km")}</span>}
                                 </div>
                                 {c.vin && <div className="text-xs mt-1 text-[hsl(var(--navy)/0.62)]">VIN: <span className="font-mono font-semibold navy tracking-wider">{c.vin}</span></div>}
+                                {(c.engine_model || c.engine_number) && (
+                                  <div className="text-xs mt-1 text-[hsl(var(--navy)/0.62)] flex flex-wrap gap-x-3">
+                                    {c.engine_model && <span>{t("engine_model")}: <span className="font-mono font-semibold navy">{c.engine_model}</span></span>}
+                                    {c.engine_number && <span>{t("engine_number")}: <span className="font-mono font-semibold navy">{c.engine_number}</span></span>}
+                                  </div>
+                                )}
                                 {c.description && <p className="text-[hsl(var(--navy)/0.55)] text-sm mt-2 leading-relaxed">{c.description}</p>}
                                 {c.teardown && c.teardown.length > 0 && (
                                   <div className="mt-3 pt-3 border-t border-[hsl(var(--gold)/0.12)]">

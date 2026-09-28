@@ -37,6 +37,7 @@ export default function TabLogistics(s: SiteState) {
     setTdFilter,
     t,
     tdFilter,
+    exportEngineDocXlsx,
     teardownCars,
     teardownCarsLoading,
     togglePickedCar,
@@ -276,9 +277,21 @@ export default function TabLogistics(s: SiteState) {
                       : teardownCars.filter((c) => detectTeardownMode(c.teardown || []) === tdFilter);
                     return (
                     <div>
-                      <div className="flex items-center gap-2 mb-4">
-                        <h2 className="font-['Montserrat'] font-bold text-xl navy">{t("teardowns_all_cars")}</h2>
-                        <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))]">{teardownCars.length}</span>
+                      <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <h2 className="font-['Montserrat'] font-bold text-xl navy">{t("teardowns_all_cars")}</h2>
+                          <span className="text-xs px-2 py-0.5 rounded-full font-semibold bg-[hsl(var(--gold)/0.12)] text-[hsl(var(--gold))]">{teardownCars.length}</span>
+                        </div>
+                        {(() => {
+                          const engCnt = teardownCars.filter((c) => c.order_status === "teardown").length;
+                          return (
+                            <button type="button" onClick={exportEngineDocXlsx} disabled={engCnt === 0}
+                              className="flex items-center gap-2 text-xs font-['Montserrat'] font-bold px-4 py-2 rounded-sm bg-[hsl(var(--gold))] text-[hsl(222_47%_8%)] hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed">
+                              <Icon name="FileSpreadsheet" size={14} />{t("eng_doc")}
+                              <span className="px-1.5 rounded-full text-[10px] bg-[hsl(222_47%_8%)/0.15]">{engCnt}</span>
+                            </button>
+                          );
+                        })()}
                       </div>
                       <div className="flex flex-wrap gap-2 mb-5">
                         {filterOpts.map((o) => {
