@@ -704,6 +704,20 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
     ]);
   const ENGINE_DOC_HEAD = ["№", "Модель автомобиля", "Год выпуска", "VIN номер", "Модель ДВС", "Номер ДВС", "Заявка", "Клиент"];
   const ENGINE_DOC_COLS = [{ wch: 6 }, { wch: 28 }, { wch: 13 }, { wch: 22 }, { wch: 18 }, { wch: 22 }, { wch: 14 }, { wch: 24 }];
+  // Блок подписей и печати под таблицей номерных агрегатов
+  const engineDocSignRows = (): (string | number)[][] => [
+    [],
+    ["Данные о номерных агрегатах сверены с номерами на автомобилях."],
+    [],
+    ["Сведения составил:", "", "", "", "Проверил:"],
+    ["должность, Ф.И.О.", "", "", "", "должность, Ф.И.О."],
+    [],
+    ["Подпись:", "______________________", "", "", "Подпись:", "______________________"],
+    [],
+    ["Дата:", "____ . ____ . 20____", "", "", "Дата:", "____ . ____ . 20____"],
+    [],
+    ["М.П.", "", "", "", "", ""],
+  ];
 
   // Отдельный документ по номерным агрегатам из заявок «В разбор»
   const exportEngineDocXlsx = async () => {
@@ -722,7 +736,9 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
       ENGINE_DOC_HEAD,
     ];
     const rows = engineDocRows(list);
-    const aoa = [...head, ...rows, [], ["", "ИТОГО агрегатов:", list.length]];
+    const sign = engineDocSignRows();
+    if (user?.full_name) sign[3][1] = user.full_name;
+    const aoa = [...head, ...rows, [], ["", "ИТОГО агрегатов:", list.length], ...sign];
 
     const ws = XLSX.utils.aoa_to_sheet(aoa);
     ws["!cols"] = ENGINE_DOC_COLS;
@@ -867,11 +883,14 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
       ENGINE_DOC_HEAD,
     ];
     const engRows = engineDocRows(engCars);
+    const engSign = engineDocSignRows();
+    if (user?.full_name) engSign[3][1] = user.full_name;
     const s4 = [
       ...engHead,
       ...(engRows.length ? engRows : [["—", "Нет машин в статусе «В разбор»", "", "", "", "", "", ""]]),
       [],
       ["", "ИТОГО агрегатов:", engCars.length],
+      ...engSign,
     ];
     const ws4 = XLSX.utils.aoa_to_sheet(s4);
     ws4["!cols"] = ENGINE_DOC_COLS;
