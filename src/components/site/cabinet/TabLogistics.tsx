@@ -406,7 +406,7 @@ export default function TabLogistics(s: SiteState) {
                               </div>
                               {editCarId === c.id && (
                                 <CarIdsForm form={editCarForm} setForm={setEditCarForm} onSave={saveEditCar}
-                                  onCancel={cancelEditCar} saving={editCarSaving} inputCls={inputCls} t={t} />
+                                  onCancel={cancelEditCar} saving={editCarSaving} inputCls={inputCls} t={t} autoFocus />
                               )}
                               <div className="text-[hsl(var(--navy)/0.6)] text-sm mt-1">
                                 {c.client_name || c.client_email}{c.client_company ? ` · ${c.client_company}` : ""}

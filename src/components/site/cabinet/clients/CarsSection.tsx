@@ -129,7 +129,7 @@ export default function CarsSection(s: SiteState) {
                                 </div>
                                 {editCarId === c.id && (
                                   <CarIdsForm form={editCarForm} setForm={setEditCarForm} onSave={saveEditCar}
-                                    onCancel={cancelEditCar} saving={editCarSaving} inputCls={inputCls} t={t} />
+                                    onCancel={cancelEditCar} saving={editCarSaving} inputCls={inputCls} t={t} autoFocus />
                                 )}
                                 <div className="flex gap-4 text-sm mt-1 text-[hsl(var(--navy)/0.6)]">
                                   {!!c.price && <span className="font-semibold text-[hsl(var(--gold))]">{c.price.toLocaleString()} ₽</span>}

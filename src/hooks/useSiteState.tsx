@@ -400,7 +400,16 @@ export function useSiteState() {
       ? { ...c, vin: d.vin ?? c.vin, engine_model: d.engine_model ?? c.engine_model, engine_number: d.engine_number ?? c.engine_number }
       : c;
     setCars((prev) => prev.map(patch));
-    setTeardownCars((prev) => prev.map(patch));
+    const updated = teardownCars.map(patch);
+    setTeardownCars(updated);
+
+    // Автопереход к следующей машине «В разбор» без VIN / данных ДВС
+    const savedIdx = updated.findIndex((c) => c.id === editCarId);
+    if (cabinetTab === "teardowns" && savedIdx !== -1) {
+      const after = updated.slice(savedIdx + 1).find(isMissingIds);
+      const next = after || updated.slice(0, savedIdx).find(isMissingIds);
+      if (next) { startEditCar(next); return; }
+    }
     setEditCarId(null);
   };
 
