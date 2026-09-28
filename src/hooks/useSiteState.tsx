@@ -618,6 +618,31 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
     await writeXlsxWithFreeze(wb, `packing_list_${safe}.xlsx`, [{ sheetIndex: 0, rows: headerRow }]);
   };
 
+  // Упаковочный лист в формате присланного шаблона: список отмеченных деталей + итог
+  const exportPackingListTemplateXlsx = async (car: Car) => {
+    const XLSX = await import("xlsx");
+    const picked = (car.teardown || []).filter((x) => x.needed);
+    if (picked.length === 0) { alert(t("pl_nothing_picked")); return; }
+
+    const rows: (string | number)[][] = [];
+    for (const grp of groupTeardown(picked)) {
+      for (const it of grp.items) {
+        rows.push([it.qty > 1 ? `${it.part} × ${it.qty}` : it.part, ""]);
+      }
+    }
+    const totalQty = picked.reduce((s, x) => s + (x.qty || 1), 0);
+    rows.push(["Общее количество деталей", totalQty]);
+
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws["!cols"] = [{ wch: 46 }, { wch: 10 }];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Упаковочный лист RU");
+    const carTitle = [car.car_brand, car.car_model, car.car_year].filter(Boolean).join(" ");
+    const safe = (carTitle || "car").replace(/[^\wа-яА-Я0-9-]+/g, "_");
+    XLSX.writeFile(wb, `packing_list_RU_${safe}.xlsx`);
+  };
+
   // Экспорт упаковочного листа контейнера в XLSX (машинокомплекты + VIN + детали)
   const exportContainerXlsx = async (ct: Container) => {
     const XLSX = await import("xlsx");
@@ -1045,6 +1070,7 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
     exportContainerXlsx,
     exportPackingList,
     exportPackingListXlsx,
+    exportPackingListTemplateXlsx,
     printTeardownSheet,
     forgotForm,
     forgotMsg,

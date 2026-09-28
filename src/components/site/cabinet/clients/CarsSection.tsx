@@ -13,6 +13,7 @@ export default function CarsSection(s: SiteState) {
     doDeleteCar,
     exportPackingList,
     exportPackingListXlsx,
+    exportPackingListTemplateXlsx,
     printTeardownSheet,
     handlePhotoSelect,
     inputCls,
@@ -123,6 +124,9 @@ export default function CarsSection(s: SiteState) {
                                         </button>
                                         <button type="button" onClick={() => exportPackingListXlsx(c)} className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors">
                                           <Icon name="Sheet" size={13} />XLSX
+                                        </button>
+                                        <button type="button" onClick={() => exportPackingListTemplateXlsx(c)} disabled={!c.teardown.some((x) => x.needed)} className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--gold))] hover:text-[hsl(var(--navy))] transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-[hsl(var(--gold))]">
+                                          <Icon name="Download" size={13} />{t("pl_download")}
                                         </button>
                                       </div>
                                     </div>
