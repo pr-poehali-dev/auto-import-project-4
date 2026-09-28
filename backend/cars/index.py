@@ -211,17 +211,32 @@ def handler(event: dict, context) -> dict:
             if not is_staff and row[1] != user_id:
                 return err("Нет доступа", 403)
 
-            # Сотрудник дописывает номерные агрегаты (модель и номер ДВС)
-            if is_staff and ("engine_model" in body or "engine_number" in body):
-                eng_model = (body.get("engine_model") or "").strip()[:64]
-                eng_number = (body.get("engine_number") or "").strip().upper()[:64]
+            # Сотрудник дописывает идентификаторы: VIN, модель и номер ДВС
+            id_fields = ("vin", "engine_model", "engine_number")
+            if is_staff and any(f in body for f in id_fields):
+                sets, vals = [], []
+                if "vin" in body:
+                    v = (body.get("vin") or "").strip().upper()[:32]
+                    sets.append("vin = %s")
+                    vals.append(v or None)
+                if "engine_model" in body:
+                    v = (body.get("engine_model") or "").strip()[:64]
+                    sets.append("engine_model = %s")
+                    vals.append(v or None)
+                if "engine_number" in body:
+                    v = (body.get("engine_number") or "").strip().upper()[:64]
+                    sets.append("engine_number = %s")
+                    vals.append(v or None)
+                vals.append(car_id)
                 cur.execute(
-                    f"UPDATE {SCHEMA}.cars SET engine_model = %s, engine_number = %s WHERE id = %s",
-                    (eng_model or None, eng_number or None, car_id)
+                    f"UPDATE {SCHEMA}.cars SET {', '.join(sets)} WHERE id = %s "
+                    f"RETURNING vin, engine_model, engine_number",
+                    tuple(vals)
                 )
+                upd = cur.fetchone()
                 conn.commit()
-                return ok({"engine_model": eng_model, "engine_number": eng_number,
-                           "message": "Данные ДВС сохранены"})
+                return ok({"vin": upd[0] or "", "engine_model": upd[1] or "",
+                           "engine_number": upd[2] or "", "message": "Данные сохранены"})
 
             current = row[0] if isinstance(row[0], list) else (json.loads(row[0]) if row[0] else [])
             needed_map = {str(x.get("name", "")).strip(): bool(x.get("needed")) for x in (body.get("teardown") or []) if isinstance(x, dict)}

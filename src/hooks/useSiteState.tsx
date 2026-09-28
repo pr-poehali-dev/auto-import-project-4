@@ -45,6 +45,9 @@ export function useSiteState() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [cars, setCars] = useState<Car[]>([]);
   const [carsLoading, setCarsLoading] = useState(false);
+  const [editCarId, setEditCarId] = useState<number | null>(null);
+  const [editCarForm, setEditCarForm] = useState({ vin: "", engine_model: "", engine_number: "" });
+  const [editCarSaving, setEditCarSaving] = useState(false);
   const [carForm, setCarForm] = useState({ car_brand: "", car_model: "", car_year: "", vin: "", engine_model: "", engine_number: "", price: "", mileage: "", description: "", photos: [] as string[], teardown: [] as TeardownItem[] });
   const [carSaving, setCarSaving] = useState(false);
   const [teardownInput, setTeardownInput] = useState("");
@@ -365,6 +368,35 @@ export function useSiteState() {
   const doDeleteCar = async (carId: number) => {
     await apiCars("DELETE", token, { query: `car_id=${carId}` });
     if (selectedOrder) loadCars(selectedOrder.id);
+  };
+
+  // Дописать идентификаторы машины (VIN, модель и номер ДВС) после добавления
+  const startEditCar = (car: Car) => {
+    setEditCarId(car.id);
+    setEditCarForm({
+      vin: car.vin || "",
+      engine_model: car.engine_model || "",
+      engine_number: car.engine_number || "",
+    });
+  };
+  const cancelEditCar = () => { setEditCarId(null); setEditCarSaving(false); };
+  const saveEditCar = async () => {
+    if (!editCarId) return;
+    setEditCarSaving(true);
+    const d = await apiCars("PATCH", token, { body: {
+      car_id: editCarId,
+      vin: editCarForm.vin,
+      engine_model: editCarForm.engine_model,
+      engine_number: editCarForm.engine_number,
+    } });
+    setEditCarSaving(false);
+    if (d.error) { alert(d.error); return; }
+    const patch = <T extends Car>(c: T): T => c.id === editCarId
+      ? { ...c, vin: d.vin ?? c.vin, engine_model: d.engine_model ?? c.engine_model, engine_number: d.engine_number ?? c.engine_number }
+      : c;
+    setCars((prev) => prev.map(patch));
+    setTeardownCars((prev) => prev.map(patch));
+    setEditCarId(null);
   };
 
   // Печать разборного листа: группы узлов, отметки клиента, количество
@@ -1150,6 +1182,13 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
     exportPackingListXlsx,
     exportPackingListTemplateXlsx,
     exportEngineDocXlsx,
+    editCarId,
+    editCarForm,
+    editCarSaving,
+    setEditCarForm,
+    startEditCar,
+    cancelEditCar,
+    saveEditCar,
     printTeardownSheet,
     forgotForm,
     forgotMsg,
