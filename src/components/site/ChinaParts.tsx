@@ -68,7 +68,7 @@ export default function ChinaParts({ lang, t, isAuthed, onLogin, onRegister, inp
   const title = (
     <div className="flex items-center gap-3 mb-2">
       <Icon name="Wrench" size={24} className="text-[hsl(var(--gold))]" />
-      <h2 className="font-['Montserrat'] font-black text-2xl text-white drop-shadow-[0_1px_3px_rgba(25,61,100,0.6)]">{t("cn_parts_title")}</h2>
+      <h2 className="font-['Montserrat'] font-black text-2xl text-[hsl(222_47%_11%)]">{t("cn_parts_title")}</h2>
     </div>
   );
 
@@ -77,7 +77,7 @@ export default function ChinaParts({ lang, t, isAuthed, onLogin, onRegister, inp
     return (
       <div className="mb-14">
         {title}
-        <p className="text-white/90 text-sm mb-6 max-w-2xl drop-shadow-[0_1px_3px_rgba(25,61,100,0.6)]">{t("cn_parts_sub")}</p>
+        <p className="text-[hsl(222_30%_28%)] text-sm mb-6 max-w-2xl">{t("cn_parts_sub")}</p>
         <div className="card-light rounded-sm p-8 sm:p-10 text-center">
           <div className="w-14 h-14 rounded-sm bg-[hsl(var(--navy)/0.06)] flex items-center justify-center mx-auto mb-4">
             <Icon name="Lock" size={24} className="text-[hsl(var(--navy))]" />
@@ -107,16 +107,16 @@ export default function ChinaParts({ lang, t, isAuthed, onLogin, onRegister, inp
   return (
     <div className="mb-14">
       {title}
-      <p className="text-white/90 text-sm mb-6 max-w-2xl drop-shadow-[0_1px_3px_rgba(25,61,100,0.6)]">{t("cn_parts_sub")}</p>
+      <p className="text-[hsl(222_30%_28%)] text-sm mb-6 max-w-2xl">{t("cn_parts_sub")}</p>
 
       <div className="flex flex-wrap gap-2 mb-6">
         {tabs.map((x) => {
           const active = tab === x.key;
           return (
             <button key={x.key} type="button" onClick={() => { setTab(x.key); setSearch(""); }}
-              className={`flex items-center gap-1.5 text-xs font-['Montserrat'] font-bold px-4 py-2 rounded-full border transition-colors ${active ? "bg-[hsl(var(--gold))] text-[hsl(222_47%_8%)] border-[hsl(var(--gold))]" : "bg-[hsl(222_50%_6%/0.55)] text-white/80 border-white/20 hover:border-[hsl(var(--gold)/0.6)]"}`}>
+              className={`flex items-center gap-1.5 text-xs font-['Montserrat'] font-bold px-4 py-2 rounded-full border transition-colors ${active ? "bg-[hsl(var(--gold))] text-[hsl(222_47%_8%)] border-[hsl(var(--gold))]" : "bg-[hsl(222_47%_11%)] text-white border-[hsl(222_47%_11%)] hover:bg-[hsl(222_47%_18%)]"}`}>
               <Icon name={x.icon} size={13} />{x.label}
-              <span className={`px-1.5 rounded-full text-[10px] ${active ? "bg-[hsl(222_47%_8%)/0.15]" : "bg-white/10"}`}>{x.count}</span>
+              <span className={`px-1.5 rounded-full text-[10px] ${active ? "bg-[hsl(222_47%_8%)/0.15]" : "bg-white/15"}`}>{x.count}</span>
             </button>
           );
         })}
@@ -143,7 +143,7 @@ export default function ChinaParts({ lang, t, isAuthed, onLogin, onRegister, inp
           </div>
 
           {search.trim() && (
-            <p className="text-white/80 text-xs font-['Montserrat'] font-semibold mb-4 drop-shadow-[0_1px_3px_rgba(25,61,100,0.6)]">
+            <p className="text-[hsl(222_30%_28%)] text-xs font-['Montserrat'] font-semibold mb-4">
               {found.length > 0
                 ? `${t("cn_cat_found")}: ${found.length} ${t("cn_cat_of_brands")} · ${matchedModels} ${t("cn_cat_models")}`
                 : t("cn_cat_nothing")}
@@ -189,7 +189,7 @@ export default function ChinaParts({ lang, t, isAuthed, onLogin, onRegister, inp
       )}
 
       {tab === "parts" && search.trim() && (
-        <p className="text-white/80 text-xs font-['Montserrat'] font-semibold mb-4 drop-shadow-[0_1px_3px_rgba(25,61,100,0.6)]">
+        <p className="text-[hsl(222_30%_28%)] text-xs font-['Montserrat'] font-semibold mb-4">
           {foundParts.length > 0
             ? `${t("cn_cat_found")}: ${foundParts.length} ${t("cn_prt_of_groups")} · ${shownParts} ${t("cn_prt_units")}`
             : t("cn_prt_nothing")}
