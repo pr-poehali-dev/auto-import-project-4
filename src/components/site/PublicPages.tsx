@@ -1,5 +1,6 @@
 import Icon from "@/components/ui/icon";
 import type { SiteState } from "@/hooks/useSiteState";
+import ChinaParts from "@/components/site/ChinaParts";
 import {
   ORIGINS, SERVICES, STATS, WHY, STEPS,
   LOGO, HERO_IMG, DIRECTIONS_IMG, SERVICES_IMG, HOW_IMG, CONTACTS_IMG,
@@ -306,6 +307,11 @@ export default function PublicPages(s: SiteState) {
                     ))}
                   </div>
                 </div>
+              )}
+
+              {o.id === "china" && (
+                <ChinaParts lang={lang} t={t} isAuthed={!!user}
+                  onLogin={() => nav("login")} onRegister={() => nav("register")} />
               )}
 
               {"auctionLinks" in o && o.auctionLinks && (

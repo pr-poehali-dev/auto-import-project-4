@@ -425,6 +425,89 @@ export const STEPS = [
 ];
 export const BRANDS = ["Toyota","Lexus","Honda","Nissan","Mazda","Mitsubishi","Subaru","Hyundai","Kia","Ssangyong","BMW","Mercedes-Benz","Audi","Volkswagen"];
 
+// ── Китай · Автозапчасти (раздел только для авторизованных клиентов) ──
+export interface PartsCatalog { id: string; brand: string; title: { ru: string; en: string }; desc: { ru: string; en: string }; url: string; }
+export interface PartsCategory { id: string; icon: string; title: { ru: string; en: string }; items: { ru: string; en: string }[]; }
+
+// Раздел «Каталоги» — официальные и партнёрские каталоги по китайским маркам
+export const CHINA_PARTS_CATALOGS: PartsCatalog[] = [
+  { id: "geely", brand: "Geely", url: "https://parts.geely.com",
+    title: { ru: "Каталог Geely", en: "Geely catalog" },
+    desc: { ru: "Оригинальные номера по VIN: Atlas, Coolray, Monjaro, Tugella", en: "OEM numbers by VIN: Atlas, Coolray, Monjaro, Tugella" } },
+  { id: "chery", brand: "Chery", url: "https://www.cheryinternational.com",
+    title: { ru: "Каталог Chery", en: "Chery catalog" },
+    desc: { ru: "Tiggo, Arrizo, Exeed — схемы узлов и артикулы", en: "Tiggo, Arrizo, Exeed — assembly diagrams and part numbers" } },
+  { id: "byd", brand: "BYD", url: "https://www.bydauto.com.cn",
+    title: { ru: "Каталог BYD", en: "BYD catalog" },
+    desc: { ru: "Электромобили: батарейные модули, инверторы, электромоторы", en: "EVs: battery modules, inverters, electric motors" } },
+  { id: "haval", brand: "Haval / GWM", url: "https://www.gwm-global.com",
+    title: { ru: "Каталог Haval и Great Wall", en: "Haval and Great Wall catalog" },
+    desc: { ru: "Jolion, F7, Dargo, H9 — полная разбивка по кузову и ДВС", en: "Jolion, F7, Dargo, H9 — full body and engine breakdown" } },
+  { id: "changan", brand: "Changan", url: "https://www.globalchangan.com",
+    title: { ru: "Каталог Changan", en: "Changan catalog" },
+    desc: { ru: "CS35, CS55, CS75, UNI-K — оригинальные артикулы", en: "CS35, CS55, CS75, UNI-K — original part numbers" } },
+  { id: "zeekr", brand: "Zeekr / Li Auto", url: "https://www.zeekrlife.com",
+    title: { ru: "Каталог Zeekr и Li Auto", en: "Zeekr and Li Auto catalog" },
+    desc: { ru: "Премиальные электромобили: силовая электроника и оптика", en: "Premium EVs: power electronics and lighting" } },
+];
+
+// Раздел «Запчасти» — что поставляем по группам
+export const CHINA_PARTS_CATEGORIES: PartsCategory[] = [
+  { id: "engine", icon: "Cog",
+    title: { ru: "Двигатель и навесное", en: "Engine and accessories" },
+    items: [
+      { ru: "Двигатели в сборе и блоки ДВС", en: "Complete engines and cylinder blocks" },
+      { ru: "Турбины, интеркулеры, радиаторы", en: "Turbochargers, intercoolers, radiators" },
+      { ru: "Топливные насосы и форсунки", en: "Fuel pumps and injectors" },
+    ] },
+  { id: "ev", icon: "BatteryCharging",
+    title: { ru: "Электромобили и гибриды", en: "EVs and hybrids" },
+    items: [
+      { ru: "Батарейные модули и блоки BMS", en: "Battery modules and BMS units" },
+      { ru: "Электромоторы и редукторы", en: "Electric motors and reducers" },
+      { ru: "Инверторы и зарядные устройства", en: "Inverters and on-board chargers" },
+    ] },
+  { id: "transmission", icon: "Settings",
+    title: { ru: "Трансмиссия", en: "Transmission" },
+    items: [
+      { ru: "АКПП, DCT и вариаторы в сборе", en: "Complete AT, DCT and CVT units" },
+      { ru: "Редукторы и приводные валы", en: "Reducers and drive shafts" },
+      { ru: "Раздаточные коробки", en: "Transfer cases" },
+    ] },
+  { id: "body", icon: "CarFront",
+    title: { ru: "Кузовные детали", en: "Body parts" },
+    items: [
+      { ru: "Ноускаты, капоты, крылья, двери", en: "Nose cuts, hoods, fenders, doors" },
+      { ru: "Бамперы в сборе и усилители", en: "Complete bumpers and reinforcements" },
+      { ru: "Крыши, пороги, крышки багажника", en: "Roofs, sills, trunk lids" },
+    ] },
+  { id: "optics", icon: "Lightbulb",
+    title: { ru: "Оптика", en: "Lighting" },
+    items: [
+      { ru: "Фары LED и матричные", en: "LED and matrix headlights" },
+      { ru: "Задние фонари и ПТФ", en: "Tail lights and fog lamps" },
+    ] },
+  { id: "electronics", icon: "CircuitBoard",
+    title: { ru: "Электроника", en: "Electronics" },
+    items: [
+      { ru: "Блоки управления ДВС и климатом", en: "Engine and climate control units" },
+      { ru: "Мультимедиа и панели приборов", en: "Multimedia and instrument clusters" },
+      { ru: "Проводка и блоки предохранителей", en: "Wiring harnesses and fuse boxes" },
+    ] },
+  { id: "chassis", icon: "Disc",
+    title: { ru: "Ходовая и тормоза", en: "Chassis and brakes" },
+    items: [
+      { ru: "Стойки, рычаги, подрамники", en: "Struts, control arms, subframes" },
+      { ru: "Суппорты, диски, блоки ABS", en: "Calipers, discs, ABS units" },
+    ] },
+  { id: "interior", icon: "Armchair",
+    title: { ru: "Салон", en: "Interior" },
+    items: [
+      { ru: "Сиденья, торпедо, рули с Airbag", en: "Seats, dashboards, steering wheels with airbags" },
+      { ru: "Обшивки, консоли, пластик салона", en: "Trim panels, consoles, interior plastics" },
+    ] },
+];
+
 export const STATUS_COLOR: Record<string, string> = {
   new: "bg-blue-100 text-blue-700", processing: "bg-yellow-100 text-yellow-700",
   auction: "bg-purple-100 text-purple-700", teardown: "bg-amber-100 text-amber-800", shipped: "bg-indigo-100 text-indigo-700",
@@ -571,6 +654,12 @@ export const I18N: Record<Lang, Record<string, string>> = {
     pl_download: "Упаковочный лист",
     pl_nothing_picked: "Не отмечено ни одной детали — отметьте нужные клиенту позиции.",
     td_missing_ids: "Не заполнены данные для документов",
+    cn_parts_title: "Автозапчасти",
+    cn_parts_sub: "Каталоги китайских марок и полный перечень запчастей, которые мы поставляем под заказ.",
+    cn_parts_tab_catalogs: "Каталоги",
+    cn_parts_tab_parts: "Запчасти",
+    cn_parts_locked: "Раздел доступен клиентам",
+    cn_parts_locked_sub: "Войдите в личный кабинет или зарегистрируйтесь, чтобы открыть каталоги китайских марок и перечень запчастей под заказ.",
     td_missing_fill: "Заполнить",
     td_missing_filter_hint: "Показать только машины без данных ДВС",
     td_missing_filter_on: "Показаны только машины «В разбор» без VIN или данных ДВС",
@@ -799,6 +888,12 @@ export const I18N: Record<Lang, Record<string, string>> = {
     pl_download: "Packing list",
     pl_nothing_picked: "No parts selected — tick the items the client needs.",
     td_missing_ids: "Missing data for documents",
+    cn_parts_title: "Auto parts",
+    cn_parts_sub: "Chinese brand catalogs and the full list of parts we supply to order.",
+    cn_parts_tab_catalogs: "Catalogs",
+    cn_parts_tab_parts: "Parts",
+    cn_parts_locked: "Section available to clients",
+    cn_parts_locked_sub: "Log in or register to unlock Chinese brand catalogs and the list of parts available to order.",
     td_missing_fill: "Fill in",
     td_missing_filter_hint: "Show only cars missing engine data",
     td_missing_filter_on: "Showing only \"For teardown\" cars without VIN or engine data",
