@@ -58,6 +58,11 @@ export function useSiteState() {
   const [teardownCars, setTeardownCars] = useState<TeardownCar[]>([]);
   const [teardownCarsLoading, setTeardownCarsLoading] = useState(false);
   const [tdFilter, setTdFilter] = useState<TeardownMode | "all">("all");
+  // фильтр «только машины в разбор с незаполненными VIN / данными ДВС»
+  const [tdMissingOnly, setTdMissingOnly] = useState(false);
+  const isMissingIds = (c: { order_status?: string; vin?: string; engine_model?: string; engine_number?: string }) =>
+    c.order_status === "teardown" && (!c.vin || !c.engine_model || !c.engine_number);
+  const toggleTdMissingOnly = () => setTdMissingOnly((v) => !v);
   // сотрудник: контейнеры (сборка машинокомплектов)
   interface ContainerCar { id: number; car_brand: string; car_model: string; car_year: number; vin: string; order_number: string; client_name: string; client_company: string; origin: string; status: string; engine_model?: string; engine_number?: string; teardown?: TeardownItem[]; }
   interface Container { id: number; name: string; container_number: string; origin: string; status: string; status_label: string; comment: string; created_at: string; cars: ContainerCar[]; }
@@ -1210,6 +1215,9 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
     exportPackingListTemplateXlsx,
     exportEngineDocXlsx,
     containerPartsSummary,
+    tdMissingOnly,
+    toggleTdMissingOnly,
+    isMissingIds,
     openSummaryId,
     toggleContainerSummary,
     editCarId,

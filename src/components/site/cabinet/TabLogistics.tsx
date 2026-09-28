@@ -39,6 +39,9 @@ export default function TabLogistics(s: SiteState) {
     tdFilter,
     exportEngineDocXlsx,
     containerPartsSummary,
+    tdMissingOnly,
+    toggleTdMissingOnly,
+    isMissingIds,
     openSummaryId,
     toggleContainerSummary,
     teardownCars,
@@ -317,9 +320,10 @@ export default function TabLogistics(s: SiteState) {
                       { key: "noskat", label: t("td_badge_noskat"), icon: "CarFront" },
                       { key: "custom", label: t("td_badge_custom"), icon: "Wrench" },
                     ];
-                    const visibleCars = tdFilter === "all"
+                    const byMode = tdFilter === "all"
                       ? teardownCars
                       : teardownCars.filter((c) => detectTeardownMode(c.teardown || []) === tdFilter);
+                    const visibleCars = tdMissingOnly ? byMode.filter(isMissingIds) : byMode;
                     return (
                     <div>
                       <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
@@ -333,9 +337,11 @@ export default function TabLogistics(s: SiteState) {
                           return (
                             <div className="flex items-center gap-2 flex-wrap">
                               {incomplete > 0 && (
-                                <span className="flex items-center gap-1.5 text-xs font-['Montserrat'] font-bold px-3 py-2 rounded-sm bg-red-50 border border-red-300 text-red-700">
+                                <button type="button" onClick={toggleTdMissingOnly} title={t("td_missing_filter_hint")}
+                                  className={`flex items-center gap-1.5 text-xs font-['Montserrat'] font-bold px-3 py-2 rounded-sm border transition-colors ${tdMissingOnly ? "bg-red-600 border-red-600 text-white" : "bg-red-50 border-red-300 text-red-700 hover:bg-red-100"}`}>
                                   <Icon name="TriangleAlert" size={14} />{t("td_missing_count")}: {incomplete}
-                                </span>
+                                  {tdMissingOnly && <Icon name="X" size={13} />}
+                                </button>
                               )}
                               <button type="button" onClick={exportEngineDocXlsx} disabled={inTd.length === 0}
                                 className="flex items-center gap-2 text-xs font-['Montserrat'] font-bold px-4 py-2 rounded-sm bg-[hsl(var(--gold))] text-[hsl(222_47%_8%)] hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed">
@@ -359,10 +365,21 @@ export default function TabLogistics(s: SiteState) {
                           );
                         })}
                       </div>
+                      {tdMissingOnly && (
+                        <div className="flex items-center justify-between gap-3 mb-4 px-3 py-2 rounded-sm bg-red-50 border border-red-300 flex-wrap">
+                          <span className="flex items-center gap-2 text-xs font-['Montserrat'] font-bold text-red-700">
+                            <Icon name="Filter" size={14} />{t("td_missing_filter_on")}
+                          </span>
+                          <button type="button" onClick={toggleTdMissingOnly}
+                            className="text-xs font-['Montserrat'] font-bold text-red-700 underline hover:no-underline">
+                            {t("td_missing_filter_off")}
+                          </button>
+                        </div>
+                      )}
                       {visibleCars.length === 0 ? (
                         <div className="text-center py-14">
-                          <Icon name="SearchX" size={36} className="mx-auto mb-3 text-[hsl(var(--navy)/0.4)]" />
-                          <p className="text-[hsl(var(--navy)/0.65)] text-sm">{t("td_filter_none")}</p>
+                          <Icon name={tdMissingOnly ? "CircleCheck" : "SearchX"} size={36} className={`mx-auto mb-3 ${tdMissingOnly ? "text-green-600" : "text-[hsl(var(--navy)/0.4)]"}`} />
+                          <p className="text-[hsl(var(--navy)/0.65)] text-sm">{tdMissingOnly ? t("td_missing_none") : t("td_filter_none")}</p>
                         </div>
                       ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
