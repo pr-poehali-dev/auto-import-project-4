@@ -38,6 +38,9 @@ export default function TabLogistics(s: SiteState) {
     t,
     tdFilter,
     exportEngineDocXlsx,
+    containerPartsSummary,
+    openSummaryId,
+    toggleContainerSummary,
     teardownCars,
     teardownCarsLoading,
     togglePickedCar,
@@ -230,6 +233,48 @@ export default function TabLogistics(s: SiteState) {
                                             <button onClick={() => doRemoveFromContainer(ct.id, c.id)} className="text-[hsl(var(--navy)/0.5)] hover:text-red-600 flex-shrink-0"><Icon name="X" size={14} /></button>
                                           </div>
                                         ))}
+                                        {(() => {
+                                          const sum = containerPartsSummary(ct.cars);
+                                          if (sum.positions === 0) return null;
+                                          const open = openSummaryId === ct.id;
+                                          return (
+                                            <div className="mt-2 pt-2 border-t border-[hsl(var(--gold)/0.12)]">
+                                              <button type="button" onClick={() => toggleContainerSummary(ct.id)}
+                                                className="w-full flex items-center justify-between gap-2 text-left group">
+                                                <span className="flex items-center gap-1.5 text-[11px] font-['Montserrat'] font-bold uppercase tracking-wide text-[hsl(var(--gold))]">
+                                                  <Icon name={open ? "ChevronDown" : "ChevronRight"} size={13} />{t("ct_parts_summary")}
+                                                </span>
+                                                <span className="text-[11px] text-[hsl(var(--navy)/0.6)] flex-shrink-0">
+                                                  {sum.positions} {t("ct_sum_pos")} · <span className="font-bold navy">{sum.totalQty}</span> {t("ct_sum_pcs")}
+                                                  {sum.neededQty > 0 && <> · <span className="font-bold text-[hsl(var(--gold))]">{sum.neededQty}</span> {t("ct_sum_needed")}</>}
+                                                </span>
+                                              </button>
+                                              {open && (
+                                                <div className="mt-2 flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
+                                                  {sum.groups.map((g) => (
+                                                    <div key={g.group}>
+                                                      <div className="flex items-center justify-between gap-2 text-[10px] font-['Montserrat'] font-bold uppercase tracking-wide text-[hsl(var(--navy)/0.5)] mb-0.5">
+                                                        <span className="truncate">{g.group}</span>
+                                                        <span className="flex-shrink-0">{g.qty} {t("ct_sum_pcs")}</span>
+                                                      </div>
+                                                      <div className="flex flex-col gap-0.5">
+                                                        {g.rows.map((r) => (
+                                                          <div key={r.group + r.part} className="flex items-center justify-between gap-2 text-xs">
+                                                            <span className="text-[hsl(var(--navy)/0.72)] min-w-0 truncate">{r.part}</span>
+                                                            <span className="flex items-center gap-2 flex-shrink-0 font-mono">
+                                                              {r.needed > 0 && <span className="text-[hsl(var(--gold))] font-bold">{r.needed}</span>}
+                                                              <span className="navy font-semibold">{r.qty}</span>
+                                                            </span>
+                                                          </div>
+                                                        ))}
+                                                      </div>
+                                                    </div>
+                                                  ))}
+                                                </div>
+                                              )}
+                                            </div>
+                                          );
+                                        })()}
                                       </div>
                                     ) : (
                                       <p className="mt-3 pt-3 border-t border-[hsl(var(--gold)/0.12)] text-xs text-[hsl(var(--navy)/0.55)]">{t("container_no_items")}</p>

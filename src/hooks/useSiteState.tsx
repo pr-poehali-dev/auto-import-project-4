@@ -724,6 +724,46 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
     await writeXlsxWithFreeze(wb, `engine_units_${dateStr.replace(/\./g, "-")}.xlsx`, [{ sheetIndex: 0, rows: hr }]);
   };
 
+  // ── Сопоставление разборных листов контейнера: суммирование деталей ──
+  // Складывает одинаковые узлы всех машинокомплектов: сколько всего и сколько нужно клиенту
+  const containerPartsSummary = (cars: { teardown?: TeardownItem[] }[]) => {
+    const agg = new Map<string, { group: string; part: string; qty: number; needed: number; cars: number }>();
+    for (const c of cars) {
+      for (const it of (c.teardown || [])) {
+        const q = it.qty || 1;
+        const row = agg.get(it.name);
+        if (row) {
+          row.qty += q;
+          row.cars += 1;
+          if (it.needed) row.needed += q;
+        } else {
+          const sp = splitTd(it.name);
+          agg.set(it.name, { group: sp.group, part: sp.part, qty: q, needed: it.needed ? q : 0, cars: 1 });
+        }
+      }
+    }
+    const rows = Array.from(agg.values()).sort(
+      (a, b) => a.group.localeCompare(b.group, "ru") || a.part.localeCompare(b.part, "ru")
+    );
+    const groups: { group: string; rows: typeof rows; qty: number; needed: number }[] = [];
+    for (const r of rows) {
+      let g = groups.find((x) => x.group === r.group);
+      if (!g) { g = { group: r.group, rows: [], qty: 0, needed: 0 }; groups.push(g); }
+      g.rows.push(r);
+      g.qty += r.qty;
+      g.needed += r.needed;
+    }
+    return {
+      rows, groups,
+      positions: rows.length,
+      totalQty: rows.reduce((s, r) => s + r.qty, 0),
+      neededQty: rows.reduce((s, r) => s + r.needed, 0),
+      neededPositions: rows.filter((r) => r.needed > 0).length,
+    };
+  };
+  const [openSummaryId, setOpenSummaryId] = useState<number | null>(null);
+  const toggleContainerSummary = (id: number) => setOpenSummaryId((v) => (v === id ? null : id));
+
   // Экспорт упаковочного листа контейнера в XLSX (машинокомплекты + VIN + детали)
   const exportContainerXlsx = async (ct: Container) => {
     const XLSX = await import("xlsx");
@@ -763,32 +803,19 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
     ];
     XLSX.utils.book_append_sheet(wb, ws1, "Контейнер");
 
-    // ── Лист 2: Сводный список запчастей ──
-    const agg = new Map<string, { group: string; part: string; qty: number }>();
-    for (const c of ct.cars) {
-      for (const it of (c.teardown || [])) {
-        const sp = splitTd(it.name);
-        const q = it.qty || 1;
-        const prev = agg.get(it.name);
-        if (prev) prev.qty += q;
-        else agg.set(it.name, { group: sp.group, part: sp.part, qty: q });
-      }
-    }
-    const parts = Array.from(agg.values()).sort(
-      (a, b) => a.group.localeCompare(b.group, "ru") || a.part.localeCompare(b.part, "ru")
-    );
-    let totalParts = 0;
-    const partRows = parts.map((p, i) => { totalParts += p.qty; return [i + 1, p.group, p.part, p.qty]; });
+    // ── Лист 2: Сводный список запчастей (сопоставление разборных листов) ──
+    const sum = containerPartsSummary(ct.cars);
+    const partRows = sum.rows.map((p, i) => [i + 1, p.group, p.part, p.qty, p.needed, p.cars]);
     const s2: (string | number)[][] = [
-      ["№", "Группа", "Наименование детали", "Кол-во (всего)"],
-      ...(partRows.length ? partRows : [["—", "Нет деталей в разборных листах", "", ""]]),
+      ["№", "Группа", "Наименование детали", "Кол-во (всего)", "Нужно клиенту", "В машинах"],
+      ...(partRows.length ? partRows : [["—", "Нет деталей в разборных листах", "", "", "", ""]]),
       [],
-      ["", "ИТОГО позиций:", parts.length, totalParts],
+      ["", "ИТОГО позиций:", sum.positions, sum.totalQty, sum.neededQty, ct.cars.length],
     ];
     const ws2 = XLSX.utils.aoa_to_sheet(s2);
-    ws2["!cols"] = [{ wch: 6 }, { wch: 28 }, { wch: 42 }, { wch: 16 }];
+    ws2["!cols"] = [{ wch: 6 }, { wch: 28 }, { wch: 42 }, { wch: 16 }, { wch: 15 }, { wch: 11 }];
     const s2DataRows = partRows.length || 1;
-    ws2["!autofilter"] = { ref: `A1:D${s2DataRows + 1}` };
+    ws2["!autofilter"] = { ref: `A1:F${s2DataRows + 1}` };
     XLSX.utils.book_append_sheet(wb, ws2, "Сводный список");
 
     // ── Лист 3: Детали по каждому авто ──
@@ -1182,6 +1209,9 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
     exportPackingListXlsx,
     exportPackingListTemplateXlsx,
     exportEngineDocXlsx,
+    containerPartsSummary,
+    openSummaryId,
+    toggleContainerSummary,
     editCarId,
     editCarForm,
     editCarSaving,
