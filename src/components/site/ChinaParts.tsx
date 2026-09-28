@@ -91,19 +91,32 @@ export default function ChinaParts({ lang, t, isAuthed, onLogin, onRegister, inp
       </div>
 
       {tab === "catalogs" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {CHINA_PARTS_CATALOGS.map((c) => (
-            <a key={c.id} href={c.url} target="_blank" rel="noopener noreferrer"
-              className="card-light rounded-sm p-5 flex flex-col group hover:shadow-lg transition-shadow">
-              <div className="flex items-center justify-between gap-2 mb-3">
-                <span className="text-[11px] font-['Montserrat'] font-bold px-2.5 py-1 bg-[hsl(var(--navy)/0.06)] navy rounded-sm uppercase tracking-wide">{c.brand}</span>
-                <Icon name="ExternalLink" size={15} className="text-[hsl(var(--navy)/0.45)] group-hover:text-[hsl(var(--gold))] transition-colors flex-shrink-0" />
+        <>
+          <div className="card-light rounded-sm p-4 mb-5 flex items-start gap-3">
+            <Icon name="Info" size={16} className="text-[hsl(var(--gold))] flex-shrink-0 mt-0.5" />
+            <p className="text-[hsl(var(--navy)/0.7)] text-sm leading-relaxed">{t("cn_cat_note")}</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {CHINA_PARTS_CATALOGS.map((c) => (
+              <div key={c.id} className="card-light rounded-sm p-5 flex flex-col">
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <span className="text-[11px] font-['Montserrat'] font-bold px-2.5 py-1 bg-[hsl(var(--navy)/0.06)] navy rounded-sm uppercase tracking-wide">{c.brand}</span>
+                  <span className="text-[10px] text-[hsl(var(--navy)/0.5)] font-['Montserrat'] font-semibold flex-shrink-0">{c.models.length} {t("cn_cat_models")}</span>
+                </div>
+                <p className="text-[hsl(var(--navy)/0.62)] text-sm leading-relaxed mb-3">{c.desc[lang]}</p>
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {c.models.map((m) => (
+                    <span key={m} className="text-[10px] font-['Montserrat'] font-semibold px-2 py-0.5 rounded-sm bg-[hsl(var(--gold)/0.1)] text-[hsl(var(--navy)/0.78)]">{m}</span>
+                  ))}
+                </div>
+                <button type="button" onClick={() => onOpen(`catalog-${c.id}`, `${t("cn_cat_pick")} · ${c.brand}`)}
+                  className="mt-auto w-full flex items-center justify-center gap-1.5 text-[11px] font-['Montserrat'] font-bold px-3 py-2.5 rounded-sm border border-[hsl(var(--gold)/0.4)] navy hover:bg-[hsl(var(--gold))] hover:text-[hsl(222_47%_8%)] hover:border-[hsl(var(--gold))] transition-colors uppercase tracking-wide">
+                  <Icon name="ScanSearch" size={13} />{t("cn_cat_pick")}
+                </button>
               </div>
-              <h3 className="font-['Montserrat'] font-bold text-base navy leading-tight mb-1.5">{c.title[lang]}</h3>
-              <p className="text-[hsl(var(--navy)/0.62)] text-sm leading-relaxed">{c.desc[lang]}</p>
-            </a>
-          ))}
-        </div>
+            ))}
+          </div>
+        </>
       )}
 
       {tab === "parts" && (
