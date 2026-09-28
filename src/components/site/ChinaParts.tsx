@@ -46,6 +46,15 @@ export default function ChinaParts({ lang, t, isAuthed, onLogin, onRegister, inp
   const modelHits = found.reduce((n, c) => n + c.models.filter((m) => m.toLowerCase().includes(q)).length, 0);
   const matchedModels = modelHits > 0 ? modelHits : found.reduce((n, c) => n + c.models.length, 0);
 
+  // Поиск по группам запчастей: совпадение в названии группы или в конкретном узле
+  const foundParts = q === ""
+    ? CHINA_PARTS_CATEGORIES
+    : CHINA_PARTS_CATEGORIES.filter((g) =>
+        g.title[lang].toLowerCase().includes(q) ||
+        g.items.some((it) => it[lang].toLowerCase().includes(q)));
+  const partHits = foundParts.reduce((n, g) => n + g.items.filter((it) => it[lang].toLowerCase().includes(q)).length, 0);
+  const shownParts = partHits > 0 ? partHits : foundParts.reduce((n, g) => n + g.items.length, 0);
+
   // Подсветка совпадения в названии марки
   const hl = (text: string) => {
     if (q === "") return text;
@@ -91,8 +100,8 @@ export default function ChinaParts({ lang, t, isAuthed, onLogin, onRegister, inp
   }
 
   const tabs: { key: PartsTab; label: string; icon: string; count: number }[] = [
-    { key: "catalogs", label: t("cn_parts_tab_catalogs"), icon: "BookOpen", count: CHINA_PARTS_CATALOGS.length },
-    { key: "parts", label: t("cn_parts_tab_parts"), icon: "Boxes", count: CHINA_PARTS_CATEGORIES.length },
+    { key: "catalogs", label: t("cn_parts_tab_catalogs"), icon: "BookOpen", count: tab === "catalogs" ? found.length : CHINA_PARTS_CATALOGS.length },
+    { key: "parts", label: t("cn_parts_tab_parts"), icon: "Boxes", count: tab === "parts" ? foundParts.length : CHINA_PARTS_CATEGORIES.length },
   ];
 
   return (
@@ -113,24 +122,24 @@ export default function ChinaParts({ lang, t, isAuthed, onLogin, onRegister, inp
         })}
       </div>
 
+      <div className="relative mb-5 max-w-md">
+        <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--navy)/0.45)] pointer-events-none" />
+        <input value={search} onChange={(e) => setSearch(e.target.value)}
+          placeholder={tab === "catalogs" ? t("cn_cat_search_ph") : t("cn_prt_search_ph")}
+          className={inputCls + " !pl-10 !pr-10"} />
+        {search && (
+          <button type="button" onClick={() => setSearch("")} title={t("cn_cat_search_clear")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[hsl(var(--navy)/0.45)] hover:text-[hsl(var(--navy))]">
+            <Icon name="X" size={15} />
+          </button>
+        )}
+      </div>
+
       {tab === "catalogs" && (
         <>
           <div className="card-light rounded-sm p-4 mb-5 flex items-start gap-3">
             <Icon name="Info" size={16} className="text-[hsl(var(--gold))] flex-shrink-0 mt-0.5" />
             <p className="text-[hsl(var(--navy)/0.7)] text-sm leading-relaxed">{t("cn_cat_note")}</p>
-          </div>
-
-          <div className="relative mb-5 max-w-md">
-            <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--navy)/0.45)] pointer-events-none" />
-            <input value={search} onChange={(e) => setSearch(e.target.value)}
-              placeholder={t("cn_cat_search_ph")}
-              className={inputCls + " !pl-10 !pr-10"} />
-            {search && (
-              <button type="button" onClick={() => setSearch("")} title={t("cn_cat_search_clear")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[hsl(var(--navy)/0.45)] hover:text-[hsl(var(--navy))]">
-                <Icon name="X" size={15} />
-              </button>
-            )}
           </div>
 
           {search.trim() && (
@@ -179,20 +188,43 @@ export default function ChinaParts({ lang, t, isAuthed, onLogin, onRegister, inp
         </>
       )}
 
-      {tab === "parts" && (
+      {tab === "parts" && search.trim() && (
+        <p className="text-white/80 text-xs font-['Montserrat'] font-semibold mb-4 drop-shadow-[0_1px_3px_rgba(25,61,100,0.6)]">
+          {foundParts.length > 0
+            ? `${t("cn_cat_found")}: ${foundParts.length} ${t("cn_prt_of_groups")} · ${shownParts} ${t("cn_prt_units")}`
+            : t("cn_prt_nothing")}
+        </p>
+      )}
+
+      {tab === "parts" && foundParts.length === 0 && (
+        <div className="card-light rounded-sm p-8 text-center">
+          <Icon name="SearchX" size={34} className="mx-auto mb-3 text-[hsl(var(--navy)/0.4)]" />
+          <h3 className="font-['Montserrat'] font-bold text-base navy mb-1.5">{t("cn_prt_nothing")}</h3>
+          <p className="text-[hsl(var(--navy)/0.65)] text-sm max-w-sm mx-auto mb-5">{t("cn_prt_nothing_sub")}</p>
+          <button type="button" onClick={() => onOpen("parts-other", `${t("cn_parts_ask")} · ${search.trim()}`)}
+            className="text-xs font-['Montserrat'] font-bold px-6 py-3 rounded-sm bg-[hsl(var(--gold))] text-[hsl(222_47%_8%)] hover:opacity-90 transition-opacity uppercase tracking-wide">
+            {t("cn_parts_ask")}
+          </button>
+        </div>
+      )}
+
+      {tab === "parts" && foundParts.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {CHINA_PARTS_CATEGORIES.map((g) => (
+          {foundParts.map((g) => (
             <div key={g.id} className="card-light rounded-sm p-5 flex flex-col">
               <div className="w-10 h-10 bg-[hsl(var(--navy)/0.06)] rounded-sm flex items-center justify-center mb-3">
                 <Icon name={g.icon} size={18} className="text-[hsl(var(--navy))]" />
               </div>
-              <h3 className="font-['Montserrat'] font-bold text-base navy leading-tight mb-2">{g.title[lang]}</h3>
+              <h3 className="font-['Montserrat'] font-bold text-base navy leading-tight mb-2">{hl(g.title[lang])}</h3>
               <ul className="flex flex-col gap-1.5 mb-4">
-                {g.items.map((it) => (
-                  <li key={it.ru} className="flex items-start gap-2 text-sm text-[hsl(var(--navy)/0.68)] leading-snug">
-                    <Icon name="Check" size={13} className="text-[hsl(var(--gold))] flex-shrink-0 mt-1" />{it[lang]}
-                  </li>
-                ))}
+                {g.items.map((it) => {
+                  const hit = q !== "" && it[lang].toLowerCase().includes(q);
+                  return (
+                    <li key={it.ru} className={`flex items-start gap-2 text-sm leading-snug ${hit ? "navy font-semibold" : "text-[hsl(var(--navy)/0.68)]"}`}>
+                      <Icon name="Check" size={13} className="text-[hsl(var(--gold))] flex-shrink-0 mt-1" />{hl(it[lang])}
+                    </li>
+                  );
+                })}
               </ul>
               <button type="button" onClick={() => onOpen(g.id, g.title[lang])}
                 className="mt-auto w-full flex items-center justify-center gap-1.5 text-[11px] font-['Montserrat'] font-bold px-3 py-2.5 rounded-sm border border-[hsl(var(--gold)/0.4)] navy hover:bg-[hsl(var(--gold))] hover:text-[hsl(222_47%_8%)] hover:border-[hsl(var(--gold))] transition-colors uppercase tracking-wide">
