@@ -4,7 +4,7 @@ import { writeXlsxWithFreeze } from "@/lib/xlsx-export";
 import {
   LOGO, COMPANY_NAME, I18N, ORIGIN_LABEL,
   TD_SEP, TD_FULL, TD_HALFCUT, TD_NOSKAT, TEARDOWN_PRESET,
-  splitTd, joinTd, detectTeardownMode, groupTeardown,
+  splitTd, joinTd, detectTeardownMode, groupTeardown, defaultQty,
   apiAuth, apiCars, apiContainers, apiHotDeals, apiOrders,
   type User, type Order, type Car, type TeardownItem, type HotDeal,
   type Lang, type Page, type CabinetTab,
@@ -95,7 +95,7 @@ export function useSiteState() {
       const exists = f.teardown.find((x) => x.name === name);
       return exists
         ? { ...f, teardown: f.teardown.filter((x) => x.name !== name) }
-        : { ...f, teardown: [...f.teardown, { name, needed: false, qty: 1 }] };
+        : { ...f, teardown: [...f.teardown, { name, needed: false, qty: defaultQty(name) }] };
     });
   };
   const setPartQty = (name: string, qty: number) => {
@@ -105,7 +105,7 @@ export function useSiteState() {
     setCarForm((f) => {
       if (select) {
         const missing = names.filter((n) => !f.teardown.some((x) => x.name === n));
-        return { ...f, teardown: [...f.teardown, ...missing.map((n) => ({ name: n, needed: false, qty: 1 }))] };
+        return { ...f, teardown: [...f.teardown, ...missing.map((n) => ({ name: n, needed: false, qty: defaultQty(n) }))] };
       }
       return { ...f, teardown: f.teardown.filter((x) => !names.includes(x.name)) };
     });
@@ -113,7 +113,7 @@ export function useSiteState() {
   const applyTeardownPreset = (preset: string[]) => {
     setCarForm((f) => {
       const custom = f.teardown.filter((x) => !TEARDOWN_PRESET.includes(x.name));
-      return { ...f, teardown: [...preset.map((name) => ({ name, needed: false, qty: 1 })), ...custom] };
+      return { ...f, teardown: [...preset.map((name) => ({ name, needed: false, qty: defaultQty(name) })), ...custom] };
     });
   };
   const selectHalfcutTeardown = () => applyTeardownPreset(TD_HALFCUT);

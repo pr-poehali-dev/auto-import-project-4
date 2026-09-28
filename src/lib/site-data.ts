@@ -134,7 +134,7 @@ export const TEARDOWN_GROUPS: { group: string; parts: string[] }[] = [
     "Аккумулятор",
   ] },
   { group: "Колёса", parts: [
-    "Диски комплект", "Шины комплект", "Запасное колесо",
+    "Колесо с шиной", "Докатка",
   ] },
   { group: "Крупные узлы (халфкат)", parts: [
     "Халфкат передний (перед в сборе)", "Халфкат задний (зад в сборе)",
@@ -143,6 +143,13 @@ export const TEARDOWN_GROUPS: { group: string; parts: string[] }[] = [
   ] },
 ];
 export const TEARDOWN_PRESET = TEARDOWN_GROUPS.flatMap((g) => g.parts.map((p) => joinTd(g.group, p)));
+
+// Количество узла по умолчанию (если не указано — 1 шт. на машину)
+export const TEARDOWN_DEFAULT_QTY: Record<string, number> = {
+  [joinTd("Колёса", "Колесо с шиной")]: 4,
+  [joinTd("Колёса", "Докатка")]: 1,
+};
+export const defaultQty = (name: string) => TEARDOWN_DEFAULT_QTY[name] || 1;
 
 // ── РЕЖИМЫ РАЗБОРНОГО ЛИСТА ──
 export const HALFCUT_GROUP = "Крупные узлы (халфкат)";
