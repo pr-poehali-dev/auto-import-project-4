@@ -13,6 +13,7 @@ export default function CarsSection(s: SiteState) {
     doDeleteCar,
     exportPackingList,
     exportPackingListXlsx,
+    printTeardownSheet,
     handlePhotoSelect,
     inputCls,
     renderTdBadge,
@@ -114,6 +115,9 @@ export default function CarsSection(s: SiteState) {
                                         {renderTdBadge(c.teardown, "xs")}
                                       </div>
                                       <div className="flex items-center gap-3 flex-shrink-0">
+                                        <button type="button" onClick={() => printTeardownSheet(c)} className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors">
+                                          <Icon name="Printer" size={13} />{t("td_print")}
+                                        </button>
                                         <button type="button" onClick={() => exportPackingList(c)} className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors">
                                           <Icon name="FileDown" size={13} />PDF
                                         </button>

@@ -4,7 +4,7 @@ import { writeXlsxWithFreeze } from "@/lib/xlsx-export";
 import {
   LOGO, COMPANY_NAME, I18N, ORIGIN_LABEL,
   TD_SEP, TD_FULL, TD_HALFCUT, TD_NOSKAT, TEARDOWN_PRESET,
-  splitTd, joinTd, detectTeardownMode,
+  splitTd, joinTd, detectTeardownMode, groupTeardown,
   apiAuth, apiCars, apiContainers, apiHotDeals, apiOrders,
   type User, type Order, type Car, type TeardownItem, type HotDeal,
   type Lang, type Page, type CabinetTab,
@@ -364,6 +364,139 @@ export function useSiteState() {
   const doDeleteCar = async (carId: number) => {
     await apiCars("DELETE", token, { query: `car_id=${carId}` });
     if (selectedOrder) loadCars(selectedOrder.id);
+  };
+
+  // Печать разборного листа: группы узлов, отметки клиента, количество
+  const printTeardownSheet = (car: Car & { order_number?: string; client_name?: string; client_company?: string }) => {
+    const esc = (v: unknown) => String(v ?? "").replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" } as Record<string, string>)[ch]);
+    const items = car.teardown || [];
+    const groups = groupTeardown(items);
+    const mode = detectTeardownMode(items);
+    const carTitle = [car.car_brand, car.car_model, car.car_year].filter(Boolean).join(" ");
+    const dateStr = new Date().toLocaleDateString(lang === "ru" ? "ru-RU" : "en-GB");
+    const totalQty = items.reduce((sum, it) => sum + (it.qty || 1), 0);
+    const neededCount = items.filter((it) => it.needed).length;
+
+    let n = 0;
+    const body = groups.map((grp) => {
+      const gQty = grp.items.reduce((sum, it) => sum + (it.qty || 1), 0);
+      const gNeeded = grp.items.filter((it) => it.needed).length;
+      const rows = grp.items.map((it) => {
+        n += 1;
+        return `<tr class="${it.needed ? "on" : ""}">
+          <td class="c num">${n}</td>
+          <td class="part">${esc(it.part)}</td>
+          <td class="c qty">${it.qty || 1}</td>
+          <td class="c mark">${it.needed ? '<span class="tick">✓</span>' : '<span class="box"></span>'}</td>
+        </tr>`;
+      }).join("");
+      return `<tbody class="grp">
+        <tr class="ghead">
+          <td colspan="2"><span class="gname">${esc(grp.group)}</span></td>
+          <td class="c gqty">${gQty}</td>
+          <td class="c gcnt">${gNeeded}/${grp.items.length}</td>
+        </tr>
+        ${rows}
+      </tbody>`;
+    }).join("");
+
+    const meta = [
+      [t("td_print_car"), carTitle || "—"],
+      ["VIN", car.vin || "—"],
+      [t("td_print_mileage"), car.mileage ? car.mileage.toLocaleString("ru-RU") + " км" : "—"],
+      [t("td_print_mode"), mode ? tdModeLabel(mode) : "—"],
+      [t("td_print_client"), car.client_name || car.client_company || "—"],
+      [t("td_print_order"), car.order_number ? String(car.order_number) : "—"],
+    ].map(([k, v]) => `<div><b>${esc(k)}:</b> <span>${esc(v)}</span></div>`).join("");
+
+    const html = `<!doctype html><html lang="${lang}"><head><meta charset="utf-8">
+<title>${esc(t("td_print_title"))} — ${esc(carTitle)}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Segoe UI",Arial,sans-serif;color:#141a2e;background:#fff;padding:28px 32px;font-size:12.5px;line-height:1.45}
+  .head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:14px;border-bottom:3px solid #141a2e}
+  .brand{display:flex;align-items:center;gap:13px}
+  .brand img{height:50px;width:50px;object-fit:contain;border-radius:5px}
+  .title{font-size:21px;font-weight:800;letter-spacing:.6px;text-transform:uppercase}
+  .sub{color:#6b7280;font-size:11.5px;margin-top:3px}
+  .stamp{text-align:right;font-size:11.5px;color:#6b7280;white-space:nowrap}
+  .stamp .big{font-size:15px;font-weight:800;color:#141a2e;letter-spacing:.4px}
+  .meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px 26px;margin:16px 0 6px}
+  .meta div{font-size:12.5px}
+  .meta b{color:#6b7280;font-weight:600}
+  .sum{display:flex;gap:10px;margin:14px 0 4px;flex-wrap:wrap}
+  .chip{border:1px solid #d7dbe4;border-radius:5px;padding:7px 13px;background:#f7f8fb}
+  .chip .k{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:#6b7280;font-weight:700}
+  .chip .v{font-size:16px;font-weight:800}
+  table{width:100%;border-collapse:collapse;margin-top:12px}
+  th{background:#141a2e;color:#fff;font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;padding:8px 9px;text-align:left;font-weight:700}
+  td{border-bottom:1px solid #e3e6ed;padding:6px 9px;vertical-align:middle}
+  td.c,th.c{text-align:center}
+  .num{color:#9aa1b0;font-size:11px;width:34px}
+  .qty{width:62px;font-weight:700}
+  .mark{width:92px}
+  .ghead td{background:#eef0f5;border-top:2px solid #141a2e;border-bottom:1px solid #d7dbe4;padding:7px 9px}
+  .gname{font-weight:800;text-transform:uppercase;letter-spacing:.5px;font-size:11.5px}
+  .gqty,.gcnt{font-size:11px;color:#4b5565;font-weight:700}
+  tr.on .part{font-weight:700}
+  tr.on td{background:#fffaf0}
+  .tick{display:inline-block;width:17px;height:17px;line-height:16px;border-radius:3px;background:#141a2e;color:#f0b542;font-weight:800;font-size:12px}
+  .box{display:inline-block;width:15px;height:15px;border:1.5px solid #b6bcc9;border-radius:3px}
+  tfoot td{background:#141a2e;color:#fff;font-weight:800;padding:9px;border:0}
+  .sign{margin-top:30px;display:flex;justify-content:space-between;gap:36px;color:#6b7280;font-size:11.5px}
+  .sign div{flex:1}
+  .line{margin-top:26px;border-top:1px solid #9aa1b0;padding-top:5px}
+  .empty{padding:26px;text-align:center;color:#6b7280}
+  @page{margin:12mm}
+  @media print{body{padding:0}.grp{break-inside:auto}tr{break-inside:avoid}.ghead{break-after:avoid}}
+</style></head><body>
+<div class="head">
+  <div class="brand">
+    <img src="${LOGO}" alt="" />
+    <div>
+      <div class="title">${esc(t("td_print_title"))}</div>
+      <div class="sub">${esc(COMPANY_NAME)}</div>
+    </div>
+  </div>
+  <div class="stamp">
+    <div class="big">${esc(carTitle || "—")}</div>
+    <div>${esc(t("td_print_date"))}: ${esc(dateStr)}</div>
+    ${car.order_number ? `<div>${esc(t("td_print_order"))}: ${esc(car.order_number)}</div>` : ""}
+  </div>
+</div>
+<div class="meta">${meta}</div>
+<div class="sum">
+  <div class="chip"><span class="k">${esc(t("td_print_positions"))}</span><span class="v">${items.length}</span></div>
+  <div class="chip"><span class="k">${esc(t("td_print_qty"))}</span><span class="v">${totalQty}</span></div>
+  <div class="chip"><span class="k">${esc(t("td_print_picked_only"))}</span><span class="v">${neededCount}</span></div>
+</div>
+${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : `
+<table>
+  <thead><tr>
+    <th class="c">№</th>
+    <th>${esc(t("td_print_part"))}</th>
+    <th class="c">${esc(t("td_print_qty"))}</th>
+    <th class="c">${esc(t("td_print_needed"))}</th>
+  </tr></thead>
+  ${body}
+  <tfoot><tr>
+    <td colspan="2" style="text-align:right">${esc(t("td_print_total"))}:</td>
+    <td class="c">${totalQty}</td>
+    <td class="c">${neededCount}/${items.length}</td>
+  </tr></tfoot>
+</table>`}
+<div class="sign">
+  <div class="line">${esc(t("td_print_sign_staff"))}</div>
+  <div class="line">${esc(t("td_print_sign_client"))}</div>
+</div>
+<script>window.onload=function(){setTimeout(function(){window.print();},350);};</script>
+</body></html>`;
+
+    const w = window.open("", "_blank");
+    if (!w) { alert(t("pdf_popup_blocked")); return; }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
   };
 
   // Экспорт разборного листа в PDF (бланк packing list) через печать браузера
@@ -912,6 +1045,7 @@ export function useSiteState() {
     exportContainerXlsx,
     exportPackingList,
     exportPackingListXlsx,
+    printTeardownSheet,
     forgotForm,
     forgotMsg,
     forgotStep,
