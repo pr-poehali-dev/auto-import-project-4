@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import * as XLSX from "xlsx";
 import Icon from "@/components/ui/icon";
 import type { SiteState } from "@/hooks/useSiteState";
-import { CHINA_PARTS_CATALOGS, apiPartsSchemes, type PartsScheme, type SchemeItem } from "@/lib/site-data";
-import { compressImage, parseSchemeSheet, downloadSchemeTemplate } from "@/lib/parts-schemes";
+import { CHINA_PARTS_CATALOGS, apiPartsSchemes, type PartsScheme, type SchemeItem, type StockStatus } from "@/lib/site-data";
+import { compressImage, parseSchemeSheet, downloadSchemeTemplate, parsePrice, STOCK_OPTIONS } from "@/lib/parts-schemes";
 
-const emptyRow = (): SchemeItem => ({ pos: "", article: "", name: "", qty: 1, note: "" });
+const emptyRow = (): SchemeItem => ({ pos: "", article: "", name: "", qty: 1, note: "", price: null, stock: "" });
 
 interface Draft { id: number; catalog_id: string; model: string; title: string; image: string; sort_order: string; items: SchemeItem[]; }
 
@@ -54,7 +54,8 @@ export default function TabPartsSchemes(s: SiteState) {
     if (!d.scheme) return;
     const sc: PartsScheme = d.scheme;
     setDraft({ id: sc.id, catalog_id: sc.catalog_id, model: sc.model, title: sc.title, image: sc.image_url,
-      sort_order: String(sc.sort_order), items: sc.items && sc.items.length ? sc.items : [emptyRow()] });
+      sort_order: String(sc.sort_order),
+      items: sc.items && sc.items.length ? sc.items.map((it) => ({ ...emptyRow(), ...it, price: it.price ?? null, stock: it.stock || "" })) : [emptyRow()] });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -190,13 +191,15 @@ export default function TabPartsSchemes(s: SiteState) {
               </div>
               {msg && <p className="text-xs font-semibold text-[hsl(var(--gold))] mb-2">{msg}</p>}
               <div className="overflow-x-auto max-h-[460px] overflow-y-auto border border-[hsl(var(--gold)/0.15)] rounded-sm">
-                <table className="w-full text-sm min-w-[560px]">
+                <table className="w-full text-sm min-w-[820px]">
                   <thead className="sticky top-0 bg-[hsl(222_47%_11%)] text-white text-[10px] uppercase tracking-wide font-['Montserrat']">
                     <tr>
                       <th className="px-2 py-2 w-14 text-left">{t("ps_pos")}</th>
                       <th className="px-2 py-2 w-36 text-left">{t("ps_article")}</th>
                       <th className="px-2 py-2 text-left">{t("ps_name")}</th>
                       <th className="px-2 py-2 w-16 text-left">{t("ps_qty")}</th>
+                      <th className="px-2 py-2 w-24 text-left">{t("ps_price")}</th>
+                      <th className="px-2 py-2 w-32 text-left">{t("ps_stock")}</th>
                       <th className="px-2 py-2 w-32 text-left">{t("ps_note")}</th>
                       <th className="w-8" />
                     </tr>
@@ -208,6 +211,16 @@ export default function TabPartsSchemes(s: SiteState) {
                         <td className="p-1"><input value={r.article} onChange={(e) => setRow(i, { article: e.target.value })} className={cellCls + " font-mono"} /></td>
                         <td className="p-1"><input value={r.name} onChange={(e) => setRow(i, { name: e.target.value })} className={cellCls} /></td>
                         <td className="p-1"><input type="number" min={1} value={r.qty} onChange={(e) => setRow(i, { qty: Math.max(1, parseInt(e.target.value) || 1) })} className={cellCls} /></td>
+                        <td className="p-1">
+                          <input inputMode="numeric" value={r.price ?? ""} placeholder="—"
+                            onChange={(e) => setRow(i, { price: parsePrice(e.target.value) })} className={cellCls + " text-right"} />
+                        </td>
+                        <td className="p-1">
+                          <select value={r.stock} onChange={(e) => setRow(i, { stock: e.target.value as StockStatus })}
+                            className={cellCls + " bg-[hsl(222_46%_8%/0.7)]"}>
+                            {STOCK_OPTIONS.map((o) => <option key={o.value || "none"} value={o.value}>{t(o.key)}</option>)}
+                          </select>
+                        </td>
                         <td className="p-1"><input value={r.note} onChange={(e) => setRow(i, { note: e.target.value })} className={cellCls} /></td>
                         <td className="p-1 text-center">
                           <button type="button" onClick={() => setDraft({ ...draft, items: draft.items.filter((_, k) => k !== i) })}

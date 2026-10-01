@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Icon from "@/components/ui/icon";
 import { apiPartsSchemes, type PartsCatalog, type PartsScheme } from "@/lib/site-data";
+import { STOCK_OPTIONS, formatPrice } from "@/lib/parts-schemes";
 
 interface SchemesViewerProps {
   catalog: PartsCatalog;
@@ -20,6 +21,7 @@ export default function SchemesViewer({ catalog, token, t, onClose, onRequest }:
   const [picked, setPicked] = useState<number[]>([]);
   const [filter, setFilter] = useState("");
   const [zoom, setZoom] = useState(false);
+  const [inStockOnly, setInStockOnly] = useState(false);
 
   useEffect(() => {
     apiPartsSchemes("GET", token, { query: `catalog_id=${catalog.id}` }).then((d) => {
@@ -38,7 +40,7 @@ export default function SchemesViewer({ catalog, token, t, onClose, onRequest }:
   const shown = model ? list.filter((s) => !s.model || s.model === model) : list;
 
   const open = async (id: number) => {
-    setSchemeLoading(true); setPicked([]); setFilter("");
+    setSchemeLoading(true); setPicked([]); setFilter(""); setInStockOnly(false);
     const d = await apiPartsSchemes("GET", token, { query: `id=${id}` });
     setScheme(d.scheme || null);
     setSchemeLoading(false);
@@ -47,7 +49,14 @@ export default function SchemesViewer({ catalog, token, t, onClose, onRequest }:
   const items = scheme?.items || [];
   const q = filter.trim().toLowerCase();
   const rows = items.map((it, i) => ({ it, i }))
-    .filter(({ it }) => !q || it.article.toLowerCase().includes(q) || it.name.toLowerCase().includes(q) || it.pos.toLowerCase() === q);
+    .filter(({ it }) => !q || it.article.toLowerCase().includes(q) || it.name.toLowerCase().includes(q) || it.pos.toLowerCase() === q)
+    .filter(({ it }) => !inStockOnly || it.stock === "in_stock");
+  const hasPrices = items.some((it) => it.price !== null && it.price !== undefined);
+  const hasStock = items.some((it) => it.stock);
+  const stockBadge = (v: string) => STOCK_OPTIONS.find((o) => o.value === v && v);
+  const pickedItems = picked.map((i) => items[i]).filter(Boolean);
+  const pickedSum = pickedItems.reduce((sum, it) => sum + (it.price ?? 0) * it.qty, 0);
+  const pickedNoPrice = pickedItems.some((it) => it.price === null || it.price === undefined);
 
   const toggle = (i: number) => setPicked((p) => (p.includes(i) ? p.filter((x) => x !== i) : [...p, i]));
   const allShownPicked = rows.length > 0 && rows.every(({ i }) => picked.includes(i));
@@ -59,7 +68,9 @@ export default function SchemesViewer({ catalog, token, t, onClose, onRequest }:
     if (!scheme) return;
     const text = picked.sort((a, b) => a - b).map((i) => {
       const it = items[i];
-      return [it.pos && `поз. ${it.pos}`, it.article, it.name, it.qty > 1 && `× ${it.qty}`].filter(Boolean).join(" · ");
+      const badge = stockBadge(it.stock);
+      return [it.pos && `поз. ${it.pos}`, it.article, it.name, it.qty > 1 && `× ${it.qty}`,
+        it.price !== null && it.price !== undefined && formatPrice(it.price), badge && t(badge.key)].filter(Boolean).join(" · ");
     }).join("\n");
     onRequest(scheme, text, scheme.model || model);
   };
@@ -143,13 +154,21 @@ export default function SchemesViewer({ catalog, token, t, onClose, onRequest }:
 
               <div className="flex flex-col min-w-0">
                 <p className="text-xs text-[hsl(var(--navy)/0.65)] mb-3">{t("ps_select_hint")}</p>
-                <div className="relative mb-3">
-                  <Icon name="Search" size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--navy)/0.45)]" />
-                  <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder={t("ps_filter_ph")}
-                    className="w-full bg-transparent border border-[hsl(var(--gold)/0.2)] pl-9 pr-3 py-2 text-sm navy rounded-sm focus:outline-none focus:border-[hsl(var(--gold)/0.6)]" />
+                <div className="flex items-center gap-3 mb-3 flex-wrap">
+                  <div className="relative flex-1 min-w-[200px]">
+                    <Icon name="Search" size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--navy)/0.45)]" />
+                    <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder={t("ps_filter_ph")}
+                      className="w-full bg-transparent border border-[hsl(var(--gold)/0.2)] pl-9 pr-3 py-2 text-sm navy rounded-sm focus:outline-none focus:border-[hsl(var(--gold)/0.6)]" />
+                  </div>
+                  {hasStock && (
+                    <label className="flex items-center gap-2 text-xs font-semibold navy cursor-pointer select-none">
+                      <input type="checkbox" checked={inStockOnly} onChange={(e) => setInStockOnly(e.target.checked)} className="accent-[hsl(var(--gold))]" />
+                      {t("ps_in_stock_only")}
+                    </label>
+                  )}
                 </div>
                 <div className="overflow-x-auto border border-[hsl(var(--gold)/0.15)] rounded-sm">
-                  <table className="w-full text-sm min-w-[460px]">
+                  <table className="w-full text-sm min-w-[620px]">
                     <thead className="bg-[hsl(222_47%_11%)] text-white text-[10px] uppercase tracking-wide font-['Montserrat']">
                       <tr>
                         <th className="w-9 px-2 py-2"><input type="checkbox" checked={allShownPicked} onChange={toggleAll} className="accent-[hsl(var(--gold))]" /></th>
@@ -157,6 +176,8 @@ export default function SchemesViewer({ catalog, token, t, onClose, onRequest }:
                         <th className="px-2 py-2 text-left">{t("ps_article")}</th>
                         <th className="px-2 py-2 text-left">{t("ps_name")}</th>
                         <th className="px-2 py-2 w-12 text-center">{t("ps_qty")}</th>
+                        {hasPrices && <th className="px-2 py-2 text-right whitespace-nowrap">{t("ps_price")}</th>}
+                        {hasStock && <th className="px-2 py-2 text-left">{t("ps_stock")}</th>}
                       </tr>
                     </thead>
                     <tbody>
@@ -173,6 +194,19 @@ export default function SchemesViewer({ catalog, token, t, onClose, onRequest }:
                               {it.note && <span className="block text-[11px] text-[hsl(var(--navy)/0.5)]">{it.note}</span>}
                             </td>
                             <td className="px-2 py-2 text-center text-[hsl(var(--navy)/0.7)]">{it.qty}</td>
+                            {hasPrices && (
+                              <td className="px-2 py-2 text-right whitespace-nowrap font-semibold navy">
+                                {it.price !== null && it.price !== undefined ? formatPrice(it.price)
+                                  : <span className="text-[11px] font-normal text-[hsl(var(--navy)/0.5)]">{t("ps_price_on_request")}</span>}
+                              </td>
+                            )}
+                            {hasStock && (
+                              <td className="px-2 py-2">
+                                {stockBadge(it.stock)
+                                  ? <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-sm whitespace-nowrap ${stockBadge(it.stock)!.cls}`}>{t(stockBadge(it.stock)!.key)}</span>
+                                  : <span className="text-[hsl(var(--navy)/0.4)]">—</span>}
+                              </td>
+                            )}
                           </tr>
                         );
                       })}
@@ -186,7 +220,15 @@ export default function SchemesViewer({ catalog, token, t, onClose, onRequest }:
 
         {scheme && (
           <div className="flex items-center justify-between gap-3 px-5 py-3 border-t border-[hsl(var(--gold)/0.15)] flex-wrap">
-            <span className="text-sm navy font-semibold">{t("ps_selected")}: {picked.length}</span>
+            <div className="flex items-baseline gap-x-4 gap-y-0.5 flex-wrap">
+              <span className="text-sm navy font-semibold">{t("ps_selected")}: {picked.length}</span>
+              {hasPrices && picked.length > 0 && (
+                <span className="text-sm navy">
+                  {t("ps_selected_sum")}: <b>{formatPrice(pickedSum)}</b>
+                  {pickedNoPrice && <span className="text-[11px] text-[hsl(var(--navy)/0.55)] ml-1.5">({t("ps_price_partial")})</span>}
+                </span>
+              )}
+            </div>
             <button type="button" disabled={picked.length === 0} onClick={sendRequest}
               className="flex items-center gap-2 text-xs font-['Montserrat'] font-bold px-6 py-3 rounded-sm bg-[hsl(var(--gold))] text-[hsl(222_47%_8%)] hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-wide">
               <Icon name="Send" size={14} />{t("ps_request_selected")}

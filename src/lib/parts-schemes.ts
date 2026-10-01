@@ -1,5 +1,5 @@
 import * as XLSX from "xlsx";
-import type { SchemeItem } from "@/lib/site-data";
+import type { SchemeItem, StockStatus } from "@/lib/site-data";
 
 // Сжимаем схему до разумного размера: тонкие линии чертежа сохраняются,
 // а файл укладывается в лимит запроса к серверу.
@@ -26,6 +26,45 @@ export const compressImage = (file: File, maxSide = 2000): Promise<string> =>
     reader.readAsDataURL(file);
   });
 
+export const STOCK_OPTIONS: { value: StockStatus; key: string; cls: string }[] = [
+  { value: "", key: "ps_stock_none", cls: "" },
+  { value: "in_stock", key: "ps_stock_in", cls: "bg-green-100 text-green-700" },
+  { value: "on_order", key: "ps_stock_order", cls: "bg-amber-100 text-amber-700" },
+  { value: "out", key: "ps_stock_out", cls: "bg-gray-200 text-gray-600" },
+];
+
+export const formatPrice = (v: number | null | undefined) =>
+  v === null || v === undefined ? "" : `${v.toLocaleString("ru-RU")} ₽`;
+
+// «12 500 руб.», «12500,00», «3,400», «1.234,50», «₽3 400» → целые рубли; пусто и мусор → null.
+// Запятая или точка перед ровно тремя цифрами — разделитель тысяч, иначе — копейки.
+export const parsePrice = (v: unknown): number | null => {
+  let txt = String(v ?? "").replace(/[\s\u00a0]/g, "");
+  if (!txt || txt.startsWith("-")) return null;
+  txt = txt.replace(/[^\d.,]/g, "");
+  if (!txt) return null;
+  const lastSep = Math.max(txt.lastIndexOf(","), txt.lastIndexOf("."));
+  if (txt.includes(",") && txt.includes(".")) {
+    txt = txt.slice(0, lastSep).replace(/[.,]/g, "") + "." + txt.slice(lastSep + 1);
+  } else if (/^\d{1,3}([.,]\d{3})+$/.test(txt)) {
+    txt = txt.replace(/[.,]/g, "");
+  } else {
+    txt = txt.replace(",", ".");
+  }
+  const num = parseFloat(txt);
+  return Number.isFinite(num) ? Math.round(num) : null;
+};
+
+// «В наличии», «есть», «in stock», «да» → in_stock; «под заказ», «order» → on_order; «нет», «out» → out
+export const parseStock = (v: unknown): StockStatus => {
+  const s = String(v ?? "").toLowerCase().trim();
+  if (!s) return "";
+  if (/заказ|order|ожида|транзит|wait/.test(s)) return "on_order";
+  if (/^нет|out|отсутств|^no$|^0$/.test(s)) return "out";
+  if (/налич|есть|in stock|stock|^да$|^yes$|склад|^\d+$/.test(s)) return "in_stock";
+  return "";
+};
+
 // Варианты заголовков колонок: русские, английские и китайские из типовых каталогов
 const COLS: Record<keyof SchemeItem, string[]> = {
   pos: ["поз", "позиция", "№", "no", "pos", "position", "ref", "item", "序号", "位置"],
@@ -33,6 +72,8 @@ const COLS: Record<keyof SchemeItem, string[]> = {
   name: ["наименование", "название", "деталь", "описание", "name", "description", "desc", "名称"],
   qty: ["кол", "количество", "шт", "qty", "quantity", "数量"],
   note: ["примечание", "комментарий", "прим", "note", "remark", "comment", "备注"],
+  price: ["цена", "стоимость", "руб", "price", "cost", "价格"],
+  stock: ["наличие", "остаток", "склад", "stock", "availability", "status", "库存"],
 };
 
 const norm = (v: unknown) => String(v ?? "").toLowerCase().replace(/[.\s_-]+/g, " ").trim();
@@ -67,17 +108,19 @@ export const parseSchemeSheet = (wb: XLSX.WorkBook): SchemeItem[] => {
       name: get(r, "name"),
       qty: Math.max(1, parseInt(get(r, "qty")) || 1),
       note: get(r, "note"),
+      price: parsePrice(get(r, "price")),
+      stock: parseStock(get(r, "stock")),
     }))
     .filter((r) => r.article || r.name);
 };
 
 export const downloadSchemeTemplate = () => {
   const ws = XLSX.utils.aoa_to_sheet([
-    ["Поз.", "Артикул", "Наименование", "Кол-во", "Примечание"],
-    ["1", "", "", 1, ""],
-    ["2", "", "", 1, ""],
+    ["Поз.", "Артикул", "Наименование", "Кол-во", "Цена", "Наличие", "Примечание"],
+    ["1", "", "", 1, "", "В наличии", ""],
+    ["2", "", "", 1, "", "Под заказ", ""],
   ]);
-  ws["!cols"] = [{ wch: 7 }, { wch: 22 }, { wch: 44 }, { wch: 9 }, { wch: 26 }];
+  ws["!cols"] = [{ wch: 7 }, { wch: 22 }, { wch: 44 }, { wch: 9 }, { wch: 12 }, { wch: 14 }, { wch: 26 }];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Артикулы");
   XLSX.writeFile(wb, "shablon_artikulov.xlsx");

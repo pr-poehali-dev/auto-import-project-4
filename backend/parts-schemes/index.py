@@ -8,7 +8,9 @@ DELETE /?id=5            — сотрудник: удалить схему
 """
 import base64
 import json
+import math
 import os
+import re
 import uuid
 
 import boto3
@@ -64,6 +66,33 @@ def upload_image(data_url: str) -> str:
     return f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
 
 
+STOCK_VALUES = ("in_stock", "on_order", "out")
+
+
+def parse_price(v):
+    if v is None or v == "":
+        return None
+    if isinstance(v, (int, float)):
+        return int(math.floor(v + 0.5)) if v >= 0 else None
+    txt = str(v).replace(" ", "").replace("\u00a0", "")
+    if not txt or txt.startswith("-"):
+        return None
+    txt = re.sub(r"[^\d.,]", "", txt)
+    if not txt:
+        return None
+    if "," in txt and "." in txt:
+        last = max(txt.rfind(","), txt.rfind("."))
+        txt = re.sub(r"[.,]", "", txt[:last]) + "." + txt[last + 1:]
+    elif re.fullmatch(r"\d{1,3}([.,]\d{3})+", txt):
+        txt = re.sub(r"[.,]", "", txt)
+    else:
+        txt = txt.replace(",", ".")
+    try:
+        return int(math.floor(float(txt) + 0.5))
+    except ValueError:
+        return None
+
+
 def clean_items(raw):
     items = []
     for i, it in enumerate(raw or []):
@@ -75,11 +104,14 @@ def clean_items(raw):
         note = str(it.get("note") or "").strip()[:255]
         if not article and not name:
             continue
+        price = parse_price(it.get("price"))
+        stock = str(it.get("stock") or "").strip()
+        stock = stock if stock in STOCK_VALUES else ""
         try:
             qty = max(1, int(float(it.get("qty") or 1)))
         except (ValueError, TypeError):
             qty = 1
-        items.append((pos, article, name, qty, note, i))
+        items.append((pos, article, name, qty, note, price, stock, i))
     return items
 
 
@@ -113,10 +145,11 @@ def handler(event: dict, context) -> dict:
                 if not r:
                     return err("Схема не найдена", 404)
                 cur.execute(
-                    f"SELECT pos, article, name, qty, note FROM {SCHEMA}.parts_scheme_items "
+                    f"SELECT pos, article, name, qty, note, price, stock FROM {SCHEMA}.parts_scheme_items "
                     f"WHERE scheme_id = %s ORDER BY sort_order, id", (r[0],)
                 )
-                items = [{"pos": i[0], "article": i[1], "name": i[2], "qty": i[3], "note": i[4]}
+                items = [{"pos": i[0], "article": i[1], "name": i[2], "qty": i[3], "note": i[4],
+                          "price": i[5], "stock": i[6] or ""}
                          for i in cur.fetchall()]
                 return ok({"scheme": {"id": r[0], "catalog_id": r[1], "model": r[2], "title": r[3],
                                       "image_url": r[4], "sort_order": r[5], "updated_at": str(r[6]),
@@ -178,11 +211,11 @@ def handler(event: dict, context) -> dict:
                 )
                 scheme_id = cur.fetchone()[0]
 
-            for pos, article, name, qty, note, i in items:
+            for pos, article, name, qty, note, price, stock, i in items:
                 cur.execute(
-                    f"INSERT INTO {SCHEMA}.parts_scheme_items (scheme_id, pos, article, name, qty, note, sort_order) "
-                    f"VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                    (scheme_id, pos, article, name, qty, note, i)
+                    f"INSERT INTO {SCHEMA}.parts_scheme_items (scheme_id, pos, article, name, qty, note, price, stock, sort_order) "
+                    f"VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                    (scheme_id, pos, article, name, qty, note, price, stock, i)
                 )
             conn.commit()
             return ok({"id": scheme_id, "image_url": image, "items_count": len(items),

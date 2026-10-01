@@ -266,7 +266,8 @@ export const detectTeardownMode = (items: TeardownItem[]): TeardownMode | null =
 };
 
 export interface PartsRequest { id: number; origin: string; category_id: string; category_title: string; car_brand: string; car_model: string; car_year: number | null; vin: string; parts_text: string; comment: string; status: string; status_label: string; created_at: string; client_name?: string; client_email?: string; client_phone?: string; client_company?: string; }
-export interface SchemeItem { pos: string; article: string; name: string; qty: number; note: string; }
+export type StockStatus = "" | "in_stock" | "on_order" | "out";
+export interface SchemeItem { pos: string; article: string; name: string; qty: number; note: string; price: number | null; stock: StockStatus; }
 export interface PartsScheme { id: number; catalog_id: string; model: string; title: string; image_url: string; sort_order: number; items_count?: number; items?: SchemeItem[]; }
 export interface HotDeal { id: number; origin: string; brand: string; model: string; year: number | null; mileage: string; engine: string; price: string; badge: string; photo: string; sort_order: number; }
 
@@ -741,6 +742,16 @@ export const I18N: Record<Lang, Record<string, string>> = {
     ps_name: "Наименование",
     ps_qty: "Кол-во",
     ps_note: "Примечание",
+    ps_price: "Цена, ₽",
+    ps_stock: "Наличие",
+    ps_stock_none: "—",
+    ps_stock_in: "В наличии",
+    ps_stock_order: "Под заказ",
+    ps_stock_out: "Нет в наличии",
+    ps_price_on_request: "по запросу",
+    ps_selected_sum: "Сумма",
+    ps_price_partial: "без позиций с ценой по запросу",
+    ps_in_stock_only: "Только в наличии",
     ps_save: "Сохранить схему",
     ps_saving: "Сохраняем…",
     ps_cancel: "Отмена",
@@ -1053,6 +1064,16 @@ export const I18N: Record<Lang, Record<string, string>> = {
     ps_name: "Name",
     ps_qty: "Qty",
     ps_note: "Note",
+    ps_price: "Price, ₽",
+    ps_stock: "Availability",
+    ps_stock_none: "—",
+    ps_stock_in: "In stock",
+    ps_stock_order: "On order",
+    ps_stock_out: "Out of stock",
+    ps_price_on_request: "on request",
+    ps_selected_sum: "Total",
+    ps_price_partial: "excluding items priced on request",
+    ps_in_stock_only: "In stock only",
     ps_save: "Save diagram",
     ps_saving: "Saving…",
     ps_cancel: "Cancel",
