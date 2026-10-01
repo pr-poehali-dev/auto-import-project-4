@@ -130,8 +130,8 @@ export function useSiteStaff({ token, user, isStaff, page, originId, cabinetTab 
   }, [page, cabinetTab, token]);
 
   // Открыть форму запроса по конкретной группе запчастей
-  const openPartsRequest = (categoryId: string, categoryTitle: string) => {
-    setPartsForm({ ...emptyPartsForm, category_id: categoryId, category_title: categoryTitle });
+  const openPartsRequest = (categoryId: string, categoryTitle: string, prefill: Partial<typeof emptyPartsForm> = {}) => {
+    setPartsForm({ ...emptyPartsForm, ...prefill, category_id: categoryId, category_title: categoryTitle });
     setPartsSent(false);
     setPartsFormOpen(true);
   };

@@ -15,6 +15,7 @@ export const CARS_URL = "https://functions.poehali.dev/8f3531c8-943d-46dc-acd0-b
 export const HOT_DEALS_URL = "https://functions.poehali.dev/cc988794-2c9d-4cf0-935d-51df0229a699";
 export const CONTAINERS_URL = "https://functions.poehali.dev/6f8b4d6b-c853-4c24-8cde-fbbe7b23c3df";
 export const PARTS_REQUESTS_URL = "https://functions.poehali.dev/0d15580b-8ddf-43f1-a0dd-455f5598993a";
+export const PARTS_SCHEMES_URL = "https://functions.poehali.dev/1c595d29-f794-4f17-baef-192b24693f20";
 
 // ── API helpers ──────────────────────────────────────────────
 export async function safeJson(res: Response) {
@@ -60,6 +61,18 @@ export async function apiPartsRequests(method: "GET" | "POST" | "PATCH", token: 
   const headers: Record<string, string> = { "X-Session-Token": token };
   if (opts.body) headers["Content-Type"] = "application/json";
   const res = await fetch(PARTS_REQUESTS_URL, {
+    method,
+    headers,
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  return safeJson(res);
+}
+
+export async function apiPartsSchemes(method: "GET" | "POST" | "DELETE", token: string, opts: { body?: object; query?: string } = {}) {
+  const headers: Record<string, string> = { "X-Session-Token": token };
+  if (opts.body) headers["Content-Type"] = "application/json";
+  const url = opts.query ? `${PARTS_SCHEMES_URL}?${opts.query}` : PARTS_SCHEMES_URL;
+  const res = await fetch(url, {
     method,
     headers,
     body: opts.body ? JSON.stringify(opts.body) : undefined,
@@ -253,6 +266,8 @@ export const detectTeardownMode = (items: TeardownItem[]): TeardownMode | null =
 };
 
 export interface PartsRequest { id: number; origin: string; category_id: string; category_title: string; car_brand: string; car_model: string; car_year: number | null; vin: string; parts_text: string; comment: string; status: string; status_label: string; created_at: string; client_name?: string; client_email?: string; client_phone?: string; client_company?: string; }
+export interface SchemeItem { pos: string; article: string; name: string; qty: number; note: string; }
+export interface PartsScheme { id: number; catalog_id: string; model: string; title: string; image_url: string; sort_order: number; items_count?: number; items?: SchemeItem[]; }
 export interface HotDeal { id: number; origin: string; brand: string; model: string; year: number | null; mileage: string; engine: string; price: string; badge: string; photo: string; sort_order: number; }
 
 export type Lang = "ru" | "en";
@@ -701,6 +716,51 @@ export const I18N: Record<Lang, Record<string, string>> = {
     td_missing_ids: "Не заполнены данные для документов",
     close: "Закрыть",
     pr_empty: "Запросов пока нет",
+    tab_parts_schemes: "Схемы и артикулы",
+    ps_title: "Схемы узлов с артикулами",
+    ps_sub: "Загрузите схему узла и таблицу артикулов. Номера позиций на рисунке должны совпадать с колонкой «Поз.» в таблице.",
+    ps_brand: "Марка",
+    ps_model: "Модель",
+    ps_all_models: "Все модели марки",
+    ps_add: "Добавить схему",
+    ps_edit: "Редактирование схемы",
+    ps_new: "Новая схема",
+    ps_node: "Название узла",
+    ps_node_ph: "Передняя оптика",
+    ps_order: "Порядок",
+    ps_image: "Иллюстрация",
+    ps_image_hint: "PNG, JPG или WEBP. Большие файлы сжимаются автоматически",
+    ps_image_pick: "Выбрать картинку",
+    ps_image_change: "Заменить",
+    ps_items: "Артикулы",
+    ps_import: "Загрузить из Excel",
+    ps_template: "Скачать шаблон",
+    ps_add_row: "Добавить строку",
+    ps_pos: "Поз.",
+    ps_article: "Артикул",
+    ps_name: "Наименование",
+    ps_qty: "Кол-во",
+    ps_note: "Примечание",
+    ps_save: "Сохранить схему",
+    ps_saving: "Сохраняем…",
+    ps_cancel: "Отмена",
+    ps_delete_confirm: "Удалить схему вместе с артикулами?",
+    ps_empty_brand: "Для этой марки схем пока нет",
+    ps_empty_brand_sub: "Добавьте первую схему — она сразу появится у клиентов на странице Китая.",
+    ps_positions: "позиций",
+    ps_imported: "Загружено строк",
+    ps_import_fail: "Не удалось прочитать файл. Первая строка должна содержать заголовки колонок.",
+    ps_schemes_btn: "Схемы узлов",
+    ps_no_schemes: "Схемы по этой марке скоро появятся",
+    ps_no_schemes_sub: "А пока отправьте запрос по VIN — подберём артикулы по официальному каталогу.",
+    ps_back: "К списку узлов",
+    ps_zoom: "Увеличить",
+    ps_select_hint: "Отметьте нужные позиции и отправьте запрос — артикулы попадут в заявку.",
+    ps_selected: "Выбрано",
+    ps_request_selected: "Запросить выбранные",
+    ps_filter_ph: "Поиск по артикулу или названию",
+    ps_no_image: "Иллюстрация не загружена",
+    ps_all: "Все",
     pr_empty_sub: "Клиенты отправляют запросы наличия из раздела «Автозапчасти» на странице Китая.",
     pr_new: "Новых",
     prst_new: "Новый",
@@ -968,6 +1028,51 @@ export const I18N: Record<Lang, Record<string, string>> = {
     td_missing_ids: "Missing data for documents",
     close: "Close",
     pr_empty: "No requests yet",
+    tab_parts_schemes: "Diagrams & part numbers",
+    ps_title: "Assembly diagrams with part numbers",
+    ps_sub: "Upload an assembly diagram and a part number table. Position numbers on the picture must match the «Pos.» column.",
+    ps_brand: "Brand",
+    ps_model: "Model",
+    ps_all_models: "All models of the brand",
+    ps_add: "Add diagram",
+    ps_edit: "Edit diagram",
+    ps_new: "New diagram",
+    ps_node: "Assembly name",
+    ps_node_ph: "Front lighting",
+    ps_order: "Order",
+    ps_image: "Illustration",
+    ps_image_hint: "PNG, JPG or WEBP. Large files are compressed automatically",
+    ps_image_pick: "Choose picture",
+    ps_image_change: "Replace",
+    ps_items: "Part numbers",
+    ps_import: "Import from Excel",
+    ps_template: "Download template",
+    ps_add_row: "Add row",
+    ps_pos: "Pos.",
+    ps_article: "Part number",
+    ps_name: "Name",
+    ps_qty: "Qty",
+    ps_note: "Note",
+    ps_save: "Save diagram",
+    ps_saving: "Saving…",
+    ps_cancel: "Cancel",
+    ps_delete_confirm: "Delete the diagram with all part numbers?",
+    ps_empty_brand: "No diagrams for this brand yet",
+    ps_empty_brand_sub: "Add the first diagram — clients will see it on the China page right away.",
+    ps_positions: "positions",
+    ps_imported: "Rows imported",
+    ps_import_fail: "Could not read the file. The first row must contain column headers.",
+    ps_schemes_btn: "Assembly diagrams",
+    ps_no_schemes: "Diagrams for this brand are coming soon",
+    ps_no_schemes_sub: "Meanwhile send a VIN request — we will find part numbers in the official catalog.",
+    ps_back: "Back to assemblies",
+    ps_zoom: "Zoom",
+    ps_select_hint: "Tick the positions you need and send a request — part numbers will be added to it.",
+    ps_selected: "Selected",
+    ps_request_selected: "Request selected",
+    ps_filter_ph: "Search by part number or name",
+    ps_no_image: "No illustration uploaded",
+    ps_all: "All",
     pr_empty_sub: "Clients send availability requests from the Auto parts section on the China page.",
     pr_new: "New",
     prst_new: "New",
@@ -1109,4 +1214,4 @@ export const I18N: Record<Lang, Record<string, string>> = {
 };
 
 export type Page = "home" | "directions" | "services" | "how" | "contacts" | "login" | "register" | "cabinet" | "origin" | "staff_login" | "forgot";
-export type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile" | "clients" | "in_work" | "shipping" | "staff_users" | "hot_deals" | "teardowns" | "parts_requests";
+export type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile" | "clients" | "in_work" | "shipping" | "staff_users" | "hot_deals" | "teardowns" | "parts_requests" | "parts_schemes";

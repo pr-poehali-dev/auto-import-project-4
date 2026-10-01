@@ -6,6 +6,7 @@ import TabClients from "@/components/site/cabinet/TabClients";
 import TabLogistics from "@/components/site/cabinet/TabLogistics";
 import TabPartsRequests from "@/components/site/cabinet/TabPartsRequests";
 import TabMisc from "@/components/site/cabinet/TabMisc";
+import TabPartsSchemes from "@/components/site/cabinet/TabPartsSchemes";
 
 export default function CabinetPage(s: SiteState) {
   const { t, nav, page, user, isStaff, doLogout, cabinetTab, setCabinetTab, setSelectedOrder } = s;
@@ -50,6 +51,7 @@ export default function CabinetPage(s: SiteState) {
                   { id: "shipping", label: t("tab_shipping"), icon: "Truck" },
                   { id: "teardowns", label: t("tab_teardowns"), icon: "Wrench" },
                   { id: "parts_requests", label: t("tab_parts_requests"), icon: "PackageSearch" },
+                  { id: "parts_schemes", label: t("tab_parts_schemes"), icon: "Images" },
                   { id: "hot_deals", label: t("tab_hot_deals"), icon: "Flame" },
                   { id: "staff_users", label: t("tab_staff_users"), icon: "ShieldCheck" },
                   { id: "profile", label: t("tab_profile"), icon: "User" },
@@ -75,6 +77,7 @@ export default function CabinetPage(s: SiteState) {
               <TabLogistics {...s} />
               <TabMisc {...s} />
               <TabPartsRequests {...s} />
+              <TabPartsSchemes {...s} />
               </div>
             </div>
           )

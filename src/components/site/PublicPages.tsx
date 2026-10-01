@@ -17,7 +17,7 @@ export default function PublicPages(s: SiteState) {
     regForm, setRegForm, regStep, doRegister, doSendCode, codeSending, resetRegStep,
     hotDeals,
     partsForm, setPartsForm, partsFormOpen, partsSaving, partsSent,
-    openPartsRequest, closePartsRequest, submitPartsRequest,
+    openPartsRequest, closePartsRequest, submitPartsRequest, token,
   } = s;
 
   return (
@@ -316,7 +316,7 @@ export default function PublicPages(s: SiteState) {
                   onLogin={() => nav("login")} onRegister={() => nav("register")}
                   form={partsForm} setForm={setPartsForm} formOpen={partsFormOpen}
                   saving={partsSaving} sent={partsSent}
-                  onOpen={openPartsRequest} onClose={closePartsRequest} onSubmit={submitPartsRequest} />
+                  onOpen={openPartsRequest} onClose={closePartsRequest} onSubmit={submitPartsRequest} token={token} />
               )}
 
               {"auctionLinks" in o && o.auctionLinks && (

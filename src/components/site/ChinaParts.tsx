@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Icon from "@/components/ui/icon";
-import { CHINA_PARTS_CATALOGS, CHINA_PARTS_CATEGORIES, type Lang } from "@/lib/site-data";
+import { CHINA_PARTS_CATALOGS, CHINA_PARTS_CATEGORIES, apiPartsSchemes, type Lang, type PartsCatalog } from "@/lib/site-data";
+import SchemesViewer from "@/components/site/SchemesViewer";
 
 interface PartsForm {
   category_id: string; category_title: string; car_brand: string;
@@ -19,7 +20,8 @@ interface ChinaPartsProps {
   formOpen: boolean;
   saving: boolean;
   sent: boolean;
-  onOpen: (categoryId: string, categoryTitle: string) => void;
+  onOpen: (categoryId: string, categoryTitle: string, prefill?: Partial<PartsForm>) => void;
+  token: string;
   onClose: () => void;
   onSubmit: () => void;
 }
@@ -29,8 +31,14 @@ type PartsTab = "catalogs" | "parts";
 // Глава «Автозапчасти» на странице направления Китай.
 // Содержимое доступно только зарегистрированным клиентам.
 export default function ChinaParts({ lang, t, isAuthed, onLogin, onRegister, inputCls,
-  form, setForm, formOpen, saving, sent, onOpen, onClose, onSubmit }: ChinaPartsProps) {
+  form, setForm, formOpen, saving, sent, onOpen, onClose, onSubmit, token }: ChinaPartsProps) {
   const [tab, setTab] = useState<PartsTab>("catalogs");
+  const [schemeCounts, setSchemeCounts] = useState<Record<string, number>>({});
+  const [viewer, setViewer] = useState<PartsCatalog | null>(null);
+
+  useEffect(() => {
+    if (isAuthed && token) apiPartsSchemes("GET", token).then((d) => setSchemeCounts(d.counts || {}));
+  }, [isAuthed, token]);
   const [search, setSearch] = useState("");
   const labelCls = "block text-[hsl(var(--navy)/0.68)] text-xs font-['Montserrat'] font-semibold tracking-wide uppercase mb-2";
 
@@ -177,10 +185,19 @@ export default function ChinaParts({ lang, t, isAuthed, onLogin, onRegister, inp
                       );
                     })}
                   </div>
-                  <button type="button" onClick={() => onOpen(`catalog-${c.id}`, `${t("cn_cat_pick")} · ${c.brand}`)}
-                    className="mt-auto w-full flex items-center justify-center gap-1.5 text-[11px] font-['Montserrat'] font-bold px-3 py-2.5 rounded-sm border border-[hsl(var(--gold)/0.4)] navy hover:bg-[hsl(var(--gold))] hover:text-[hsl(222_47%_8%)] hover:border-[hsl(var(--gold))] transition-colors uppercase tracking-wide">
-                    <Icon name="ScanSearch" size={13} />{t("cn_cat_pick")}
-                  </button>
+                  <div className="mt-auto flex flex-col gap-2">
+                    {schemeCounts[c.id] ? (
+                      <button type="button" onClick={() => setViewer(c)}
+                        className="w-full flex items-center justify-center gap-1.5 text-[11px] font-['Montserrat'] font-bold px-3 py-2.5 rounded-sm bg-[hsl(var(--gold))] text-[hsl(222_47%_8%)] hover:opacity-90 transition-opacity uppercase tracking-wide">
+                        <Icon name="Images" size={13} />{t("ps_schemes_btn")}
+                        <span className="px-1.5 rounded-full text-[10px] bg-black/15">{schemeCounts[c.id]}</span>
+                      </button>
+                    ) : null}
+                    <button type="button" onClick={() => onOpen(`catalog-${c.id}`, `${t("cn_cat_pick")} · ${c.brand}`)}
+                      className="w-full flex items-center justify-center gap-1.5 text-[11px] font-['Montserrat'] font-bold px-3 py-2.5 rounded-sm border border-[hsl(var(--gold)/0.4)] navy hover:bg-[hsl(var(--gold))] hover:text-[hsl(222_47%_8%)] hover:border-[hsl(var(--gold))] transition-colors uppercase tracking-wide">
+                      <Icon name="ScanSearch" size={13} />{t("cn_cat_pick")}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -235,6 +252,14 @@ export default function ChinaParts({ lang, t, isAuthed, onLogin, onRegister, inp
         </div>
       )}
 
+      {viewer && (
+        <SchemesViewer catalog={viewer} token={token} t={t} onClose={() => setViewer(null)}
+          onRequest={(sc, partsText, model) => {
+            setViewer(null);
+            onOpen(`scheme-${sc.id}`, `${viewer.brand} · ${sc.title}`, { car_brand: viewer.brand, car_model: model, parts_text: partsText });
+          }} />
+      )}
+
       {formOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[hsl(222_50%_4%/0.8)] backdrop-blur-sm" onClick={onClose}>
           <div className="card-light rounded-sm w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
@@ -286,7 +311,7 @@ export default function ChinaParts({ lang, t, isAuthed, onLogin, onRegister, inp
                 </div>
                 <div>
                   <label className={labelCls}>{t("cn_parts_list")}</label>
-                  <textarea value={form.parts_text} rows={3} placeholder={t("cn_parts_list_ph")}
+                  <textarea value={form.parts_text} rows={form.parts_text.includes("\n") ? Math.min(10, form.parts_text.split("\n").length + 1) : 3} placeholder={t("cn_parts_list_ph")}
                     onChange={(e) => setForm({ ...form, parts_text: e.target.value })} className={inputCls + " resize-none"} />
                 </div>
                 <div>
