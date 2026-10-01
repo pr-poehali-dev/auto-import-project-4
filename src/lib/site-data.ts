@@ -1262,4 +1262,4 @@ export const I18N: Record<Lang, Record<string, string>> = {
 };
 
 export type Page = "home" | "directions" | "services" | "how" | "contacts" | "login" | "register" | "cabinet" | "origin" | "staff_login" | "forgot";
-export type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile" | "clients" | "in_work" | "shipping" | "staff_users" | "hot_deals" | "teardowns" | "parts_requests" | "parts_schemes";
+export type CabinetTab = "orders" | "active_orders" | "new_order" | "auctions" | "documents" | "profile" | "clients" | "in_work" | "shipping" | "staff_users" | "hot_deals" | "teardowns" | "parts_requests" | "parts_schemes" | "crm";

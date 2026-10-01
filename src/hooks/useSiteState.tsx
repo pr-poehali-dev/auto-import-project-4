@@ -127,7 +127,7 @@ export function useSiteState() {
   useEffect(() => {
     if (user) {
       setProfileForm({ full_name: user.full_name, phone: user.phone, company: user.company, inn: user.inn });
-      setCabinetTab(user.role === "staff" ? "clients" : "orders");
+      setCabinetTab(user.role === "staff" ? "crm" : "orders");
     }
   }, [user]);
 

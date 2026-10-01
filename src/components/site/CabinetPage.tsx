@@ -7,6 +7,7 @@ import TabLogistics from "@/components/site/cabinet/TabLogistics";
 import TabPartsRequests from "@/components/site/cabinet/TabPartsRequests";
 import TabMisc from "@/components/site/cabinet/TabMisc";
 import TabPartsSchemes from "@/components/site/cabinet/TabPartsSchemes";
+import TabCrm from "@/components/site/cabinet/TabCrm";
 
 export default function CabinetPage(s: SiteState) {
   const { t, nav, page, user, isStaff, doLogout, cabinetTab, setCabinetTab, setSelectedOrder } = s;
@@ -46,6 +47,7 @@ export default function CabinetPage(s: SiteState) {
               {/* Tabs */}
               <div className="flex gap-1 flex-wrap mb-8 border-b border-[hsl(var(--gold)/0.15)]">
                 {((isStaff ? [
+                  { id: "crm", label: "CRM", icon: "KanbanSquare" },
                   { id: "clients", label: t("tab_clients"), icon: "Users" },
                   { id: "in_work", label: t("tab_in_work"), icon: "Loader" },
                   { id: "shipping", label: t("tab_shipping"), icon: "Truck" },
@@ -78,6 +80,7 @@ export default function CabinetPage(s: SiteState) {
               <TabMisc {...s} />
               <TabPartsRequests {...s} />
               <TabPartsSchemes {...s} />
+              <TabCrm {...s} />
               </div>
             </div>
           )
