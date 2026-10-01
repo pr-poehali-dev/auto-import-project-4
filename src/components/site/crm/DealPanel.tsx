@@ -225,7 +225,14 @@ export default function DealPanel({ token, dealId, staff, me, onClose, onChanged
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className={`text-[11px] ${muted}`}>{e.author || "Система"} · {fmtDate(e.created_at)}</p>
-                        <p className={`text-sm whitespace-pre-line break-words ${e.kind === "comment" ? "navy" : "text-[hsl(var(--navy)/0.75)]"}`}>{e.text}</p>
+                        <p className={`text-sm whitespace-pre-line break-words ${e.kind === "comment" ? "navy" : "text-[hsl(var(--navy)/0.75)]"}`}>
+                          {e.text.replace(/ \(из Telegram\)$/, "")}
+                          {e.text.endsWith("(из Telegram)") && (
+                            <span className="inline-flex items-center gap-0.5 ml-1.5 align-middle text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-sm bg-sky-500/15 text-sky-400">
+                              <Icon name="Send" size={9} />Telegram
+                            </span>
+                          )}
+                        </p>
                       </div>
                     </div>
                   ))}

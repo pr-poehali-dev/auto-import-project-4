@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Icon from "@/components/ui/icon";
-import { crmGet, crmPost, type CrmTask, type StaffMember } from "@/lib/crm";
+import { crmGet, crmPost, CRM_URL, type CrmTask, type StaffMember } from "@/lib/crm";
 import { panel, input, btnGold, muted } from "./ui";
 import TaskList from "./TaskList";
 
@@ -28,6 +28,20 @@ export default function CrmTasks({ token, staff, me, myTelegram, onTelegramSaved
   };
   useEffect(() => { setLoading(true); load(); }, [scope, reloadKey]);
   useEffect(() => { setTg(myTelegram); }, [myTelegram]);
+
+  const [bot, setBot] = useState<{ has_token: boolean; connected: boolean; bot: string; last_error?: string } | null>(null);
+  const [botBusy, setBotBusy] = useState(false);
+  const [botMsg, setBotMsg] = useState("");
+  useEffect(() => { crmPost(token, { action: "tg_status" }).then((r) => { if (!r.error) setBot(r); }); }, [token]);
+
+  const connectBot = async () => {
+    setBotBusy(true); setBotMsg("");
+    const r = await crmPost(token, { action: "tg_connect", url: CRM_URL });
+    setBotBusy(false);
+    if (r.error) { setBotMsg(r.error); return; }
+    setBot((b) => ({ has_token: true, connected: true, bot: r.bot || b?.bot || "" }));
+    setBotMsg("Кнопки подключены. Нажатия в уведомлениях теперь меняют сделки в CRM.");
+  };
 
   const saveTg = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,8 +105,8 @@ export default function CrmTasks({ token, staff, me, myTelegram, onTelegramSaved
           Когда наступает срок задачи, бот присылает напоминание. Укажите свой личный чат — иначе напоминания придут в общий чат сотрудников с пометкой, кому задача.
         </p>
         <ol className={`text-xs ${muted} list-decimal pl-4 mb-3 space-y-1`}>
-          <li>Откройте бота компании в Telegram и нажмите <b className="navy">/start</b></li>
-          <li>Напишите боту <b className="navy">@userinfobot</b> — он пришлёт ваш ID</li>
+          <li>Откройте бота компании{bot?.bot && <> <b className="navy">@{bot.bot}</b></>} в Telegram и нажмите <b className="navy">/start</b></li>
+          <li>Бот пришлёт ваш ID (если кнопки ещё не подключены — узнайте ID у <b className="navy">@userinfobot</b>)</li>
           <li>Вставьте ID сюда</li>
         </ol>
         <form onSubmit={saveTg} className="flex gap-2">
@@ -100,6 +114,28 @@ export default function CrmTasks({ token, staff, me, myTelegram, onTelegramSaved
           <button type="submit" className={btnGold + " !py-2"}>Сохранить</button>
         </form>
         {tgMsg && <p className="text-xs text-[hsl(var(--gold))] mt-2">{tgMsg}</p>}
+        {tg && <p className={`text-[11px] ${muted} mt-2`}>С этим же ID вы сможете брать запросы в работу кнопками прямо в Telegram.</p>}
+
+        <div className="border-t border-[hsl(var(--gold)/0.12)] mt-4 pt-4">
+          <h4 className="font-['Montserrat'] font-bold text-xs navy flex items-center gap-2 mb-2"><Icon name="MousePointerClick" size={14} />Кнопки в уведомлениях</h4>
+          {!bot ? (
+            <p className={`text-xs ${muted}`}>Проверяем бота…</p>
+          ) : !bot.has_token ? (
+            <p className={`text-xs ${muted}`}>Сначала добавьте ключ бота в настройках проекта.</p>
+          ) : (
+            <>
+              <p className={`text-xs mb-2 ${bot.connected ? "text-green-500" : muted}`}>
+                {bot.connected ? `Подключено${bot.bot ? ` · @${bot.bot}` : ""}` : "Не подключено — кнопка «Взять в работу» не будет срабатывать."}
+              </p>
+              {bot.last_error && bot.connected && <p className="text-[11px] text-red-400 mb-2">Последняя ошибка Telegram: {bot.last_error}</p>}
+              <button type="button" onClick={connectBot} disabled={botBusy} className={btnGold + " !py-2 w-full"}>
+                {botBusy ? <Icon name="Loader" size={13} className="animate-spin" /> : <Icon name="Plug" size={13} />}
+                {bot.connected ? "Переподключить" : "Подключить кнопки"}
+              </button>
+            </>
+          )}
+          {botMsg && <p className="text-xs text-[hsl(var(--gold))] mt-2">{botMsg}</p>}
+        </div>
       </aside>
     </div>
   );

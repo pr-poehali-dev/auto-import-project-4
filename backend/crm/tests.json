@@ -1,7 +1,46 @@
 {
   "tests": [
-    {"name": "Без авторизации — 401", "method": "GET", "path": "/?view=board", "expectedStatus": 401, "expectedBody": {"error": "string"}, "bodyMatcher": "partial"},
-    {"name": "POST без авторизации — 401", "method": "POST", "path": "/", "body": {"action": "remind"}, "expectedStatus": 401, "expectedBody": {"error": "string"}, "bodyMatcher": "partial"},
-    {"name": "OPTIONS CORS", "method": "OPTIONS", "path": "/", "expectedStatus": 200}
+    {
+      "name": "Без авторизации — 401",
+      "method": "GET",
+      "path": "/?view=board",
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "POST без авторизации — 401",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "remind"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "OPTIONS CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Webhook без секрета — 403",
+      "method": "POST",
+      "path": "/?tg=webhook",
+      "body": {
+        "update_id": 1
+      },
+      "expectedStatus": 403,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
   ]
 }

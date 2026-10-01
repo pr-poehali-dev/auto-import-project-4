@@ -32,7 +32,24 @@ STATUS_MAP = {
 TG_LIMIT = 4096
 
 
-def notify_telegram(req: dict) -> None:
+def ensure_deal(cur, req: dict, user_id: int):
+    """Сразу заводим сделку CRM для запроса, чтобы кнопки в Telegram работали с первой секунды."""
+    title = "Запчасти: " + " ".join(x for x in (req["car_brand"], req["car_model"]) if x) + " · " + req["category_title"]
+    cur.execute(
+        f"INSERT INTO {SCHEMA}.crm_deals (source_type, source_id, client_id, title, stage) "
+        f"VALUES ('parts', %s, %s, %s, 'new') ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL DO NOTHING RETURNING id",
+        (req["id"], user_id, title[:255]))
+    r = cur.fetchone()
+    if r:
+        cur.execute(f"INSERT INTO {SCHEMA}.crm_events (deal_id, kind, text) VALUES (%s, 'system', %s)",
+                    (r[0], "Сделка создана из заявки клиента"))
+        return r[0]
+    cur.execute(f"SELECT id FROM {SCHEMA}.crm_deals WHERE source_type = 'parts' AND source_id = %s", (req["id"],))
+    r = cur.fetchone()
+    return r[0] if r else None
+
+
+def notify_telegram(req: dict, cur=None, conn=None, deal_id=None) -> None:
     """Сообщение сотрудникам о новом запросе. Без ключей или при сбое Telegram — молча пропускаем."""
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
     chat_ids = [c.strip() for c in os.environ.get("TELEGRAM_CHAT_ID", "").replace(";", ",").split(",") if c.strip()]
@@ -68,7 +85,11 @@ def notify_telegram(req: dict) -> None:
         text = head + "\n" + "\n".join(block) + "\n".join([""] + footer if footer else [])
     else:
         text = head + "\n".join([""] + footer if footer else [])
-    text = text[:TG_LIMIT]
+    text = text[:TG_LIMIT - 260]
+    base_text = text
+    if deal_id:
+        text += ("\n\n━━━━━━━━━━━━\n<b>Статус:</b> 🔵 Новая\n<b>Ответственный:</b> не назначен")
+    markup = {"inline_keyboard": [[{"text": "🙋 Взять в работу", "callback_data": f"d:{deal_id}:take"}]]} if deal_id else None
 
     deadline = time.monotonic() + 3.0
     for chat_id in chat_ids:
@@ -77,11 +98,20 @@ def notify_telegram(req: dict) -> None:
             print(f"telegram notify skipped for chat {chat_id}: time budget exhausted")
             continue
         try:
-            data = json.dumps({"chat_id": chat_id, "text": text, "parse_mode": "HTML",
-                               "disable_web_page_preview": True}).encode()
-            r = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage", data=data,
+            payload = {"chat_id": chat_id, "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}
+            if markup:
+                payload["reply_markup"] = markup
+            r = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage",
+                                       data=json.dumps(payload).encode(),
                                        headers={"Content-Type": "application/json"})
-            urllib.request.urlopen(r, timeout=left).read()
+            res = json.loads(urllib.request.urlopen(r, timeout=left).read())
+            msg_id = (res.get("result") or {}).get("message_id")
+            if deal_id and msg_id and cur is not None:
+                cur.execute(
+                    f"INSERT INTO {SCHEMA}.crm_tg_messages (deal_id, chat_id, message_id, base_text) "
+                    f"VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING",
+                    (deal_id, str(chat_id), msg_id, base_text))
+                conn.commit()
         except Exception as ex:
             print(f"telegram notify failed for chat {chat_id}: {type(ex).__name__}")
 
@@ -199,7 +229,7 @@ def handler(event: dict, context) -> dict:
 
             cur.execute(f"SELECT full_name, company, phone, email FROM {SCHEMA}.users WHERE id = %s", (user_id,))
             u = cur.fetchone() or ("", "", "", "")
-            notify_telegram({
+            req_info = {
                 "id": row[0], "car_brand": car_brand,
                 "car_model": (body.get("car_model") or "").strip()[:64], "car_year": year,
                 "vin": (body.get("vin") or "").strip().upper()[:32],
@@ -208,7 +238,15 @@ def handler(event: dict, context) -> dict:
                 "comment": (body.get("comment") or "").strip(),
                 "client_name": u[0] or "", "client_company": u[1] or "",
                 "client_phone": u[2] or "", "client_email": u[3] or "",
-            })
+            }
+            deal_id = None
+            try:
+                deal_id = ensure_deal(cur, req_info, user_id)
+                conn.commit()
+            except Exception as ex:
+                conn.rollback()
+                print(f"crm deal create failed: {type(ex).__name__}")
+            notify_telegram(req_info, cur, conn, deal_id)
             return ok({"id": row[0], "created_at": str(row[1]),
                        "message": "Запрос отправлен — менеджер свяжется с вами"})
 

@@ -9,7 +9,8 @@ import time
 from datetime import datetime, timedelta, timezone
 
 from db import S, STAGES, STAGE_LABELS, CLOSED, connect, rows, one, ok, err, get_user, to_int, log_event
-from telegram import send, chats_for_user, esc
+from telegram import send, chats_for_user, esc, refresh_deal_messages, api as tg_api, webhook_secret, bot_token
+import tgbot
 
 DEAL_COLS = (
     "d.id, d.source_type, d.source_id, d.client_id, d.title, d.stage, d.manager_id, d.amount, "
@@ -104,6 +105,36 @@ def notify_assigned(cur, deal, manager_id, by_name):
         return
     send(chats, f"<b>📌 Вам назначена сделка №{deal['id']}</b>\n{esc(deal['title'])}\n"
                 f"Клиент: {esc(deal['client_name'] or '—')}\nНазначил: {esc(by_name)}", budget=2.0)
+
+
+def apply_move(cur, deal, stage, reason, me, via=""):
+    """Смена этапа + журнал. Без ответственного — назначаем того, кто двигает."""
+    cur.execute(
+        f"UPDATE {S}.crm_deals SET stage = %s, stage_changed_at = NOW(), updated_at = NOW(), "
+        f"closed_at = CASE WHEN %s IN ('won','lost') THEN NOW() ELSE NULL END, "
+        f"lost_reason = CASE WHEN %s = 'lost' THEN %s ELSE '' END, "
+        f"manager_id = COALESCE(manager_id, %s) WHERE id = %s",
+        (stage, stage, stage, reason, me["id"], deal["id"]))
+    text = f"Этап: «{STAGE_LABELS[deal['stage']]}» → «{STAGE_LABELS[stage]}»"
+    if reason:
+        text += f". Причина: {reason}"
+    log_event(cur, deal["id"], me["id"], "stage", text + via)
+    if not deal["manager_id"]:
+        log_event(cur, deal["id"], me["id"], "manager", f"Ответственный: {me['name']}{via}")
+
+
+def apply_take(cur, deal, me, via=""):
+    """Назначить себя ответственным; новая сделка заодно переходит «В работу»."""
+    changed = False
+    if deal["manager_id"] != me["id"]:
+        cur.execute(f"UPDATE {S}.crm_deals SET manager_id = %s, updated_at = NOW() WHERE id = %s", (me["id"], deal["id"]))
+        log_event(cur, deal["id"], me["id"], "manager", f"Ответственный: {me['name']}{via}")
+        deal = {**deal, "manager_id": me["id"]}
+        changed = True
+    if deal["stage"] == "new":
+        apply_move(cur, deal, "in_work", "", me, via)
+        changed = True
+    return changed
 
 
 def handle_get(cur, conn, me, q):
@@ -303,6 +334,27 @@ def handle_post(cur, conn, me, body):
             sent += send(chats, "\n".join(lines) + who, budget=1.2)
         return ok({"due": len(ids), "sent": sent})
 
+    if action == "tg_connect":
+        if not bot_token():
+            return err("Не добавлен ключ бота TELEGRAM_BOT_TOKEN")
+        url = (body.get("url") or "").strip()
+        if not url.startswith("https://"):
+            return err("Неверный адрес")
+        res = tg_api("setWebhook", {"url": f"{url}?tg=webhook", "secret_token": webhook_secret(),
+                                    "allowed_updates": ["callback_query", "message"], "drop_pending_updates": True}, timeout=3.0)
+        if res is None:
+            return err("Telegram не принял подключение — проверьте ключ бота")
+        bot = tg_api("getMe", {}, timeout=1.5) or {}
+        return ok({"connected": True, "bot": bot.get("username", "")})
+
+    if action == "tg_status":
+        if not bot_token():
+            return ok({"has_token": False, "connected": False})
+        info = tg_api("getWebhookInfo", {}, timeout=2.0) or {}
+        bot = tg_api("getMe", {}, timeout=1.5) or {}
+        return ok({"has_token": True, "connected": "tg=webhook" in (info.get("url") or ""),
+                   "bot": bot.get("username", ""), "last_error": info.get("last_error_message", "")})
+
     if action == "my_telegram":
         chat_id = "".join(ch for ch in str(body.get("chat_id") or "") if ch.isdigit() or ch == "-")[:32]
         cur.execute(f"UPDATE {S}.users SET telegram_chat_id = %s WHERE id = %s", (chat_id, me["id"]))
@@ -341,19 +393,9 @@ def handle_post(cur, conn, me, body):
         reason = (body.get("lost_reason") or "").strip()[:1000]
         if stage == "lost" and not reason:
             return err("Укажите причину отказа")
-        cur.execute(
-            f"UPDATE {S}.crm_deals SET stage = %s, stage_changed_at = NOW(), updated_at = NOW(), "
-            f"closed_at = CASE WHEN %s IN ('won','lost') THEN NOW() ELSE NULL END, "
-            f"lost_reason = CASE WHEN %s = 'lost' THEN %s ELSE '' END, "
-            f"manager_id = COALESCE(manager_id, %s) WHERE id = %s",
-            (stage, stage, stage, reason, me["id"], deal_id))
-        text = f"Этап: «{STAGE_LABELS[deal['stage']]}» → «{STAGE_LABELS[stage]}»"
-        if reason:
-            text += f". Причина: {reason}"
-        log_event(cur, deal_id, me["id"], "stage", text)
-        if not deal["manager_id"]:
-            log_event(cur, deal_id, me["id"], "manager", f"Ответственный: {me['name']}")
+        apply_move(cur, deal, stage, reason, me)
         conn.commit()
+        refresh_deal_messages(cur, deal_id, budget=1.5)
         return ok({"deal": get_deal(cur, deal_id)})
 
     if action == "update":
@@ -392,6 +434,8 @@ def handle_post(cur, conn, me, body):
             log_event(cur, deal_id, me["id"], kind, text)
         conn.commit()
         updated = get_deal(cur, deal_id)
+        if "manager_id" in body:
+            refresh_deal_messages(cur, deal_id, budget=1.5)
         new_manager = to_int(body.get("manager_id")) if "manager_id" in body else None
         if new_manager and new_manager != deal["manager_id"] and new_manager != me["id"]:
             notify_assigned(cur, updated, new_manager, me["name"])
@@ -464,6 +508,17 @@ def handler(event: dict, context) -> dict:
                 "Access-Control-Allow-Headers": "Content-Type, X-Session-Token",
                 "Access-Control-Max-Age": "86400"}, "body": ""}
     headers = event.get("headers") or {}
+    q = event.get("queryStringParameters") or {}
+
+    if q.get("tg") == "webhook":
+        if not tgbot.check_secret(headers):
+            return err("Forbidden", 403)
+        conn = connect()
+        try:
+            return ok(tgbot.handle_update(conn.cursor(), conn, json.loads(event.get("body") or "{}"), apply_move, apply_take))
+        finally:
+            conn.close()
+
     token = headers.get("X-Session-Token") or headers.get("x-session-token") or ""
     if not token:
         return err("Не авторизован", 401)
