@@ -26,6 +26,7 @@ export default function CrmBoard({ token, staff, me, onOpenDeal, reloadKey }: Pr
   const [lostReason, setLostReason] = useState("");
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
+  const [mobileStage, setMobileStage] = useState<Stage>("new");
 
   const load = async () => {
     const d = await crmGet(token, { view: "board", manager, source, q: query });
@@ -62,22 +63,26 @@ export default function CrmBoard({ token, staff, me, onOpenDeal, reloadKey }: Pr
   return (
     <div>
       <div className="flex flex-wrap items-center gap-2 mb-4">
-        <div className="relative flex-1 min-w-[220px] max-w-sm">
+        <div className="relative flex-1 min-w-full sm:min-w-[220px] max-w-sm">
           <Icon name="Search" size={14} className={`absolute left-3 top-1/2 -translate-y-1/2 ${muted}`} />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Клиент, телефон, авто, № сделки" className={input + " pl-9"} />
         </div>
-        <select value={manager} onChange={(e) => setManager(e.target.value)} className={input + " w-auto"}>
+        <select value={manager} onChange={(e) => setManager(e.target.value)} className={input + " w-auto flex-1 sm:flex-none"}>
           <option value="">Все менеджеры</option>
           <option value="me">Мои сделки</option>
           <option value="none">Без ответственного</option>
           {staff.filter((s) => s.id !== me).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
-        <select value={source} onChange={(e) => setSource(e.target.value)} className={input + " w-auto"}>
+        <select value={source} onChange={(e) => setSource(e.target.value)} className={input + " w-auto flex-1 sm:flex-none"}>
           <option value="">Все источники</option>
           {Object.entries(SOURCE_LABELS).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
         </select>
-        <button type="button" onClick={() => setCreating(true)} className={btnGold + " ml-auto"}>
+        <button type="button" onClick={() => setCreating(true)} className={btnGold + " ml-auto hidden md:inline-flex"}>
           <Icon name="Plus" size={14} />Новая сделка
+        </button>
+        <button type="button" onClick={() => setCreating(true)} aria-label="Новая сделка"
+          className="md:hidden fixed right-4 bottom-[calc(80px+env(safe-area-inset-bottom))] z-30 w-14 h-14 rounded-full bg-[hsl(var(--gold))] text-[hsl(222_47%_8%)] shadow-[0_8px_30px_hsl(var(--gold)/0.4)] flex items-center justify-center">
+          <Icon name="Plus" size={26} />
         </button>
       </div>
       {error && <p className="text-sm text-red-400 mb-3">{error}</p>}
@@ -85,7 +90,42 @@ export default function CrmBoard({ token, staff, me, onOpenDeal, reloadKey }: Pr
       {loading ? (
         <div className={`flex items-center gap-3 py-20 justify-center ${muted}`}><Icon name="Loader" size={20} className="animate-spin" />Загружаем воронку…</div>
       ) : (
-        <div className="flex gap-3 overflow-x-auto pb-4 -mx-1 px-1 snap-x">
+        <>
+        <div className="md:hidden">
+          <div className="flex gap-1.5 overflow-x-auto pb-2 -mx-3 px-3 no-scrollbar">
+            {STAGES.map((st) => {
+              const n = (byStage[st.id] || []).length;
+              const on = mobileStage === st.id;
+              return (
+                <button key={st.id} type="button" onClick={() => setMobileStage(st.id)}
+                  className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-xs font-semibold border transition-colors ${on ? "text-[hsl(222_47%_8%)] border-transparent" : "navy border-[hsl(var(--gold)/0.2)]"}`}
+                  style={on ? { background: st.color } : undefined}>
+                  {!on && <span className="w-1.5 h-1.5 rounded-full" style={{ background: st.color }} />}
+                  {st.label}
+                  <span className={`text-[10px] font-bold px-1.5 rounded-full ${on ? "bg-black/15" : "bg-[hsl(var(--navy)/0.1)]"}`}>{n}</span>
+                </button>
+              );
+            })}
+          </div>
+          {(() => {
+            const list = byStage[mobileStage] || [];
+            const sum = list.reduce((a, d) => a + (d.amount || 0), 0);
+            return (
+              <>
+                {sum > 0 && <p className={`text-xs ${muted} mb-2 px-0.5`}>Сумма на этапе: <b className="navy">{money(sum)}</b></p>}
+                {list.length === 0 ? (
+                  <p className={`text-center text-sm ${muted} py-14`}>На этом этапе сделок нет</p>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    {list.map((d) => <DealCard key={d.id} d={d} dragging={false} onDragStart={() => undefined} onDragEnd={() => undefined}
+                      onOpen={() => onOpenDeal(d.id)} onMove={(s) => move(d, s)} />)}
+                  </div>
+                )}
+              </>
+            );
+          })()}
+        </div>
+        <div className="hidden md:flex gap-3 overflow-x-auto pb-4 -mx-1 px-1 snap-x">
           {STAGES.map((st) => {
             const list = byStage[st.id] || [];
             const sum = list.reduce((a, d) => a + (d.amount || 0), 0);
@@ -114,6 +154,7 @@ export default function CrmBoard({ token, staff, me, onOpenDeal, reloadKey }: Pr
             );
           })}
         </div>
+        </>
       )}
 
       {lostFor && (
@@ -152,7 +193,7 @@ function DealCard({ d, dragging, onDragStart, onDragEnd, onOpen, onMove }: {
   const stale = d.stage !== "won" && d.stage !== "lost" ? daysSince(d.stage_changed_at) : 0;
   const overdue = isOverdue(d.next_task_at);
   return (
-    <div draggable onDragStart={(e) => { e.dataTransfer.effectAllowed = "move"; onDragStart(); }} onDragEnd={onDragEnd}
+    <div draggable={!("ontouchstart" in window)} onDragStart={(e) => { e.dataTransfer.effectAllowed = "move"; onDragStart(); }} onDragEnd={onDragEnd}
       onClick={onOpen}
       className={`group bg-[hsl(var(--ink-2))] border rounded-sm p-3 cursor-pointer select-none transition-all hover:border-[hsl(var(--gold)/0.5)] ${dragging ? "opacity-40" : ""} ${d.manager_id ? "border-[hsl(var(--gold)/0.12)]" : "border-dashed border-[hsl(var(--gold)/0.35)]"}`}>
       <div className="flex items-start justify-between gap-2 mb-1.5">

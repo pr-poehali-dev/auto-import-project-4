@@ -72,7 +72,7 @@ export default function CrmTasks({ token, staff, me, myTelegram, onTelegramSaved
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
       <div className="lg:col-span-2">
-        <div className="flex gap-1 mb-4">
+        <div className="flex gap-1 mb-4 overflow-x-auto no-scrollbar">
           {([["mine", "Мои"], ["all", "Все открытые"], ["done", "Выполненные"]] as const).map(([k, l]) => (
             <button key={k} type="button" onClick={() => setScope(k)}
               className={`text-xs font-['Montserrat'] font-bold px-3 py-2 rounded-sm ${scope === k ? "bg-[hsl(var(--gold))] text-[hsl(222_47%_8%)]" : muted + " border border-[hsl(var(--gold)/0.2)]"}`}>{l}</button>
@@ -99,7 +99,7 @@ export default function CrmTasks({ token, staff, me, myTelegram, onTelegramSaved
         ))}
       </div>
 
-      <aside className={panel + " p-4 h-fit"}>
+      <aside className={panel + " p-4 h-fit"} id="crm-tg-settings">
         <h3 className="font-['Montserrat'] font-bold text-sm navy flex items-center gap-2 mb-2"><Icon name="Send" size={15} />Напоминания в Telegram</h3>
         <p className={`text-xs ${muted} mb-3 leading-relaxed`}>
           Когда наступает срок задачи, бот присылает напоминание. Укажите свой личный чат — иначе напоминания придут в общий чат сотрудников с пометкой, кому задача.

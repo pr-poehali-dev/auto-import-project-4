@@ -83,14 +83,14 @@ export default function DealPanel({ token, dealId, staff, me, onClose, onChanged
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex justify-end" onClick={onClose}>
-      <div className="w-full max-w-2xl h-full bg-[hsl(var(--ink))] border-l border-[hsl(var(--gold)/0.2)] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-2xl h-[100dvh] bg-[hsl(var(--ink))] border-l border-[hsl(var(--gold)/0.2)] overflow-y-auto overscroll-contain pb-[env(safe-area-inset-bottom)]" onClick={(e) => e.stopPropagation()}>
         {!deal ? (
           <div className={`flex items-center gap-3 py-24 justify-center ${muted}`}>
             {error ? <span className="text-red-400">{error}</span> : <><Icon name="Loader" size={20} className="animate-spin" />Загружаем сделку…</>}
           </div>
         ) : (
           <>
-            <div className="sticky top-0 z-10 bg-[hsl(var(--ink))] border-b border-[hsl(var(--gold)/0.15)] px-5 py-4">
+            <div className="sticky top-0 z-10 bg-[hsl(var(--ink))] border-b border-[hsl(var(--gold)/0.15)] px-4 sm:px-5 py-4 pt-[calc(16px+env(safe-area-inset-top))]">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <p className={`flex items-center gap-1.5 text-[11px] ${muted} mb-1`}>
@@ -107,17 +107,17 @@ export default function DealPanel({ token, dealId, staff, me, onClose, onChanged
                     </form>
                   )}
                 </div>
-                <button type="button" onClick={onClose} className={muted + " hover:text-[hsl(var(--navy))]"}><Icon name="X" size={22} /></button>
+                <button type="button" onClick={onClose} aria-label="Закрыть" className={muted + " hover:text-[hsl(var(--navy))] -m-2 p-2"}><Icon name="X" size={24} /></button>
               </div>
 
-              <div className="flex gap-1 mt-3 overflow-x-auto">
+              <div className="flex gap-1 mt-3 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
                 {STAGES.map((s) => {
                   const active = s.id === deal.stage;
                   const idx = STAGES.findIndex((x) => x.id === deal.stage);
                   const passed = deal.stage !== "lost" && STAGES.findIndex((x) => x.id === s.id) < idx && s.id !== "lost";
                   return (
                     <button key={s.id} type="button" disabled={busy} onClick={() => moveTo(s.id)}
-                      className={`flex-shrink-0 text-[10px] font-['Montserrat'] font-bold px-2.5 py-1.5 rounded-sm transition-colors ${active ? "text-[hsl(222_47%_8%)]" : passed ? "navy bg-[hsl(var(--navy)/0.1)]" : muted + " bg-[hsl(var(--navy)/0.04)] hover:bg-[hsl(var(--navy)/0.1)]"}`}
+                      className={`flex-shrink-0 text-[11px] sm:text-[10px] font-['Montserrat'] font-bold px-3 sm:px-2.5 py-2 sm:py-1.5 rounded-sm transition-colors ${active ? "text-[hsl(222_47%_8%)]" : passed ? "navy bg-[hsl(var(--navy)/0.1)]" : muted + " bg-[hsl(var(--navy)/0.04)] hover:bg-[hsl(var(--navy)/0.1)]"}`}
                       style={active ? { background: s.color } : undefined}>
                       {s.label}
                     </button>
@@ -135,7 +135,7 @@ export default function DealPanel({ token, dealId, staff, me, onClose, onChanged
               {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
             </div>
 
-            <div className="p-5 flex flex-col gap-5">
+            <div className="p-4 sm:p-5 flex flex-col gap-5">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className={label}>Сумма сделки, ₽</label>

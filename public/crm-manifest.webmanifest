@@ -1,0 +1,22 @@
+{
+  "id": "/crm",
+  "name": "PRIME CARS CRM",
+  "short_name": "CRM",
+  "description": "Воронка сделок, клиенты, задачи и отчёты для сотрудников",
+  "lang": "ru",
+  "start_url": "/crm?source=pwa",
+  "scope": "/crm",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b1120",
+  "theme_color": "#0b1120",
+  "icons": [
+    { "src": "/crm-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/crm-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/crm-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Мои задачи", "short_name": "Задачи", "url": "/crm?view=tasks", "icons": [{ "src": "/crm-icon-192.png", "sizes": "192x192" }] },
+    { "name": "Воронка", "short_name": "Воронка", "url": "/crm?view=board", "icons": [{ "src": "/crm-icon-192.png", "sizes": "192x192" }] }
+  ]
+}

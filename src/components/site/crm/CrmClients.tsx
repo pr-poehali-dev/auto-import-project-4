@@ -19,7 +19,7 @@ export default function CrmClients({ token, onOpenClient, reloadKey }: { token: 
 
   return (
     <div>
-      <div className="relative max-w-sm mb-4">
+      <div className="relative sm:max-w-sm mb-4">
         <Icon name="Search" size={14} className={`absolute left-3 top-1/2 -translate-y-1/2 ${muted}`} />
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Имя, компания, телефон, email, ИНН" className={input + " pl-9"} />
       </div>
@@ -28,7 +28,25 @@ export default function CrmClients({ token, onOpenClient, reloadKey }: { token: 
       ) : clients.length === 0 ? (
         <p className={`text-center py-16 ${muted}`}>Клиенты не найдены</p>
       ) : (
-        <div className={panel + " overflow-x-auto"}>
+        <>
+        <div className="md:hidden flex flex-col gap-2">
+          {clients.map((c) => (
+            <button key={c.id} type="button" onClick={() => onOpenClient(c.id)} className={panel + " p-3 text-left flex items-center gap-3 active:bg-[hsl(var(--gold)/0.06)]"}>
+              <span className="w-10 h-10 flex-shrink-0 rounded-full bg-[hsl(var(--gold)/0.15)] text-[hsl(var(--gold))] text-xs font-bold flex items-center justify-center">
+                {c.name.trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase()}
+              </span>
+              <span className="flex-1 min-w-0">
+                <span className="block navy font-semibold text-sm truncate">{c.name}</span>
+                <span className={`block text-xs ${muted} truncate`}>{[c.company, c.phone].filter(Boolean).join(" · ") || c.email}</span>
+              </span>
+              <span className="text-right flex-shrink-0">
+                {c.deals_open > 0 && <span className="block text-[11px] font-bold text-[hsl(var(--gold))]">{c.deals_open} в работе</span>}
+                {Number(c.won_amount) > 0 && <span className={`block text-[11px] ${muted}`}>{money(c.won_amount)}</span>}
+              </span>
+            </button>
+          ))}
+        </div>
+        <div className={panel + " overflow-x-auto hidden md:block"}>
           <table className="w-full text-sm min-w-[720px]">
             <thead className={`text-[10px] uppercase tracking-wide ${muted} border-b border-[hsl(var(--gold)/0.12)]`}>
               <tr>
@@ -58,6 +76,7 @@ export default function CrmClients({ token, onOpenClient, reloadKey }: { token: 
             </tbody>
           </table>
         </div>
+        </>
       )}
     </div>
   );

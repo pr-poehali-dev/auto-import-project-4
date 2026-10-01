@@ -47,14 +47,14 @@ export default function ClientPanel({ token, clientId, staff, me, onClose, onOpe
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex justify-end" onClick={onClose}>
-      <div className="w-full max-w-3xl h-full bg-[hsl(var(--ink))] border-l border-[hsl(var(--gold)/0.2)] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-3xl h-[100dvh] bg-[hsl(var(--ink))] border-l border-[hsl(var(--gold)/0.2)] overflow-y-auto overscroll-contain pb-[env(safe-area-inset-bottom)]" onClick={(e) => e.stopPropagation()}>
         {!data || !c || !st ? (
           <div className={`flex items-center gap-3 py-24 justify-center ${muted}`}>
             {error ? <span className="text-red-400">{error}</span> : <><Icon name="Loader" size={20} className="animate-spin" />Загружаем клиента…</>}
           </div>
         ) : (
           <>
-            <div className="sticky top-0 z-10 bg-[hsl(var(--ink))] border-b border-[hsl(var(--gold)/0.15)] px-5 py-4 flex items-start justify-between gap-3">
+            <div className="sticky top-0 z-10 bg-[hsl(var(--ink))] border-b border-[hsl(var(--gold)/0.15)] px-4 sm:px-5 py-4 pt-[calc(16px+env(safe-area-inset-top))] flex items-start justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-12 h-12 flex-shrink-0 rounded-full bg-[hsl(var(--gold)/0.15)] text-[hsl(var(--gold))] flex items-center justify-center font-['Montserrat'] font-black">
                   {name.trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase()}
@@ -71,7 +71,7 @@ export default function ClientPanel({ token, clientId, staff, me, onClose, onOpe
               <button type="button" onClick={onClose} className={muted + " hover:text-[hsl(var(--navy))]"}><Icon name="X" size={22} /></button>
             </div>
 
-            <div className="p-5 flex flex-col gap-5">
+            <div className="p-4 sm:p-5 flex flex-col gap-5">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {[
                   ["Принесено денег", money(st.won_amount), "Banknote"],
