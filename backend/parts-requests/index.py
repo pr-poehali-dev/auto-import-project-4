@@ -1,11 +1,15 @@
 """
 Запросы наличия автозапчастей (направление Китай).
 GET  / — клиент: свои запросы; сотрудник: все запросы с данными клиента
-POST / — создать запрос наличия по группе запчастей
+POST / — создать запрос наличия по группе запчастей (+ уведомление сотрудникам в Telegram)
 PATCH / — сотрудник: сменить статус запроса
 """
+import html
 import json
 import os
+import time
+import urllib.request
+
 import psycopg2
 
 DB = os.environ["DATABASE_URL"]
@@ -23,6 +27,63 @@ STATUS_MAP = {
     "answered": "Ответ отправлен",
     "closed": "Закрыт",
 }
+
+
+TG_LIMIT = 4096
+
+
+def notify_telegram(req: dict) -> None:
+    """Сообщение сотрудникам о новом запросе. Без ключей или при сбое Telegram — молча пропускаем."""
+    token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+    chat_ids = [c.strip() for c in os.environ.get("TELEGRAM_CHAT_ID", "").replace(";", ",").split(",") if c.strip()]
+    if not token or not chat_ids:
+        return
+    e = lambda v: html.escape(str(v or ""))
+    car = " ".join(str(x) for x in (req["car_brand"], req["car_model"], req["car_year"]) if x)
+    lines = [f"<b>🔧 Новый запрос запчастей №{req['id']}</b>", "",
+             f"<b>Авто:</b> {e(car)}"]
+    if req["vin"]:
+        lines.append(f"<b>VIN:</b> <code>{e(req['vin'])}</code>")
+    lines.append(f"<b>Раздел:</b> {e(req['category_title'])}")
+    client = ", ".join(x for x in (req["client_name"], req["client_company"]) if x) or "—"
+    lines.append(f"<b>Клиент:</b> {e(client)}")
+    contacts = " · ".join(x for x in (req["client_phone"], req["client_email"]) if x)
+    if contacts:
+        lines.append(f"<b>Контакты:</b> {e(contacts)}")
+    footer = []
+    if req["comment"]:
+        footer = ["", f"<b>Комментарий:</b> {e(req['comment'])}"]
+
+    head = "\n".join(lines)
+    parts = [p.strip() for p in (req["parts_text"] or "").split("\n") if p.strip()]
+    if parts:
+        block = ["", f"<b>Позиции ({len(parts)}):</b>"]
+        budget = TG_LIMIT - len(head) - len("\n".join(footer)) - 120
+        for n, p in enumerate(parts, 1):
+            row = f"{n}. {e(p)}"
+            if len("\n".join(block)) + len(row) > budget:
+                block.append(f"… и ещё {len(parts) - n + 1} — полный список в кабинете")
+                break
+            block.append(row)
+        text = head + "\n" + "\n".join(block) + "\n".join([""] + footer if footer else [])
+    else:
+        text = head + "\n".join([""] + footer if footer else [])
+    text = text[:TG_LIMIT]
+
+    deadline = time.monotonic() + 3.0
+    for chat_id in chat_ids:
+        left = deadline - time.monotonic()
+        if left < 0.3:
+            print(f"telegram notify skipped for chat {chat_id}: time budget exhausted")
+            continue
+        try:
+            data = json.dumps({"chat_id": chat_id, "text": text, "parse_mode": "HTML",
+                               "disable_web_page_preview": True}).encode()
+            r = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage", data=data,
+                                       headers={"Content-Type": "application/json"})
+            urllib.request.urlopen(r, timeout=left).read()
+        except Exception as ex:
+            print(f"telegram notify failed for chat {chat_id}: {type(ex).__name__}")
 
 
 def get_conn():
@@ -135,6 +196,19 @@ def handler(event: dict, context) -> dict:
             )
             row = cur.fetchone()
             conn.commit()
+
+            cur.execute(f"SELECT full_name, company, phone, email FROM {SCHEMA}.users WHERE id = %s", (user_id,))
+            u = cur.fetchone() or ("", "", "", "")
+            notify_telegram({
+                "id": row[0], "car_brand": car_brand,
+                "car_model": (body.get("car_model") or "").strip()[:64], "car_year": year,
+                "vin": (body.get("vin") or "").strip().upper()[:32],
+                "category_title": category_title,
+                "parts_text": (body.get("parts_text") or "").strip(),
+                "comment": (body.get("comment") or "").strip(),
+                "client_name": u[0] or "", "client_company": u[1] or "",
+                "client_phone": u[2] or "", "client_email": u[3] or "",
+            })
             return ok({"id": row[0], "created_at": str(row[1]),
                        "message": "Запрос отправлен — менеджер свяжется с вами"})
 
