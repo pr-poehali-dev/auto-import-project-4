@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import Icon from "@/components/ui/icon";
 import { CHINA_PARTS_CATALOGS, CHINA_PARTS_CATEGORIES, apiPartsSchemes, type Lang, type PartsCatalog } from "@/lib/site-data";
+import ArticleSearch from "@/components/site/ArticleSearch";
+import { STOCK_OPTIONS, formatPrice } from "@/lib/parts-schemes";
 import SchemesViewer from "@/components/site/SchemesViewer";
 
 interface PartsForm {
@@ -34,7 +36,7 @@ export default function ChinaParts({ lang, t, isAuthed, onLogin, onRegister, inp
   form, setForm, formOpen, saving, sent, onOpen, onClose, onSubmit, token }: ChinaPartsProps) {
   const [tab, setTab] = useState<PartsTab>("catalogs");
   const [schemeCounts, setSchemeCounts] = useState<Record<string, number>>({});
-  const [viewer, setViewer] = useState<PartsCatalog | null>(null);
+  const [viewer, setViewer] = useState<{ catalog: PartsCatalog; schemeId?: number; article?: string } | null>(null);
 
   useEffect(() => {
     if (isAuthed && token) apiPartsSchemes("GET", token).then((d) => setSchemeCounts(d.counts || {}));
@@ -117,6 +119,22 @@ export default function ChinaParts({ lang, t, isAuthed, onLogin, onRegister, inp
       {title}
       <p className="text-[hsl(222_30%_28%)] text-sm mb-6 max-w-2xl">{t("cn_parts_sub")}</p>
 
+      {Object.keys(schemeCounts).length > 0 && (
+        <ArticleSearch token={token} t={t} inputCls={inputCls}
+          onOpenScheme={(h) => {
+            const c = CHINA_PARTS_CATALOGS.find((x) => x.id === h.catalog_id);
+            if (c) setViewer({ catalog: c, schemeId: h.scheme_id, article: h.article });
+          }}
+          onRequest={(h, q) => {
+            if (!h) { onOpen("article-search", `${t("as_title")} · ${q}`, { parts_text: q }); return; }
+            const brand = CHINA_PARTS_CATALOGS.find((x) => x.id === h.catalog_id)?.brand || "";
+            const stock = STOCK_OPTIONS.find((o) => o.value === h.stock && h.stock);
+            const line = [h.pos && `поз. ${h.pos}`, h.article, h.name,
+              h.price !== null && h.price !== undefined && formatPrice(h.price), stock && t(stock.key)].filter(Boolean).join(" · ");
+            onOpen(`scheme-${h.scheme_id}`, `${brand} · ${h.scheme_title}`, { car_brand: brand, car_model: h.model, parts_text: line });
+          }} />
+      )}
+
       <div className="flex flex-wrap gap-2 mb-6">
         {tabs.map((x) => {
           const active = tab === x.key;
@@ -187,7 +205,7 @@ export default function ChinaParts({ lang, t, isAuthed, onLogin, onRegister, inp
                   </div>
                   <div className="mt-auto flex flex-col gap-2">
                     {schemeCounts[c.id] ? (
-                      <button type="button" onClick={() => setViewer(c)}
+                      <button type="button" onClick={() => setViewer({ catalog: c })}
                         className="w-full flex items-center justify-center gap-1.5 text-[11px] font-['Montserrat'] font-bold px-3 py-2.5 rounded-sm bg-[hsl(var(--gold))] text-[hsl(222_47%_8%)] hover:opacity-90 transition-opacity uppercase tracking-wide">
                         <Icon name="Images" size={13} />{t("ps_schemes_btn")}
                         <span className="px-1.5 rounded-full text-[10px] bg-black/15">{schemeCounts[c.id]}</span>
@@ -253,10 +271,12 @@ export default function ChinaParts({ lang, t, isAuthed, onLogin, onRegister, inp
       )}
 
       {viewer && (
-        <SchemesViewer catalog={viewer} token={token} t={t} onClose={() => setViewer(null)}
+        <SchemesViewer catalog={viewer.catalog} token={token} t={t} onClose={() => setViewer(null)}
+          initialSchemeId={viewer.schemeId} highlightArticle={viewer.article}
           onRequest={(sc, partsText, model) => {
+            const brand = viewer.catalog.brand;
             setViewer(null);
-            onOpen(`scheme-${sc.id}`, `${viewer.brand} · ${sc.title}`, { car_brand: viewer.brand, car_model: model, parts_text: partsText });
+            onOpen(`scheme-${sc.id}`, `${brand} · ${sc.title}`, { car_brand: brand, car_model: model, parts_text: partsText });
           }} />
       )}
 

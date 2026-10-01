@@ -9,10 +9,14 @@ interface SchemesViewerProps {
   t: (key: string) => string;
   onClose: () => void;
   onRequest: (scheme: PartsScheme, partsText: string, model: string) => void;
+  initialSchemeId?: number;
+  highlightArticle?: string;
 }
 
+const normArticle = (v: string) => v.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+
 // Окно просмотра схем марки: список узлов → схема + таблица артикулов с выбором позиций
-export default function SchemesViewer({ catalog, token, t, onClose, onRequest }: SchemesViewerProps) {
+export default function SchemesViewer({ catalog, token, t, onClose, onRequest, initialSchemeId, highlightArticle }: SchemesViewerProps) {
   const [list, setList] = useState<PartsScheme[]>([]);
   const [loading, setLoading] = useState(true);
   const [model, setModel] = useState("");
@@ -39,12 +43,26 @@ export default function SchemesViewer({ catalog, token, t, onClose, onRequest }:
   const models = useMemo(() => Array.from(new Set(list.map((s) => s.model).filter(Boolean))), [list]);
   const shown = model ? list.filter((s) => !s.model || s.model === model) : list;
 
-  const open = async (id: number) => {
-    setSchemeLoading(true); setPicked([]); setFilter(""); setInStockOnly(false);
+  const [highlight, setHighlight] = useState(highlightArticle ? normArticle(highlightArticle) : "");
+
+  const open = async (id: number, hl = "") => {
+    setSchemeLoading(true); setPicked([]); setFilter(""); setInStockOnly(false); setHighlight(hl);
     const d = await apiPartsSchemes("GET", token, { query: `id=${id}` });
-    setScheme(d.scheme || null);
+    const sc: PartsScheme | null = d.scheme || null;
+    setScheme(sc);
     setSchemeLoading(false);
+    if (sc && hl) {
+      const idx = (sc.items || []).findIndex((it) => normArticle(it.article) === hl);
+      if (idx !== -1) {
+        setPicked([idx]);
+        setTimeout(() => document.getElementById(`scheme-row-${idx}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 80);
+      }
+    }
   };
+
+  useEffect(() => {
+    if (initialSchemeId) open(initialSchemeId, highlightArticle ? normArticle(highlightArticle) : "");
+  }, [initialSchemeId]);
 
   const items = scheme?.items || [];
   const q = filter.trim().toLowerCase();
@@ -183,9 +201,10 @@ export default function SchemesViewer({ catalog, token, t, onClose, onRequest }:
                     <tbody>
                       {rows.map(({ it, i }) => {
                         const on = picked.includes(i);
+                        const hl = !!highlight && normArticle(it.article) === highlight;
                         return (
-                          <tr key={i} onClick={() => toggle(i)}
-                            className={`border-t border-[hsl(var(--gold)/0.08)] cursor-pointer transition-colors ${on ? "bg-[hsl(var(--gold)/0.14)]" : "hover:bg-[hsl(var(--gold)/0.05)]"}`}>
+                          <tr key={i} id={`scheme-row-${i}`} onClick={() => toggle(i)}
+                            className={`border-t border-[hsl(var(--gold)/0.08)] cursor-pointer transition-colors ${on ? "bg-[hsl(var(--gold)/0.14)]" : "hover:bg-[hsl(var(--gold)/0.05)]"} ${hl ? "outline outline-2 -outline-offset-2 outline-[hsl(var(--gold))]" : ""}`}>
                             <td className="px-2 py-2 text-center"><input type="checkbox" checked={on} readOnly className="accent-[hsl(var(--gold))] pointer-events-none" /></td>
                             <td className="px-2 py-2 font-bold navy">{it.pos}</td>
                             <td className="px-2 py-2 font-mono text-xs navy whitespace-nowrap">{it.article}</td>

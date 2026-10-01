@@ -268,6 +268,7 @@ export const detectTeardownMode = (items: TeardownItem[]): TeardownMode | null =
 export interface PartsRequest { id: number; origin: string; category_id: string; category_title: string; car_brand: string; car_model: string; car_year: number | null; vin: string; parts_text: string; comment: string; status: string; status_label: string; created_at: string; client_name?: string; client_email?: string; client_phone?: string; client_company?: string; }
 export type StockStatus = "" | "in_stock" | "on_order" | "out";
 export interface SchemeItem { pos: string; article: string; name: string; qty: number; note: string; price: number | null; stock: StockStatus; }
+export interface ArticleHit extends SchemeItem { scheme_id: number; catalog_id: string; model: string; scheme_title: string; image_url: string; exact: boolean; }
 export interface PartsScheme { id: number; catalog_id: string; model: string; title: string; image_url: string; sort_order: number; items_count?: number; items?: SchemeItem[]; }
 export interface HotDeal { id: number; origin: string; brand: string; model: string; year: number | null; mileage: string; engine: string; price: string; badge: string; photo: string; sort_order: number; }
 
@@ -752,6 +753,19 @@ export const I18N: Record<Lang, Record<string, string>> = {
     ps_selected_sum: "Сумма",
     ps_price_partial: "без позиций с ценой по запросу",
     ps_in_stock_only: "Только в наличии",
+    as_title: "Поиск по артикулу",
+    as_sub: "Введите номер детали — покажем, в каких узлах она есть, цену и наличие.",
+    as_ph: "Например: 4121100XKZ16A",
+    as_btn: "Найти",
+    as_min: "Введите минимум 3 символа артикула",
+    as_found: "Найдено позиций",
+    as_more: "Показаны первые 50 — уточните номер",
+    as_nothing: "Артикул не найден в загруженных схемах",
+    as_nothing_sub: "Отправьте запрос — проверим по официальному каталогу и поставщикам.",
+    as_exact: "Точное совпадение",
+    as_open: "Открыть схему",
+    as_request: "Запросить",
+    as_pos: "поз.",
     ps_save: "Сохранить схему",
     ps_saving: "Сохраняем…",
     ps_cancel: "Отмена",
@@ -1074,6 +1088,19 @@ export const I18N: Record<Lang, Record<string, string>> = {
     ps_selected_sum: "Total",
     ps_price_partial: "excluding items priced on request",
     ps_in_stock_only: "In stock only",
+    as_title: "Search by part number",
+    as_sub: "Enter a part number — we will show which assemblies contain it, its price and availability.",
+    as_ph: "E.g. 4121100XKZ16A",
+    as_btn: "Search",
+    as_min: "Enter at least 3 characters",
+    as_found: "Positions found",
+    as_more: "First 50 shown — refine the number",
+    as_nothing: "Part number not found in uploaded diagrams",
+    as_nothing_sub: "Send a request — we will check the official catalog and suppliers.",
+    as_exact: "Exact match",
+    as_open: "Open diagram",
+    as_request: "Request",
+    as_pos: "pos.",
     ps_save: "Save diagram",
     ps_saving: "Saving…",
     ps_cancel: "Cancel",

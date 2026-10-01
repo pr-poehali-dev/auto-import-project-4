@@ -3,6 +3,7 @@
 GET    /                 — количество схем по каждому каталогу (марке)
 GET    /?catalog_id=haval — список схем марки
 GET    /?id=5            — схема с таблицей артикулов
+GET    /?article=4121100 — поиск артикула во всех схемах (без учёта регистра, пробелов и дефисов)
 POST   /                 — сотрудник: создать или обновить схему вместе с артикулами
 DELETE /?id=5            — сотрудник: удалить схему
 """
@@ -115,6 +116,10 @@ def clean_items(raw):
     return items
 
 
+def normalize_article(v: str) -> str:
+    return re.sub(r"[^A-Za-z0-9]", "", str(v or "")).upper()[:64]
+
+
 def handler(event: dict, context) -> dict:
     if event.get("httpMethod") == "OPTIONS":
         return {"statusCode": 200, "headers": CORS, "body": ""}
@@ -135,6 +140,29 @@ def handler(event: dict, context) -> dict:
         is_staff = role == "staff"
 
         if method == "GET":
+            article_q = normalize_article(query.get("article") or "")
+            if article_q:
+                if len(article_q) < 3:
+                    return ok({"results": [], "query": article_q})
+                like = f"%{article_q}%"
+                cur.execute(
+                    f"SELECT i.pos, i.article, i.name, i.qty, i.note, i.price, i.stock, "
+                    f"s.id, s.catalog_id, s.model, s.title, s.image_url, "
+                    f"(UPPER(REGEXP_REPLACE(i.article, '[^A-Za-z0-9]', '', 'g')) = %s) AS exact "
+                    f"FROM {SCHEMA}.parts_scheme_items i "
+                    f"JOIN {SCHEMA}.parts_schemes s ON s.id = i.scheme_id "
+                    f"WHERE UPPER(REGEXP_REPLACE(i.article, '[^A-Za-z0-9]', '', 'g')) LIKE %s "
+                    f"ORDER BY exact DESC, s.catalog_id, s.model, s.sort_order, i.sort_order LIMIT 51",
+                    (article_q, like)
+                )
+                rows = cur.fetchall()
+                results = [{"pos": r[0], "article": r[1], "name": r[2], "qty": r[3], "note": r[4],
+                            "price": r[5], "stock": r[6] or "",
+                            "scheme_id": r[7], "catalog_id": r[8], "model": r[9],
+                            "scheme_title": r[10], "image_url": r[11], "exact": bool(r[12])}
+                           for r in rows[:50]]
+                return ok({"results": results, "query": article_q, "more": len(rows) > 50})
+
             scheme_id = query.get("id")
             if scheme_id:
                 cur.execute(

@@ -5,7 +5,9 @@
       "method": "GET",
       "path": "/",
       "expectedStatus": 401,
-      "expectedBody": {"error": "string"},
+      "expectedBody": {
+        "error": "string"
+      },
       "bodyMatcher": "partial"
     },
     {
@@ -13,6 +15,16 @@
       "method": "OPTIONS",
       "path": "/",
       "expectedStatus": 200
+    },
+    {
+      "name": "Поиск артикула без авторизации — 401",
+      "method": "GET",
+      "path": "/?article=4121100",
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
     }
   ]
 }
