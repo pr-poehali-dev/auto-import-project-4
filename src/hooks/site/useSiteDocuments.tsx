@@ -620,6 +620,38 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
     w.document.write(html);
     w.document.close();
   };
+  // Экспорт упаковочного листа контейнера в Word — такой же вид, как у PDF
+  const exportContainerDocx = async (ct: Container) => {
+    const { downloadContainerDocx } = await import("@/lib/teardown-docx");
+    const agg = new Map<string, { group: string; part: string; qty: number }>();
+    for (const c of ct.cars) {
+      for (const it of (c.teardown || [])) {
+        const sp = splitTd(it.name);
+        const q = it.qty || 1;
+        const prev = agg.get(it.name);
+        if (prev) prev.qty += q;
+        else agg.set(it.name, { group: sp.group, part: sp.part, qty: q });
+      }
+    }
+    const parts = Array.from(agg.values()).sort((a, b) => a.group.localeCompare(b.group, "ru") || a.part.localeCompare(b.part, "ru"));
+    const safe = (ct.container_number || ct.name || "container").replace(/[^\p{L}\p{N}]+/gu, "_");
+    await downloadContainerDocx({
+      logoUrl: LOGO,
+      date: new Date().toLocaleDateString("ru-RU"),
+      name: ct.name || "",
+      number: ct.container_number || "",
+      origin: ORIGIN_LABEL[lang][ct.origin] || ct.origin || "",
+      status: ct.status_label || "",
+      parts,
+      cars: ct.cars.map((c) => ({
+        title: [c.car_brand, c.car_model, c.car_year].filter(Boolean).join(" "),
+        vin: c.vin || "",
+        order: c.order_number ? String(c.order_number) : "",
+      })),
+      fileName: `Container_packing_list_${safe}.docx`,
+    });
+  };
+
   return {
     printTeardownSheet,
     exportPackingList,
@@ -632,5 +664,6 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
     toggleContainerSummary,
     exportContainerXlsx,
     exportContainerPdf,
+    exportContainerDocx,
   };
 }

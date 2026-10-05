@@ -19,7 +19,7 @@ export default function TabLogistics(s: SiteState) {
     doAddToContainer,
     doCreateContainer,
     doRemoveFromContainer,
-    exportContainerPdf,
+    exportContainerPdf, exportContainerDocx,
     exportContainerXlsx,
     exportPackingList,
     exportPackingListXlsx, exportPackingListDocx,
@@ -224,6 +224,9 @@ export default function TabLogistics(s: SiteState) {
                                       <div className="flex items-center gap-2 flex-shrink-0">
                                         <button type="button" onClick={() => exportContainerPdf(ct)} title="PDF" className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors">
                                           <Icon name="FileDown" size={14} />PDF
+                                        </button>
+                                        <button type="button" onClick={() => exportContainerDocx(ct)} title="Word" className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors">
+                                          <Icon name="FileText" size={14} />Word
                                         </button>
                                         <button type="button" onClick={() => exportContainerXlsx(ct)} title="XLSX" className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors">
                                           <Icon name="Sheet" size={14} />XLSX

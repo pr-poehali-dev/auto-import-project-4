@@ -119,7 +119,7 @@ export function useSiteState() {
     printTeardownSheet, exportPackingList, exportPackingListXlsx, exportPackingListDocx,
     exportPackingListTemplateXlsx, exportEngineDocXlsx,
     containerPartsSummary, openSummaryId, toggleContainerSummary,
-    exportContainerXlsx, exportContainerPdf,
+    exportContainerXlsx, exportContainerPdf, exportContainerDocx,
   } = useSiteDocuments({ lang, t, user, tdModeLabel, teardownCars });
 
 
@@ -282,6 +282,7 @@ export function useSiteState() {
     emptyDeal,
     expandedOrder,
     exportContainerPdf,
+    exportContainerDocx,
     exportContainerXlsx,
     exportPackingList,
     exportPackingListXlsx,
