@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { writeXlsxWithFreeze } from "@/lib/xlsx-export";
 import {
-  LOGO, COMPANY_NAME, ORIGIN_LABEL, STATUS_LABEL,
+  LOGO, ORIGIN_LABEL, STATUS_LABEL,
   splitTd, detectTeardownMode, groupTeardown,
   type User, type Car, type TeardownItem, type Lang,
 } from "@/lib/site-data";
@@ -344,7 +344,7 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
 
     const head: (string | number)[][] = [
       ["НОМЕРНЫЕ АГРЕГАТЫ · ДВС"],
-      [`${COMPANY_NAME} · Сведения о номерных агрегатах`],
+      ["Сведения о номерных агрегатах"],
       [],
       ["Дата:", dateStr, "", "Статус заявок:", STATUS_LABEL[lang].teardown],
       ["Машинокомплектов:", list.length],
@@ -428,7 +428,7 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
     ]);
     const s1: (string | number)[][] = [
       ["CONTAINER PACKING LIST"],
-      [`${COMPANY_NAME} · Упаковочный лист контейнера`],
+      ["Упаковочный лист контейнера"],
       [],
       ["Дата:", dateStr, "", "Контейнер:", ct.name || "—"],
       ["Номер контейнера:", ct.container_number || "—", "", "Направление:", ORIGIN_LABEL[lang][ct.origin] || ct.origin || "—"],
@@ -491,7 +491,7 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
     const engCars = ct.cars.filter((c) => c.status === "teardown");
     const engHead: (string | number)[][] = [
       ["НОМЕРНЫЕ АГРЕГАТЫ · ДВС"],
-      [`${COMPANY_NAME} · Сведения о номерных агрегатах`],
+      ["Сведения о номерных агрегатах"],
       [],
       ["Дата:", dateStr, "", "Контейнер:", ct.container_number || ct.name || "—"],
       ["Статус заявок:", STATUS_LABEL[lang].teardown, "", "Агрегатов:", engCars.length],
@@ -586,7 +586,7 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
       <div class="head">
         <div style="display:flex;align-items:center;gap:14px">
           <img src="${LOGO}" alt="" style="height:52px;width:auto;border-radius:4px" />
-          <div><div class="title">CONTAINER PACKING LIST</div><div class="sub">${esc(COMPANY_NAME)} · Упаковочный лист контейнера</div></div>
+          <div><div class="title">CONTAINER PACKING LIST</div><div class="sub">Упаковочный лист контейнера</div></div>
         </div>
         <div style="text-align:right"><div class="sub">Дата: ${dateStr}</div></div>
       </div>
