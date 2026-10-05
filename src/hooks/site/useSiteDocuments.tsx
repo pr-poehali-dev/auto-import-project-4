@@ -29,7 +29,7 @@ interface DocumentsDeps {
 // Печать и выгрузка документов: разборные листы, упаковочные листы,
 // номерные агрегаты и упаковочный лист контейнера.
 export function useSiteDocuments({ lang, t, user, tdModeLabel, teardownCars }: DocumentsDeps) {
-  // Печать разборного листа: группы узлов, отметки клиента, количество
+  // Печать разборного листа: сплошной список деталей, отметки клиента, количество
   const printTeardownSheet = (car: Car & { order_number?: string; client_name?: string; client_company?: string }) => {
     const esc = (v: unknown) => String(v ?? "").replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" } as Record<string, string>)[ch]);
     const items = car.teardown || [];
@@ -40,28 +40,12 @@ export function useSiteDocuments({ lang, t, user, tdModeLabel, teardownCars }: D
     const totalQty = items.reduce((sum, it) => sum + (it.qty || 1), 0);
     const neededCount = items.filter((it) => it.needed).length;
 
-    let n = 0;
-    const body = groups.map((grp) => {
-      const gQty = grp.items.reduce((sum, it) => sum + (it.qty || 1), 0);
-      const gNeeded = grp.items.filter((it) => it.needed).length;
-      const rows = grp.items.map((it) => {
-        n += 1;
-        return `<tr class="${it.needed ? "on" : ""}">
-          <td class="c num">${n}</td>
+    const body = `<tbody>${groups.flatMap((grp) => grp.items).map((it, i) => `<tr class="${it.needed ? "on" : ""}">
+          <td class="c num">${i + 1}</td>
           <td class="part">${esc(it.part)}</td>
           <td class="c qty">${it.qty || 1}</td>
           <td class="c mark">${it.needed ? '<span class="tick">✓</span>' : '<span class="box"></span>'}</td>
-        </tr>`;
-      }).join("");
-      return `<tbody class="grp">
-        <tr class="ghead">
-          <td colspan="2"><span class="gname">${esc(grp.group)}</span></td>
-          <td class="c gqty">${gQty}</td>
-          <td class="c gcnt">${gNeeded}/${grp.items.length}</td>
-        </tr>
-        ${rows}
-      </tbody>`;
-    }).join("");
+        </tr>`).join("")}</tbody>`;
 
     const meta = [
       [t("td_print_car"), carTitle || "—"],
@@ -98,9 +82,6 @@ export function useSiteDocuments({ lang, t, user, tdModeLabel, teardownCars }: D
   .num{color:#9aa1b0;font-size:11px;width:34px}
   .qty{width:62px;font-weight:700}
   .mark{width:92px}
-  .ghead td{background:#eef0f5;border-top:2px solid #141a2e;border-bottom:1px solid #d7dbe4;padding:7px 9px}
-  .gname{font-weight:800;text-transform:uppercase;letter-spacing:.5px;font-size:11.5px}
-  .gqty,.gcnt{font-size:11px;color:#4b5565;font-weight:700}
   tr.on .part{font-weight:700}
   tr.on td{background:#fffaf0}
   .tick{display:inline-block;width:17px;height:17px;line-height:16px;border-radius:3px;background:#141a2e;color:#f0b542;font-weight:800;font-size:12px}
@@ -111,7 +92,7 @@ export function useSiteDocuments({ lang, t, user, tdModeLabel, teardownCars }: D
   .line{margin-top:26px;border-top:1px solid #9aa1b0;padding-top:5px}
   .empty{padding:26px;text-align:center;color:#6b7280}
   @page{margin:12mm}
-  @media print{body{padding:0}.grp{break-inside:auto}tr{break-inside:avoid}.ghead{break-after:avoid}}
+  @media print{body{padding:0}tr{break-inside:avoid}}
 </style></head><body>
 <div class="head">
   <div class="brand">
