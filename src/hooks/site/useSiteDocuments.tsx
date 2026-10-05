@@ -178,7 +178,6 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
       idx += 1;
       return `<tr>
         <td class="c">${idx}</td>
-        <td>${esc(sp.group)}</td>
         <td>${esc(sp.part)}</td>
         <td class="c">${q}</td>
         <td class="c">${it.needed ? "✓" : ""}</td>
@@ -219,9 +218,9 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
         <div><b>Тип разбора:</b> ${esc(tdMode ? tdModeLabel(tdMode) : "—")}</div>
       </div>
       <table>
-        <thead><tr><th class="c">№</th><th>Группа</th><th>Наименование детали</th><th class="c">Кол-во</th><th class="c">Нужно клиенту</th></tr></thead>
-        <tbody>${rows || `<tr><td colspan="5" class="c">Список пуст</td></tr>`}</tbody>
-        <tfoot><tr><td colspan="3" style="text-align:right">ИТОГО позиций / штук:</td><td class="c">${items.length} / ${totalQty}</td><td></td></tr></tfoot>
+        <thead><tr><th class="c">№</th><th>Наименование детали</th><th class="c">Кол-во</th><th class="c">Нужно клиенту</th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="4" class="c">Список пуст</td></tr>`}</tbody>
+        <tfoot><tr><td colspan="2" style="text-align:right">ИТОГО позиций / штук:</td><td class="c">${items.length} / ${totalQty}</td><td></td></tr></tfoot>
       </table>
       <div class="foot"><div>Подпись отправителя: __________________</div><div>Подпись получателя: __________________</div></div>
       <script>window.onload = function(){ setTimeout(function(){ window.print(); }, 300); };</script>
