@@ -99,7 +99,6 @@ export function useSiteDocuments({ lang, t, user, tdModeLabel, teardownCars }: D
     <img src="${LOGO}" alt="" />
     <div>
       <div class="title">${esc(t("td_print_title"))}</div>
-      <div class="sub">${esc(COMPANY_NAME)}</div>
     </div>
   </div>
   <div class="stamp">
@@ -187,7 +186,7 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
       <div class="head">
         <div style="display:flex;align-items:center;gap:14px">
           <img src="${LOGO}" alt="" style="height:52px;width:auto;border-radius:4px" />
-          <div><div class="title">PACKING LIST</div><div class="sub">${esc(COMPANY_NAME)} · Упаковочный / разборный лист</div></div>
+          <div><div class="title">PACKING LIST</div><div class="sub">Упаковочный / разборный лист</div></div>
         </div>
         <div style="text-align:right"><div class="sub">Дата: ${dateStr}</div><div class="sub">№ ${esc(car.order_number ? String(car.order_number) : String(car.id))}</div></div>
       </div>
@@ -214,6 +213,27 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
     w.document.close();
   };
 
+  // Экспорт разборного листа в Word — такой же вид, как у PDF
+  const exportPackingListDocx = async (car: Car) => {
+    const { downloadTeardownDocx } = await import("@/lib/teardown-docx");
+    const items = car.teardown || [];
+    const tdMode = detectTeardownMode(items);
+    const carTitle = [car.car_brand, car.car_model, car.car_year].filter(Boolean).join(" ");
+    const safe = (carTitle || "car").replace(/[^\p{L}\p{N}]+/gu, "_");
+    await downloadTeardownDocx({
+      logoUrl: LOGO,
+      number: car.order_number ? String(car.order_number) : String(car.id),
+      date: new Date().toLocaleDateString("ru-RU"),
+      carTitle,
+      vin: car.vin || "",
+      year: car.car_year ? String(car.car_year) : "",
+      mileage: car.mileage ? `${car.mileage.toLocaleString("ru-RU")} км` : "",
+      mode: tdMode ? tdModeLabel(tdMode) : "",
+      rows: items.map((it) => ({ part: splitTd(it.name).part, qty: it.qty || 1, needed: !!it.needed })),
+      fileName: `Packing_list_${safe}${car.vin ? "_" + car.vin : ""}.docx`,
+    });
+  };
+
   // Экспорт разборного листа в XLSX
   const exportPackingListXlsx = async (car: Car) => {
     const XLSX = await import("xlsx");
@@ -224,7 +244,7 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
 
     const head: (string | number)[][] = [
       ["PACKING LIST", "", "", "", ""],
-      [COMPANY_NAME + " · Упаковочный / разборный лист", "", "", "", ""],
+      ["Упаковочный / разборный лист", "", "", "", ""],
       ["", "", "", "", ""],
       ["Дата:", dateStr, "", "Заявка №:", car.order_number ? String(car.order_number) : String(car.id)],
       ["Автомобиль:", carTitle || "—", "", "VIN:", car.vin || "—"],
@@ -604,6 +624,7 @@ ${items.length === 0 ? `<div class="empty">${esc(t("td_print_empty"))}</div>` : 
     printTeardownSheet,
     exportPackingList,
     exportPackingListXlsx,
+    exportPackingListDocx,
     exportPackingListTemplateXlsx,
     exportEngineDocXlsx,
     containerPartsSummary,

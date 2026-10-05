@@ -116,7 +116,7 @@ export function useSiteState() {
 
   // ── Печать и выгрузка документов ──
   const {
-    printTeardownSheet, exportPackingList, exportPackingListXlsx,
+    printTeardownSheet, exportPackingList, exportPackingListXlsx, exportPackingListDocx,
     exportPackingListTemplateXlsx, exportEngineDocXlsx,
     containerPartsSummary, openSummaryId, toggleContainerSummary,
     exportContainerXlsx, exportContainerPdf,
@@ -285,6 +285,7 @@ export function useSiteState() {
     exportContainerXlsx,
     exportPackingList,
     exportPackingListXlsx,
+    exportPackingListDocx,
     exportPackingListTemplateXlsx,
     exportEngineDocXlsx,
     containerPartsSummary,

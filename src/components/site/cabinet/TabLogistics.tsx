@@ -22,7 +22,7 @@ export default function TabLogistics(s: SiteState) {
     exportContainerPdf,
     exportContainerXlsx,
     exportPackingList,
-    exportPackingListXlsx,
+    exportPackingListXlsx, exportPackingListDocx,
     inputCls,
     editCarId,
     editCarForm,
@@ -456,6 +456,9 @@ export default function TabLogistics(s: SiteState) {
                                     </button>
                                     <button type="button" onClick={() => exportPackingListXlsx(c)} className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors">
                                       <Icon name="Sheet" size={13} />XLSX
+                                    </button>
+                                    <button type="button" onClick={() => exportPackingListDocx(c)} className="flex items-center gap-1 text-[11px] font-['Montserrat'] font-bold text-[hsl(var(--navy))] hover:text-[hsl(var(--gold))] transition-colors">
+                                      <Icon name="FileText" size={13} />Word
                                     </button>
                                   </div>
                                 </div>
